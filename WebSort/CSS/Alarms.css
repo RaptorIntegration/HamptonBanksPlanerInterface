@@ -1,0 +1,109 @@
+﻿#vue {
+    outline: none;
+}
+
+.above-table {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.selection-container {
+    max-height: 200px;
+    width: 300px;
+    position: absolute;
+    margin-left: 5px;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+    .selection-container::-webkit-scrollbar {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+
+    .selection-container::-webkit-scrollbar-track {
+        background: #1e1e24;
+    }
+
+    .selection-container::-webkit-scrollbar-thumb {
+        background: var(--raptor-light);
+    }
+
+.selection-list {
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+}
+
+    .selection-list:hover {
+        background-color: var(--bg-secondary);
+    }
+
+.check {
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: 0;
+}
+
+    .check:after {
+        font-weight: bold;
+        content: "\2610";
+        color: #455a64;
+        display: block;
+        font-size: 16px;
+    }
+
+    .check:checked:after {
+        content: "\2714";
+        color: var(--success);
+        font-size: 16px;
+    }
+
+.general-grid {
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr))
+}
+.display-grid {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: 550px auto;
+}
+
+svg {
+    height: 35px;
+    width: auto;
+}
+
+.pagination a {
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.pagination {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.page-item {
+    padding: 0 0.5rem;
+}
+    .page-item.ellipsis:before {
+        content: "\2026";
+    }
+.round {
+    border-radius: 1rem;
+}
+.active a {
+    background-color: var(--info-500);
+}

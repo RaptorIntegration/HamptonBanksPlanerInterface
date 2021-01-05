@@ -1,0 +1,82 @@
+﻿.card-list {
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+}
+
+.card {
+    height: 350px;
+    min-width: 500px;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--bg-secondary);
+    box-shadow: -1rem 0 3rem var(--shadow);
+    display: flex;
+    flex-direction: column;
+    transition: .1s;
+    margin: 0;
+    scroll-snap-align: start;
+    clear: both;
+    position: relative;
+    overflow-y: auto;
+}
+
+    .card::-webkit-scrollbar {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+
+    .card::-webkit-scrollbar-track {
+        background: #1e1e24;
+    }
+
+    .card::-webkit-scrollbar-thumb {
+        background: var(--raptor-light);
+    }
+
+    .card:focus-within ~ .card, .card:hover ~ .card {
+        transform: translateY(300px);
+    }
+
+.card {
+    margin-bottom: -300px;
+}
+
+.card-header {
+    margin-bottom: auto;
+    background-color: var(--bg-secondary);
+    text-align: center;
+}
+
+    .card-header p {
+        font-size: 14px;
+        margin: 0 0 1rem;
+        color: var(--text-primary);
+    }
+
+    .card-header h2 {
+        font-size: 1.25rem;
+        margin: .25rem 0 auto;
+        text-decoration: none;
+        color: var(--text-primary);
+        border: 0;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+        .card-header h2:hover {
+            background: linear-gradient(90deg,#ff8a00,#e52e71);
+            text-shadow: none;
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+.stack-trace {
+    font-size: 0.9rem;
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-rows: auto;
+    margin-top: 2rem;
+    word-break: break-word;
+}

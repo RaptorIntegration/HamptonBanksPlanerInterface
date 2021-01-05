@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<siteMap>
+    <siteMapNode title="Home" url="~/websort.aspx" >
+  	<siteMapNode title="Sorts" url="~/Sorts.aspx"/>
+	  <siteMapNode title="Boards" url="~/Boards.aspx"/>
+	  <siteMapNode title="Products" url="~/products.aspx"/>
+	  <siteMapNode title="Reports" url="~/Reports.aspx"/>
+	  <siteMapNode title="Network Setup" url="~/NetworkSetup.aspx"/>
+	  <siteMapNode title="PLC Data" url="~/PLCData.aspx"/>
+	  <siteMapNode title="Alarms" url="~/alarms.aspx"/>
+    <siteMapNode title="Saw Mileage" url="~/sawmileage.aspx"/>
+    <siteMapNode title="Grader Board Test" url="~/graderboardtest.aspx"/>
+    <siteMapNode title="MSR Board Samples" url="~/msrboardtests.aspx"/>
+    <siteMapNode title="Targets" url="~/targets.aspx"/>
+    <siteMapNode title="Drives" url="~/drives.aspx"/>
+    <siteMapNode title="Advanced Settings" url="~/advancedsettings.aspx"/>
+    <siteMapNode title="Timing and Parameters" url="~/timing.aspx"/>
+    <siteMapNode title="Diagnostic Tests" url="~/devicediagnostics.aspx"/>
+    <siteMapNode title="Diagnostic Modes" url="~/devicemodes.aspx"/>
+	  <siteMapNode title="Shift Setup" url="~/shiftsetup.aspx"/>
+    <siteMapNode title="Security" url="~/security.aspx"/>
+    <siteMapNode title="Login" url="~/login.aspx"/>
+      
+	  <siteMapNode title="Piche" url="~/Piche.aspx">
+		  <siteMapNode title="High Speed Trimmer" url="~/Pichetrimmer.aspx"/>
+	    </siteMapNode>
+    </siteMapNode>
+
+    
+</siteMap>
+

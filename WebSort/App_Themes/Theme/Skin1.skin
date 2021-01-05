@@ -1,0 +1,54 @@
+﻿<%--
+Default skin template. The following skins are provided as examples only.
+
+1. Named control skin. The SkinId should be uniquely defined because
+   duplicate SkinId's per control type are not allowed in the same theme.
+
+<asp:GridView runat="server" SkinId="gridviewSkin" BackColor="White" >
+   <AlternatingRowStyle BackColor="Blue" />
+</asp:GridView>
+
+2. Default skin. The SkinId is not defined. Only one default 
+   control skin per control type is allowed in the same theme.
+
+<asp:Image runat="server" ImageUrl="~/images/image1.jpg" />
+--%>
+
+
+
+
+
+<asp:GridView runat="server" SkinId="gridviewSkin"
+    AllowSorting="True" 
+    AutoGenerateColumns="False" BorderColor="Black" BorderStyle="Solid" 
+    BorderWidth="2px" CaptionAlign="Top" CellPadding="4" 
+    CellSpacing="2" 
+    EmptyDataText="There are no data records to display." Font-Bold="True" 
+    Font-Size="Small" ForeColor="#333333" 
+    Width="1300px"  >
+    <RowStyle BackColor="White" ForeColor="#333333" />
+    
+    <FooterStyle BackColor="#990000" Font-Bold="True" ForeColor="White" />
+    <PagerStyle BackColor="#FFCC66" ForeColor="#333333" HorizontalAlign="Center" />
+    <SelectedRowStyle BackColor="#FFCC66" Font-Bold="True" ForeColor="Navy" />
+    <HeaderStyle BackColor="#1B3665" Font-Bold="True" ForeColor="White" Wrap="false"/>
+    <EditRowStyle Wrap="False" />
+    <AlternatingRowStyle BackColor="#F7F7F7" />
+</asp:GridView>
+<asp:GridView runat="server" SkinId="gridviewSkinB"
+    AllowSorting="True" 
+    AutoGenerateColumns="False" BorderColor="Black" BorderStyle="Solid" 
+    BorderWidth="2px" CaptionAlign="Top" CellPadding="4" 
+    CellSpacing="2" 
+    EmptyDataText="There are no data records to display." Font-Bold="True" 
+    Font-Size="Small" ForeColor="#333333" 
+    Width="1300px"  >
+    <RowStyle BackColor="#FFFBD6" ForeColor="#FFFFFF" />
+    
+    <FooterStyle BackColor="#990000" Font-Bold="True" ForeColor="White" />
+    <PagerStyle BackColor="#FFCC66" ForeColor="#333333" HorizontalAlign="Center" />
+    <SelectedRowStyle BackColor="#FFCC66" Font-Bold="True" ForeColor="Navy" />
+    <HeaderStyle BackColor="#990000" Font-Bold="True" ForeColor="White" Wrap="false"/>
+    <EditRowStyle Wrap="False" />
+    
+</asp:GridView>

@@ -1,0 +1,9 @@
+<license>
+    <licenseId>40186120782</licenseId>
+    <licensee></licensee>
+    <allow>
+        <add type="EO.Web" version="17" />
+    </allow>
+    <orderInfo date="7/7/2017" subExpiresAt="7/7/2018" version="17" />
+    <signature>XZCaAmFztuTA+6zeRkaoBg==</signature>
+</license>

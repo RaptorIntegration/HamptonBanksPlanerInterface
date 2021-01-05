@@ -1,0 +1,589 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <LangVersion>preview</LangVersion>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6BCCC52E-E6AE-4382-97EF-D9E356A3C5C9}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WebSort</RootNamespace>
+    <AssemblyName>WebSort</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44389</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AjaxControlToolkit">
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\AjaxControlToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="AsyncEnumerable, Version=3.1.0.0, Culture=neutral, PublicKeyToken=0426b068161bd1d1, processorArchitecture=MSIL">
+      <HintPath>..\packages\AsyncEnumerator.3.1.0\lib\net45\AsyncEnumerable.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.Shared, Version=10.5.3700.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>..\..\RSGMolallaInterface\WEBCore\RaptorWebCore\bin\CrystalDecisions.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.Web, Version=10.5.3700.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>..\..\RSGMolallaInterface\WEBCore\RaptorWebCore\bin\CrystalDecisions.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="DeployLX.Licensing.v5, Version=5.0.2000.0, Culture=neutral, PublicKeyToken=798276055709c98a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\INGEAR.NET\v6.0\NET.LOGIX\License\DeployLX.Licensing.v5.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v10.2, Version=10.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Web.v10.2, Version=10.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\DevExpress.Web.v10.2.dll</HintPath>
+    </Reference>
+    <Reference Include="EO.Base">
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\EO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="EO.Web">
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\EO.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="EO.Web.Design">
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\EO.Web.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="eWorld.UI">
+      <HintPath>..\..\NorthForkLumberInterface\WEBSort\RaptorWebSort\bin\eWorld.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="INGEAR.NET.Interfaces, Version=3.0.2010.714, Culture=neutral, PublicKeyToken=ab5727b8d3226c58, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\INGEAR.NET\v6.0\NET.LOGIX\License\INGEAR.NET.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="INGEAR.NET.Logix, Version=3.0.2010.716, Culture=neutral, PublicKeyToken=3b3c756163ed13b4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\INGEAR.NET\v6.0\NET.LOGIX\INGEAR.NET.Logix.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Mighty, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mighty.4.0.0-alpha-1\lib\net45\Mighty.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.Web.4.9.2\lib\net35\NLog.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.0\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Themes\BlackGlass\Web\Loading.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\mItemBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\mItemBackH.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\mItemBackLevel0.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\mItemBackS.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\mVerticalItemBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\nbItemBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\nbItemBackH.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\pcItemFooter.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\pcItemHeader.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\pcModalBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\pcTabBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\pcTabBackH.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rcMapImage.png" />
+    <Content Include="App_Themes\BlackGlass\Web\rpContentBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rpContentBottomEdge.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rpContentLeftEdge.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rpContentRightEdge.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rpHeaderBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\rpHeaderLeftEdge.png" />
+    <Content Include="App_Themes\BlackGlass\Web\rpHeaderRightEdge.png" />
+    <Content Include="App_Themes\BlackGlass\Web\rpTopEdge.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\splHSeparatorBackground.png" />
+    <Content Include="App_Themes\BlackGlass\Web\splHSeparatorBackgroundHover.png" />
+    <Content Include="App_Themes\BlackGlass\Web\splResizingPointer.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\splVSeparatorBackground.png" />
+    <Content Include="App_Themes\BlackGlass\Web\splVSeparatorBackgroundHover.png" />
+    <Content Include="App_Themes\BlackGlass\Web\sprite.css" />
+    <Content Include="App_Themes\BlackGlass\Web\sprite.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\sprite.png" />
+    <Content Include="App_Themes\BlackGlass\Web\styles.css" />
+    <Content Include="App_Themes\BlackGlass\Web\tcTabBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\tcTabBackH.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\tiItemBack.gif" />
+    <Content Include="App_Themes\BlackGlass\Web\ucProgressIndicatorBack.gif" />
+    <Content Include="Audits.aspx" />
+    <Content Include="CSS\Alarms.css" />
+    <Content Include="CSS\Base.css" />
+    <Content Include="CSS\Boards.css" />
+    <Content Include="CSS\bootstrap-grid.min.css" />
+    <Content Include="CSS\ErrorLogs.css" />
+    <Content Include="CSS\Products.css" />
+    <Content Include="CSS\Sorts.css" />
+    <Content Include="CSS\WebSort.css" />
+    <Content Include="favicon-16x16.png" />
+    <Content Include="favicon-32x32.png" />
+    <Content Include="favicon.ico" />
+    <Content Include="favicon.png" />
+    <Content Include="AdvancedSettings.aspx" />
+    <Content Include="Alarms.aspx" />
+    <Content Include="Boards.aspx" />
+    <Content Include="DeviceDiagnostics.aspx" />
+    <Content Include="Devicemodes.aspx" />
+    <Content Include="DeviceTroubleshooting.aspx" />
+    <Content Include="Drives.aspx" />
+    <Content Include="error.aspx" />
+    <Content Include="GeneralSetup.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="GraderBoardTest.aspx" />
+    <Content Include="images\logo-img.svg" />
+    <Content Include="images\toolbar\calendar.gif" />
+    <Content Include="images\toolbar\crlogo.gif" />
+    <Content Include="images\toolbar\export.gif" />
+    <Content Include="images\toolbar\exportd.gif" />
+    <Content Include="images\toolbar\export_over.gif" />
+    <Content Include="images\toolbar\First.gif" />
+    <Content Include="images\toolbar\Firstd.gif" />
+    <Content Include="images\toolbar\first_over.gif" />
+    <Content Include="images\toolbar\gotopage.gif" />
+    <Content Include="images\toolbar\gotopaged.gif" />
+    <Content Include="images\toolbar\gotopage_over.gif" />
+    <Content Include="images\toolbar\grouptree.gif" />
+    <Content Include="images\toolbar\grouptreed.gif" />
+    <Content Include="images\toolbar\grouptreepressed.gif" />
+    <Content Include="images\toolbar\grouptree_over.gif" />
+    <Content Include="images\toolbar\Last.gif" />
+    <Content Include="images\toolbar\Lastd.gif" />
+    <Content Include="images\toolbar\last_over.gif" />
+    <Content Include="images\toolbar\Next.gif" />
+    <Content Include="images\toolbar\Nextd.gif" />
+    <Content Include="images\toolbar\next_over.gif" />
+    <Content Include="images\toolbar\Prev.gif" />
+    <Content Include="images\toolbar\Prevd.gif" />
+    <Content Include="images\toolbar\prev_over.gif" />
+    <Content Include="images\toolbar\print.gif" />
+    <Content Include="images\toolbar\printd.gif" />
+    <Content Include="images\toolbar\print_over.gif" />
+    <Content Include="images\toolbar\Refresh.gif" />
+    <Content Include="images\toolbar\refreshd.gif" />
+    <Content Include="images\toolbar\refresh_over.gif" />
+    <Content Include="images\toolbar\Search.gif" />
+    <Content Include="images\toolbar\searchd.gif" />
+    <Content Include="images\toolbar\search_over.gif" />
+    <Content Include="images\toolbar\up.gif" />
+    <Content Include="images\toolbar\upd.gif" />
+    <Content Include="images\toolbar\up_over.gif" />
+    <Content Include="Login.aspx" />
+    <Content Include="NetworkSetup.aspx" />
+    <Content Include="PLCData.aspx" />
+    <Content Include="Products.aspx" />
+    <Content Include="Reports.aspx" />
+    <Content Include="SawMileage.aspx" />
+    <Content Include="Scripts\Alarms.js" />
+    <Content Include="Scripts\Base.js" />
+    <Content Include="Scripts\Boards.js" />
+    <Content Include="Scripts\Chart.js\Chart.min.css" />
+    <Content Include="Scripts\Chart.js\Chart.min.js" />
+    <Content Include="Scripts\chartjs-plugin-annotation\chartjs-plugin-annotation.js" />
+    <Content Include="Scripts\chartjs-plugin-annotation\chartjs-plugin-annotation.min.js" />
+    <Content Include="Scripts\Products.js" />
+    <Content Include="Scripts\WebSort.js" />
+    <Content Include="Security.aspx" />
+    <Content Include="ShiftSetup.aspx" />
+    <Content Include="Sorts.aspx" />
+    <Content Include="Scripts\axios\axios.min.js" />
+    <Content Include="Scripts\Sorts.js" />
+    <Content Include="Scripts\vue\vue.js" />
+    <Content Include="Scripts\vue\vue.min.js" />
+    <Content Include="Targets.aspx" />
+    <Content Include="Timing.aspx" />
+    <Content Include="Web.config" />
+    <Content Include="ErrorLogs.aspx" />
+    <Content Include="WebSort.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvancedSettings.aspx.cs">
+      <DependentUpon>AdvancedSettings.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdvancedSettings.aspx.designer.cs">
+      <DependentUpon>AdvancedSettings.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Alarms.aspx.cs">
+      <DependentUpon>Alarms.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Alarms.aspx.designer.cs">
+      <DependentUpon>Alarms.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Audits.aspx.cs">
+      <DependentUpon>Audits.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Audits.aspx.designer.cs">
+      <DependentUpon>Audits.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BasePage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Boards.aspx.cs">
+      <DependentUpon>Boards.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Boards.aspx.designer.cs">
+      <DependentUpon>Boards.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeviceDiagnostics.aspx.cs">
+      <DependentUpon>DeviceDiagnostics.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeviceDiagnostics.aspx.designer.cs">
+      <DependentUpon>DeviceDiagnostics.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Devicemodes.aspx.cs">
+      <DependentUpon>Devicemodes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Devicemodes.aspx.designer.cs">
+      <DependentUpon>Devicemodes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DeviceTroubleshooting.aspx.cs">
+      <DependentUpon>DeviceTroubleshooting.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DeviceTroubleshooting.aspx.designer.cs">
+      <DependentUpon>DeviceTroubleshooting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Drives.aspx.cs">
+      <DependentUpon>Drives.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Drives.aspx.designer.cs">
+      <DependentUpon>Drives.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="error.aspx.cs">
+      <DependentUpon>error.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="error.aspx.designer.cs">
+      <DependentUpon>error.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralSetup.aspx.cs">
+      <DependentUpon>GeneralSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralSetup.aspx.designer.cs">
+      <DependentUpon>GeneralSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="GraderBoardTest.aspx.cs">
+      <DependentUpon>GraderBoardTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GraderBoardTest.aspx.designer.cs">
+      <DependentUpon>GraderBoardTest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AlarmDefault.cs" />
+    <Compile Include="Model\AlarmGeneralSetting.cs" />
+    <Compile Include="Model\AlarmSetting.cs" />
+    <Compile Include="Model\Audit.cs" />
+    <Compile Include="Model\Bin.cs" />
+    <Compile Include="Model\Board.cs" />
+    <Compile Include="Model\BoardChart.cs" />
+    <Compile Include="Model\BoardRejects.cs" />
+    <Compile Include="Model\Alarm.cs" />
+    <Compile Include="Model\Edit.cs" />
+    <Compile Include="Model\ErrorLog.cs" />
+    <Compile Include="Model\Grade.cs" />
+    <Compile Include="Model\GradeMatrix.cs" />
+    <Compile Include="Model\Length.cs" />
+    <Compile Include="Model\PETLength.cs" />
+    <Compile Include="Model\ProdStats.cs" />
+    <Compile Include="Model\Product.cs" />
+    <Compile Include="Model\ProductLengths.cs" />
+    <Compile Include="Model\Recipe.cs" />
+    <Compile Include="Model\SaveResponse.cs" />
+    <Compile Include="Model\Sort.cs" />
+    <Compile Include="Model\Thickness.cs" />
+    <Compile Include="Model\User.cs" />
+    <Compile Include="Model\Width.cs" />
+    <Compile Include="NetworkSetup.aspx.cs">
+      <DependentUpon>NetworkSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="NetworkSetup.aspx.designer.cs">
+      <DependentUpon>NetworkSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="PLCData.aspx.cs">
+      <DependentUpon>PLCData.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PLCData.aspx.designer.cs">
+      <DependentUpon>PLCData.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Products.aspx.cs">
+      <DependentUpon>Products.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Products.aspx.designer.cs">
+      <DependentUpon>Products.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Raptor.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports.aspx.cs">
+      <DependentUpon>Reports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports.aspx.designer.cs">
+      <DependentUpon>Reports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SawMileage.aspx.cs">
+      <DependentUpon>SawMileage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SawMileage.aspx.designer.cs">
+      <DependentUpon>SawMileage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Security.aspx.cs">
+      <DependentUpon>Security.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Security.aspx.designer.cs">
+      <DependentUpon>Security.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ShiftSetup.aspx.cs">
+      <DependentUpon>ShiftSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ShiftSetup.aspx.designer.cs">
+      <DependentUpon>ShiftSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Sorts.aspx.cs">
+      <DependentUpon>Sorts.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Sorts.aspx.designer.cs">
+      <DependentUpon>Sorts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Targets.aspx.cs">
+      <DependentUpon>Targets.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Targets.aspx.designer.cs">
+      <DependentUpon>Targets.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Timing.aspx.cs">
+      <DependentUpon>Timing.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Timing.aspx.designer.cs">
+      <DependentUpon>Timing.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ErrorLogs.aspx.cs">
+      <DependentUpon>ErrorLogs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ErrorLogs.aspx.designer.cs">
+      <DependentUpon>ErrorLogs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebSort.aspx.cs">
+      <DependentUpon>WebSort.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebSort.aspx.designer.cs">
+      <DependentUpon>WebSort.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WebSort.Master.cs">
+      <DependentUpon>WebSort.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebSort.Master.designer.cs">
+      <DependentUpon>WebSort.Master</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="libman.json" />
+    <Content Include="App_Themes\Theme\ASPxPageControl.skin" />
+    <Content Include="App_Themes\Theme\ASPxTabControl.skin" />
+    <Content Include="App_Themes\Theme\Skin1.skin" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CSS\Fonts\biondi-webfont.woff" />
+    <Content Include="CSS\Fonts\biondi-webfont.woff2" />
+    <Content Include="CSS\Fonts\Roboto-Bold.ttf" />
+    <Content Include="CSS\Fonts\Roboto-Medium.ttf" />
+    <Content Include="CSS\Fonts\Roboto-Regular.ttf" />
+    <Content Include=".editorconfig" />
+    <Content Include="App_Themes\BlackGlass\ASPxCallbackPanel.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxCloudControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxDataView.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxHeadline.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxLoadingPanel.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxMenu.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxNavBar.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxNewsControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxPageControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxPager.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxPopupControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxPopupMenu.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxRatingControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxRoundPanel.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxSiteMapControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxSplitter.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxTabControl.skin" />
+    <Content Include="App_Themes\BlackGlass\ASPxTitleIndex.skin" />
+    <Content Include="App_Data\Reports\Active Recipe.rpt" />
+    <Content Include="App_Data\Reports\Alarms.rpt" />
+    <Content Include="App_Data\Reports\Bay Listing.rpt" />
+    <Content Include="App_Data\Reports\Diverter Failure Summary.rpt" />
+    <Content Include="App_Data\Reports\Downtime Detail.rpt" />
+    <Content Include="App_Data\Reports\Downtime Summary.rpt" />
+    <Content Include="App_Data\Reports\event.log" />
+    <Content Include="App_Data\Reports\Package Detail.rpt" />
+    <Content Include="App_Data\Reports\Package Summary.rpt" />
+    <Content Include="App_Data\Reports\Product Listing.rpt" />
+    <Content Include="App_Data\Reports\Production Detail.rpt" />
+    <Content Include="App_Data\Reports\Production Summary No Pith.rpt" />
+    <Content Include="App_Data\Reports\Production Summary Pith.rpt" />
+    <Content Include="App_Data\Reports\Production Summary with Moisture.rpt" />
+    <Content Include="App_Data\Reports\Production Summary.rpt" />
+    <Content Include="App_Data\Reports\recipe.rpt" />
+    <Content Include="App_Data\Reports\Target Summary.rpt" />
+    <Content Include="App_Data\Reports\template_landscape.rpt" />
+    <Content Include="App_Data\Reports\template_portrait.rpt" />
+    <Content Include="App_Data\Reports\Trim Loss Detail.rpt" />
+    <Content Include="App_Data\Reports\Trim Loss Summary.rpt" />
+    <Content Include="App_Data\Reports\Unsorted Boards.rpt" />
+    <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\local.pubxml" />
+    <None Include="Properties\PublishProfiles\Release.pubxml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <Content Include="Web.sitemap" />
+    <Content Include="WebSort.Master" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="images\BoardsSimulated\" />
+    <Folder Include="images\Boards\" />
+    <Folder Include="images\Products\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>55196</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44389/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets'))" />
+  </Target>
+  <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

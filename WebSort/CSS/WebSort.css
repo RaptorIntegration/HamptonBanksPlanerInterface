@@ -1,0 +1,213 @@
+﻿.colour-row {
+    display: grid;
+    grid-gap: 1rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+}
+#vue-wrapper{
+    outline:none;
+}
+#vue-content{
+    outline:none;
+}
+
+.colour-box {
+    width: 100%;
+    padding: 0.2rem 0.2rem;
+    margin: 0.25rem;
+}
+#ContainerLabel {
+    color: var(--text-primary)
+}
+
+#ContainerLabel span {
+    font-size: 14px;
+    flex: 1;
+    line-height: 20px;
+}
+
+#ContainerLabel > div {
+    padding: 10px 5px;
+}
+
+#ContainerLabel div div {
+    width: 1.5rem;
+    height: 1.25rem;
+    border-radius: 10px;
+    margin: 0px 5px;
+}
+.chart {
+    padding: 0.5rem 0px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.check {
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: 0;
+}
+
+    .check:after {
+        font-weight: bold;
+        content: "\2610";
+        color: #455a64;
+        display: block;
+        font-size: 16px;
+    }
+
+    .check:checked:after {
+        content: "\2714";
+        color: #388e3c;
+        font-size: 16px;
+    }
+
+.checkboxlist label {
+    cursor: pointer;
+}
+
+.checkboxlist input {
+    width: 15px !important;
+}
+
+.checkboxlist {
+    text-align: left !important;
+    padding: 0.25rem !important;
+    font-size: 0.75rem;
+}
+.product-grid {
+    display: grid;
+    grid-gap: 0.25rem 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+    .product-grid .checkboxlist:hover {
+        background-color: var(--accent);
+    }
+.save-btn {
+    background-color: var(--success);
+    border: none;
+    color: white;
+    padding: 5px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+.btn-arrow {
+    padding: 0.5rem;
+    flex: 1 1 20%;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+    font-size: 2rem;
+}
+.btn-clear {
+    padding: 0.5rem;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+}
+.editing-label {
+    flex: 1 1 30%;
+}
+.editing-value {
+    flex: 1 1 20%;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.save-msg {
+    color: #388e3c;
+    font-size: 16px;
+}
+.selection-container {
+    max-height: 200px;
+    position: relative;
+    z-index: 1;
+    overflow-y: auto;
+}
+
+.selection-list {
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+}
+
+    .selection-list:hover {
+        background-color: var(--bg-secondary);
+    }
+.no-hover:hover {
+    background-color: var(--bg-primary) !important;
+}
+
+.no-hover {
+    background-color: var(--bg-primary) !important;
+}
+
+.sorts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: row;
+}
+.sort {
+    flex: 0 1 325px;
+    margin: 0.5rem;
+    border: 3px solid;
+}
+
+.switch-field {
+    display: flex;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+    .switch-field input {
+        position: absolute !important;
+        clip: rect(0, 0, 0, 0);
+        height: 1px;
+        width: 1px;
+        border: 0;
+        overflow: hidden;
+    }
+
+    .switch-field label {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 1.25rem;
+        line-height: 1;
+        text-align: center;
+        padding: 0.5rem 0.5rem;
+        margin-right: -1px;
+        border: 1px solid var(--bg-secondary);
+        box-shadow: inset 0 1px 3px var(--shadow), 0 1px var(--shadow);
+        transition: all 0.1s ease-in-out;
+        flex: 0 1 15%;
+    }
+
+        .switch-field label:hover {
+            cursor: pointer;
+        }
+
+    .switch-field input:checked + label {
+        background-color: transparent;
+        box-shadow: none;
+        color: var(--bg-secondary);
+    }
+
+    .switch-field label:first-of-type {
+        border-radius: 4px 0 0 4px;
+    }
+
+    .switch-field label:last-of-type {
+        border-radius: 0 4px 4px 0;
+    }
+
+.sort-filter-grid {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(365px, 30vw));
+    width: 100%;
+}

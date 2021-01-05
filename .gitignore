@@ -1,0 +1,17 @@
+WebSort/images/Products/*
+WebSort/images/Boards/*
+WebSort/images/BoardsSimulated/*
+
+obj/*
+packages/*
+bin/*
+
+*.bak
+*.rar
+*.7zip
+*.cache
+*.tmp
+
+.vs/*
+WebSort/obj/*
+WebSort/bin/app.publish

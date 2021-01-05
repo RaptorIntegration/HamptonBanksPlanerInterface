@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[PLCLED] (
+   [PLCLED] [smallint] NOT NULL,
+   [PLCLEDDescription] [varchar](100) NULL
+
+   ,CONSTRAINT [PK_PLCLED] PRIMARY KEY CLUSTERED ([PLCLED])
+)
+
+
+GO

@@ -1,0 +1,93 @@
+﻿#vue {
+    outline: none;
+}
+
+.btn-trash {
+    color: var(--error);
+    background-color: transparent;
+    border: none;
+    padding: 0.25rem 0.75rem;
+}
+
+    .btn-trash:hover {
+        background-color: var(--bg-primary);
+    }
+
+    .btn-trash:disabled {
+        background-color: transparent;
+        cursor: default;
+        color: transparent;
+    }
+
+.above-table {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+}
+
+.selection-container {
+    max-height: 200px;
+    width: 300px;
+    position: absolute;
+    margin-left: 5px;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+    .selection-container::-webkit-scrollbar {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+
+    .selection-container::-webkit-scrollbar-track {
+        background: #1e1e24;
+    }
+
+    .selection-container::-webkit-scrollbar-thumb {
+        background: var(--raptor-light);
+    }
+
+.selection-list {
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+}
+
+    .selection-list:hover {
+        background-color: var(--bg-secondary);
+    }
+
+
+.product-grid {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grade-grid {
+    width: 100%;
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    padding: 1rem;
+}
+
+.grades {
+    max-width: 1300px;
+    justify-content: center;
+}
+
+.grade-card {
+    padding: 1rem;
+    max-width: 600px;
+    height: fit-content;
+}
+.near-saw-grid {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.near-saw-grid label{
+    margin:auto;
+}
