@@ -24,7 +24,8 @@
                             <i v-else class="gg-math-minus"></i>
                             <span style="padding-left:5px;">Recipes</span>
                         </div>                        
-                        <span v-if="ActiveRecipe">Active: {{ActiveRecipe.RecipeLabel}}</span>
+                        <span v-if="ActiveRecipe"><strong>Editing: </strong>{{EditingRecipe.RecipeLabel}}</span>
+                        <span v-if="ActiveRecipe"><strong>Active: </strong>{{ActiveRecipe.RecipeLabel}}</span>
                     </button>
                     <div class="panel" v-if="Recipes.Visible">
                         <div class="panel-grid">
@@ -134,7 +135,7 @@
             </div>
             <div class="row" v-if="GradeMatrix.Visible">
                 <div class="col-12">
-                    <input type="button" class="save-btn mb-3" value="Save" v-on:click="SaveGradeMatrix" />
+                    <input type="button" class="btn-raptor mb-3" value="Save" v-on:click="SaveGradeMatrix" />
                     <table class="table" v-if="GradeMatrix.List.length > 0" style="max-width:1600px;">
                         <thead>
                             <tr>

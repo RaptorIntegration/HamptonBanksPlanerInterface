@@ -196,7 +196,7 @@ const v = new Vue({
             }
         },
         ShowSortControls: function () {
-            return this.EditingRecipe && this.ActiveRecipe && this.EditingRecipe.RecipeID != this.ActiveRecipe.RecipeID
+            return this.EditingRecipe && this.ActiveRecipe && !this.GradeMatrix.Visible && this.EditingRecipe.RecipeID != this.ActiveRecipe.RecipeID
         },
 
         GradeMatrixButton: function () {
@@ -311,6 +311,9 @@ const v = new Vue({
                 .then(response => {
                     this.Recipes.List = JSON.parse(response.data.d);
                     this.GetData();
+                    if (this.GradeMatrix.Visible) {
+                        this.GetGradeMatrix()
+                    }
                 })
                 .catch(error => {
                     this.SetToast(JSON.parse(error.data.d))
