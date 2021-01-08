@@ -1,4 +1,5 @@
 ﻿using Logix;
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
@@ -183,7 +185,11 @@ namespace WebSort
         public static string GetProducts()
         {
             JavaScriptSerializer s = new JavaScriptSerializer();
-            return s.Serialize(Product.GetAll());
+            return s.Serialize(Product
+                .GetAll()
+                .OrderBy(p => p.ThickNominal)
+                .ThenBy(p => p.WidthNominal)
+            );
         }
 
         [WebMethod]

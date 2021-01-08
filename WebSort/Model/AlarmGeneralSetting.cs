@@ -1,9 +1,8 @@
 ﻿using Mighty;
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 
 namespace WebSort.Model
 {
@@ -41,7 +40,7 @@ namespace WebSort.Model
         public string DisplayPortNumber2 { get; set; }
 
         private DateTime AccidentDate { get; set; }
-        public string AccidentDateString => AccidentDate.ToString("MMM dd hh:mm tt");
+        public string AccidentDateString => AccidentDate.ToString("MMM dd HH:mm:ss");
 
         public string DisplayPortNumber3 { get; set; }
 

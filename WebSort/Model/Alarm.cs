@@ -1,7 +1,7 @@
 ﻿using Mighty;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace WebSort.Model
 {
@@ -19,10 +19,10 @@ namespace WebSort.Model
         [DatabasePrimaryKey]
         public DateTime StartTime { get; set; }
 
-        public string StartTimeString => StartTime.ToString("MMM dd hh:mm tt");
+        public string StartTimeString => StartTime.ToString("MMM dd HH:mm:ss");
 
         public DateTime StopTime { get; set; }
-        public string StopTimeString => StopTime.ToString("MMM dd hh:mm tt");
+        public string StopTimeString => StopTime.ToString("MMM dd HH:mm:ss");
         public bool DownTime { get; set; }
         public string Duration { get; set; }
         public int Data { get; set; }
@@ -68,8 +68,7 @@ namespace WebSort.Model
             public static IEnumerable<DisplayLog> GetTop50()
             {
                 MightyOrm<DisplayLog> db = new MightyOrm<DisplayLog>(Global.MightyConString, "RaptorDisplayLog", "ID");
-                IEnumerable<DisplayLog> ret = db.Query("SELECT TOP 50 id, Timestamp, Text FROM [RaptorDisplayLog] ORDER BY id DESC");
-                return ret;
+                return db.Query("SELECT TOP 50 id, Timestamp, Text FROM [RaptorDisplayLog] ORDER BY id DESC");
             }
         }
     }

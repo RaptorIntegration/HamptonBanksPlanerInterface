@@ -1,4 +1,5 @@
 ﻿using Mighty;
+
 using System;
 using System.Collections.Generic;
 
@@ -8,7 +9,7 @@ namespace WebSort.Model
     {
         public int id { get; set; }
         public DateTime? timestamp { get; set; }
-        public string TimeString => string.Format("{0:yy/MM/dd H:mm}", timestamp);
+        public string TimeString => timestamp?.ToString("MMM dd HH:mm:ss");
         public int? LugNum { get; set; }
         public int? TrackNum { get; set; }
         public int? BinID { get; set; }
