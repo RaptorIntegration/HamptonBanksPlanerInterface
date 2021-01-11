@@ -92,11 +92,11 @@ namespace WebSort.Model
             select id=(select max(id) from datarequestsgrade with(NOLOCK))";
 
         /// <summary>
-        /// @Stamps, @GradeLabel, @PLCGradeID, @RecipeID
+        /// @Stamps, @WebSortGradeID, @PLCGradeID, @RecipeID
         /// </summary>
         public const string GradeMatrixUpdate = @"
             UPDATE GradeMatrix
-            SET GradeStamps = @Stamps,websortgradeid = (SELECT GradeID FROM Grades WHERE GradeLabel = @GradeLabel)
+            SET GradeStamps = @Stamps,websortgradeid = @WebSortGradeID
             WHERE plcgradeid = @PLCGradeID and recipeid = @RecipeID";
 
         #endregion SQL String
@@ -142,7 +142,7 @@ namespace WebSort.Model
             if (matrix?.EditsList.Count > 0)
             {
                 int Stamps = GetStampsBitMap(matrix.SelectedStamps);
-                return SavePLC(matrix.PLCGradeID, Stamps, matrix.GradeLabel, con, RecipeID);
+                return SavePLC(matrix, Stamps, con, RecipeID);
             }
             else
             {
@@ -150,7 +150,7 @@ namespace WebSort.Model
             }
         }
 
-        private static bool SavePLC(int PLCGradeID, int Stamps, string GradeLabel, SqlConnection con, int RecipeID)
+        private static bool SavePLC(GradeMatrix matrix, int Stamps, SqlConnection con, int RecipeID)
         {
             if (Global.OnlineSetup)
             {
@@ -159,9 +159,9 @@ namespace WebSort.Model
 
                 using (SqlCommand cmd = new SqlCommand(DataRequestsGradeSql, con))
                 {
-                    cmd.Parameters.AddWithValue("@PLCGradeID", PLCGradeID);
+                    cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
                     cmd.Parameters.AddWithValue("@Stamps", Stamps);
-                    cmd.Parameters.AddWithValue("@GradeLabel", GradeLabel);
+                    cmd.Parameters.AddWithValue("@GradeLabel", matrix.GradeLabel);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -185,9 +185,9 @@ namespace WebSort.Model
 
             using (SqlCommand cmd = new SqlCommand(GradeMatrixUpdate, con))
             {
-                cmd.Parameters.AddWithValue("@PLCGradeID", PLCGradeID);
+                cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
                 cmd.Parameters.AddWithValue("@Stamps", Stamps);
-                cmd.Parameters.AddWithValue("@GradeLabel", GradeLabel);
+                cmd.Parameters.AddWithValue("@WebSortGradeID", matrix.WebSortGradeID);
                 cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
 
                 try
