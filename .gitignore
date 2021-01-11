@@ -15,3 +15,5 @@ bin/*
 .vs/*
 WebSort/obj/*
 WebSort/bin/app.publish
+Tests/bin/Debug
+Tests/obj

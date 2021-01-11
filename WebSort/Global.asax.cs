@@ -25,20 +25,16 @@ namespace WebSort
 
         public static void GetOnlineSetup()
         {
-            using (SqlConnection con = new SqlConnection(ConnectionString))
-            {
-                con.Open();
+            using SqlConnection con = new SqlConnection(ConnectionString);
+            con.Open();
 
-                using (SqlCommand cmd = new SqlCommand("SELECT OnlineSetup FROM WebSortSetup", con))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+            using SqlCommand cmd = new SqlCommand("SELECT OnlineSetup FROM WebSortSetup", con);
+            using SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
                 {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            OnlineSetup = GetValue<bool>(reader, "OnlineSetup");
-                        }
-                    }
+                    OnlineSetup = GetValue<bool>(reader, "OnlineSetup");
                 }
             }
         }
