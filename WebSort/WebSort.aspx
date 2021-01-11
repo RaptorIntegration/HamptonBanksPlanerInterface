@@ -249,7 +249,13 @@
                                 <button class="btn-clear" type="button" v-on:click="SortByAsc = !SortByAsc">
                                     <i class="gg-arrows-v-alt"></i>
                                 </button>  
-                            </div>                            
+                            </div>     
+                            <div class="incriment-container">
+                                <label>Incriment/Decriment By:</label>
+                                <input class="incriment-btn" type="button" value="-"  v-on:click="DecreaseInc" />
+                                <input class="incriment-amount" type="number" v-model.number="IncDec" />
+                                <input class="incriment-btn" type="button" value="+" v-on:click="IncreaseInc" />
+                            </div>
                             <auto-complete :data="DropDown" v-model="Filter"></auto-complete>                           
                         </div>
                     </div>
@@ -265,7 +271,8 @@
                                 v-if="FilterBays[index]"
                                 v-model="FilterBays[index]"
                                 v-bind:header="Headers"
-                                v-bind:colours="StatusColours">
+                                v-bind:colours="StatusColours"
+                                v-bind:incdec="IncDec">
                                 <div>
                                     <div class="card-title d-flex justify-content-between" v-on:click="ToggleEdit">
                                         <span>#{{value.BinID}} - {{value.BinLabel}}</span>

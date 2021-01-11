@@ -1,0 +1,4 @@
+ALTER TABLE WEBSortSetup
+    ADD IncDec INT NOT NULL
+    CONSTRAINT WEBSortSetup_IncDec
+    DEFAULT (1)

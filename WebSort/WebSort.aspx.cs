@@ -1,4 +1,5 @@
 ﻿using Logix;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
@@ -264,6 +266,24 @@ namespace WebSort
                 }
             }
             return serializer.Serialize(PL);
+        }
+
+        [WebMethod]
+        public static string GetIncDec()
+        {
+            string ret = "";
+            using SqlConnection con = new SqlConnection(Global.ConnectionString);
+            con.Open();
+
+            using SqlCommand cmd = new SqlCommand("SELECT IncDec FROM WEBSortSetup", con);
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    ret = reader["IncDec"].ToString();
+                }
+            }
+            return ret;
         }
 
         [WebMethod]
@@ -540,6 +560,26 @@ namespace WebSort
 
             response.Good("Save successful");
             return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string SaveIncDec(int IncDec)
+        {
+            using SqlConnection con = new SqlConnection(Global.ConnectionString);
+            con.Open();
+
+            try
+            {
+                using SqlCommand cmd = new SqlCommand("UPDATE WEBSortSetup SET IncDec=@IncDec", con);
+                cmd.Parameters.AddWithValue("@IncDec", IncDec);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                return ex.ToString();
+            }
+            return "Success";
         }
 
         private static void UpdateBinProductsGUI(SqlConnection con, Bin Item)

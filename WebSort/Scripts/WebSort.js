@@ -178,7 +178,8 @@ Vue.component('sorter', {
     props: {
         value: { type: Object, required: true },
         colours: { type: Array, required: true },
-        header: { type: Object, required: true }
+        header: { type: Object, required: true },
+        incdec: { type: Number, required: true }
     },
     data() {
         return {
@@ -219,11 +220,14 @@ Vue.component('sorter', {
             this.Editing ? this.$emit('editing') : this.$emit('resume')
         },
         Increase: function (val) {
-            this.value[val]++
+            this.value[val] += this.incdec
             this.Update(val)
         },
         Decrease: function (val) {
-            this.value[val]--
+            if (this.value[val] - this.incdec < 0) {
+                return;
+            }
+            this.value[val] -= this.incdec
             this.Update(val)
         },
         Update: function (val) {
@@ -342,6 +346,7 @@ const v = new Vue({
                 EditedVal: null
             }]
         },
+        IncDec: 1,
         Timer: null,
         Loading: false,
         Headers: {
@@ -354,6 +359,7 @@ const v = new Vue({
     mounted: function () {
         this.SetAutoUpdate();
         this.GetColours();
+        this.GetIncDec();
     },
     computed: {
         FilterBays: function () {
@@ -549,6 +555,36 @@ const v = new Vue({
             this.CancelAutoUpdate();
             this.GetData();
             this.Timer = setInterval(this.GetData, 1000 * 2);
+        },
+
+        GetIncDec: function () {
+            axios.post('WebSort.aspx/GetIncDec', this.Headers)
+                .then(response => {
+                    this.IncDec = parseInt(response.data.d)
+                })
+                .catch(error => {
+                    console.dir(error);
+                });
+        },
+        IncreaseInc: function () {
+            this.IncDec++
+            this.SaveIncDec()
+        },
+        DecreaseInc: function () {
+            if (this.IncDec <= 1) {
+                this.IncDec = 1
+                return
+            }
+            this.IncDec--
+            this.SaveIncDec()
+        },
+        SaveIncDec: function () {
+            axios.post("WebSort.aspx/SaveIncDec", JSON.stringify({ IncDec: this.IncDec }), this.Headers)
+                .then(response => {
+                })
+                .catch(error => {
+                    console.dir(error);
+                });
         },
 
         GetColours: function () {
