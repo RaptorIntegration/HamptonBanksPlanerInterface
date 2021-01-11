@@ -75,7 +75,7 @@ namespace WebSort.Model
                 }
             }
 
-            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binlengths where binID = {BinID}", con))
+            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from binlengths where binID = {BinID}", con))
             using (SqlDataReader ReaderBinLengths = cmdInner.ExecuteReader())
             {
                 if (ReaderBinLengths.HasRows)
