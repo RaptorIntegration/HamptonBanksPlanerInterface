@@ -86,7 +86,7 @@ namespace WebSort.Model
             return db.AllWithParams(
                 where: pars,
                 inParams: new {
-                    WidthNominal = width.ID,
+                    WidthNominal = width.Nominal,
                     WidthMin = width.Minimum,
                     WidthMax = width.Maximum
                 });
