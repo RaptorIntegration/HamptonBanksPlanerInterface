@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
@@ -338,296 +339,198 @@ namespace WebSort
 
         protected void ButtonSendProducts_Click(object sender, EventArgs e)
         {
-            bool succeeded;
-
             LabelTimeout.Visible = false;
-            Raptor cs1 = new Raptor();
-            string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(connectionString);
-            connection.Open();
-            SqlCommand cmd0 = new SqlCommand("select * from WEBSortSetup", connection);
-            SqlDataReader reader0 = cmd0.ExecuteReader();
-            reader0.Read();
-            int NumThicks = int.Parse(reader0["NumThicks"].ToString());
-            int NumWidths = int.Parse(reader0["NumWidths"].ToString());
-            int NumLengths = int.Parse(reader0["NumLengths"].ToString());
-            int NumMoistures = int.Parse(reader0["NumMoistures"].ToString());
-            int NumPETLengths = int.Parse(reader0["NumPETLengths"].ToString());
-            int NumProducts = int.Parse(reader0["NumProducts"].ToString());
-            reader0.Close();
+
+            int NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts;
+
+            using SqlConnection con = new SqlConnection(Global.ConnectionString);
+            con.Open();
+
+            using (SqlCommand cmd = new SqlCommand("SELECT NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts FROM WEBSortSetup"))
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                try
+                {
+                    NumThicks = Global.GetValue<int>(reader, "NumThicks");
+                    NumWidths = Global.GetValue<int>(reader, "NumWidths");
+                    NumLengths = Global.GetValue<int>(reader, "NumLengths");
+                    NumPETLengths = Global.GetValue<int>(reader, "NumPETLengths");
+                    NumProducts = Global.GetValue<int>(reader, "NumProducts");
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    return;
+                }
+            }
 
             //send thickness, width, lengths, grade mapping, products, moistures, specs
-            //thickness
             try
             {
-                SqlCommand cmd01 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 16", connection);
-                cmd01.ExecuteNonQuery();
+                // Thickness
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 16", con))
+                    cmd.ExecuteNonQuery();
                 for (int i = 1; i <= NumThicks; i++)
                 {
-                    SqlCommand cmdt = new SqlCommand("select * from thickness with(NOLOCK) where id=" + i, connection);
-                    SqlDataReader readert = cmdt.ExecuteReader();
-                    readert.Read();
-                    if (!readert.HasRows)  //we must zero out unused thicknesses
+                    try
                     {
-                        SqlCommand cmdt1 = new SqlCommand("insert into datarequeststhickness select getdate()," + i.ToString() + ",0,0,0,1,0 select id=(select max(id) from datarequeststhickness with(NOLOCK))", connection);
-                        SqlDataReader readert1 = cmdt1.ExecuteReader();
-                        readert1.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequeststhickness", int.Parse(readert1["id"].ToString()));
-                        readert1.Close();
-                        if (!succeeded)
+                        Thickness thick = Thickness.GetAtID(i);
+
+                        if (thick is null)  //we must zero out unused thicknesses
+                        {
+                            if (!Thickness.DataRequestInsert(con, thick, false, true))
+                            {
+                                LabelTimeout.Visible = true;
+                                return;
+                            }
+                        }
+                        else if (!Thickness.DataRequestInsert(con, thick, false))
                         {
                             LabelTimeout.Visible = true;
-                            readert.Close();
                             return;
                         }
-                        readert.Close();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        SqlCommand cmdt1 = new SqlCommand("insert into datarequeststhickness select getdate()," + readert["id"].ToString() + "," + readert["minimum"].ToString() + "," + readert["maximum"].ToString() + "," + readert["nominal"].ToString() + ",1,0 select id=(select max(id) from datarequeststhickness with(NOLOCK))", connection);
-                        SqlDataReader readert1 = cmdt1.ExecuteReader();
-                        readert1.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequeststhickness", int.Parse(readert1["id"].ToString()));
-                        readert1.Close();
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            readert.Close();
-                            return;
-                        }
-                        readert.Close();
+                        Global.LogError(ex);
+                        return;
                     }
                 }
-                SqlCommand cmd1 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-16 where (datarequests & 16)=16", connection);
-                cmd1.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-16 where (datarequests & 16)=16", con))
+                    cmd.ExecuteNonQuery();
 
-                //width
-                SqlCommand cmd02 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 32", connection);
-                cmd02.ExecuteNonQuery();
+                // Width
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 32", con))
+                    cmd.ExecuteNonQuery();
                 for (int i = 1; i <= NumWidths; i++)
                 {
-                    SqlCommand cmdw = new SqlCommand("select * from width with(NOLOCK) where id=" + i, connection);
-                    SqlDataReader readerw = cmdw.ExecuteReader();
-                    readerw.Read();
-                    if (!readerw.HasRows)  //we must zero out unused widths
+                    try
                     {
-                        SqlCommand cmdw1 = new SqlCommand("insert into datarequestswidth select getdate()," + i.ToString() + ",0,0,0,1,0 select id=(select max(id) from datarequestswidth with(NOLOCK))", connection);
-                        SqlDataReader readerw1 = cmdw1.ExecuteReader();
-                        readerw1.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestswidth", int.Parse(readerw1["id"].ToString()));
-                        readerw1.Close();
-                        if (!succeeded)
+                        Width width = Width.GetAtID(i);
+
+                        if (width is null)  //we must zero out unused Widths
+                        {
+                            if (!Width.DataRequestInsert(con, width, false, true))
+                            {
+                                LabelTimeout.Visible = true;
+                                return;
+                            }
+                        }
+                        else if (!Width.DataRequestInsert(con, width, false))
                         {
                             LabelTimeout.Visible = true;
-                            readerw.Close();
                             return;
                         }
-                        readerw.Close();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        SqlCommand cmdw1 = new SqlCommand("insert into datarequestswidth select getdate()," + readerw["id"].ToString() + "," + readerw["minimum"].ToString() + "," + readerw["maximum"].ToString() + "," + readerw["nominal"].ToString() + ",1,0 select id=(select max(id) from datarequestswidth with(NOLOCK))", connection);
-                        SqlDataReader readerw1 = cmdw1.ExecuteReader();
-                        readerw1.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestswidth", int.Parse(readerw1["id"].ToString()));
-                        readerw1.Close();
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            readerw.Close();
-                            return;
-                        }
-                        readerw.Close();
+                        Global.LogError(ex);
+                        return;
                     }
                 }
-                SqlCommand cmd11 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", connection);
-                cmd11.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", con))
+                    cmd.ExecuteNonQuery();
 
-                //moistures
-                SqlCommand cmd05m = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 512", connection);
-                cmd05m.ExecuteNonQuery();
-                for (int i = 1; i <= NumMoistures; i++)
-                {
-                    SqlCommand cmdlm = new SqlCommand("select * from moistures with(NOLOCK) where moistureid=" + i, connection);
-                    SqlDataReader readerlm = cmdlm.ExecuteReader();
-                    readerlm.Read();
-                    if (!readerlm.HasRows)  //we must zero out unused moistures
-                    {
-                        SqlCommand cmdm = new SqlCommand("insert into datarequestsmoisture select getdate()," + i.ToString() + ",0,0,1,0 select id=(select max(id) from datarequestsmoisture with(NOLOCK))", connection);
-                        SqlDataReader readerm = cmdm.ExecuteReader();
-                        readerm.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestsmoisture", int.Parse(readerm["id"].ToString()));
-                        readerm.Close();
-
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            break;
-                        }
-                        readerlm.Close();
-                    }
-                    else
-                    {
-                        SqlCommand cmdm = new SqlCommand("insert into datarequestsmoisture select getdate()," + i.ToString() + "," + readerlm["moistureMin"].ToString() + "," + readerlm["moistureMax"].ToString() + ",1,0 select id=(select max(id) from datarequestsmoisture with(NOLOCK))", connection);
-                        SqlDataReader readerm = cmdm.ExecuteReader();
-                        readerm.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestsmoisture", int.Parse(readerm["id"].ToString()));
-                        readerm.Close();
-
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            break;
-                        }
-                        readerlm.Close();
-                    }
-                }
-                SqlCommand cmd15m = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-512 where (datarequests & 512)=512", connection);
-                cmd15m.ExecuteNonQuery();
-
-                //lengths
-                SqlCommand cmd05 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", connection);
-                cmd05.ExecuteNonQuery();
+                // Lengths
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con))
+                    cmd.ExecuteNonQuery();
                 for (int i = 1; i <= NumLengths; i++)
                 {
-                    SqlCommand cmdl = new SqlCommand("select * from lengths with(NOLOCK) where lengthid=" + i, connection);
-                    SqlDataReader readerl = cmdl.ExecuteReader();
-                    readerl.Read();
-                    if (!readerl.HasRows)  //we must zero out unused products
+                    try
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestslength select getdate()," + i.ToString() + ",0,0,0,1,0 select id=(select max(id) from datarequestslength with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestslength", int.Parse(reader["id"].ToString()));
-                        reader.Close();
+                        Length length = Length.GetAtID(i);
 
-                        if (!succeeded)
+                        if (length is null)  //we must zero out unused Widths
+                        {
+                            if (!Length.DataRequestInsert(con, length, false, true))
+                            {
+                                LabelTimeout.Visible = true;
+                                return;
+                            }
+                        }
+                        else if (!Length.DataRequestInsert(con, length, false))
                         {
                             LabelTimeout.Visible = true;
-                            break;
+                            return;
                         }
-                        readerl.Close();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestslength select getdate()," + i.ToString() + "," + readerl["LengthMin"].ToString() + "," + readerl["LengthMax"].ToString() + "," + readerl["LengthNominal"].ToString() + ",1,0 select id=(select max(id) from datarequestslength with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestslength", int.Parse(reader["id"].ToString()));
-                        reader.Close();
-
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            break;
-                        }
-                        readerl.Close();
+                        Global.LogError(ex);
+                        return;
                     }
                 }
-                SqlCommand cmd15 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", connection);
-                cmd15.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", con))
+                    cmd.ExecuteNonQuery();
 
-                //pet length data
-                SqlCommand cmd05a = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2048", connection);
-                cmd05a.ExecuteNonQuery();
+                // PET Length
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2048", con))
+                    cmd.ExecuteNonQuery();
                 for (int i = 1; i <= NumPETLengths; i++)
                 {
-                    SqlCommand cmdl = new SqlCommand("select * from petlengths with(NOLOCK) where petlengthid=" + i, connection);
-                    SqlDataReader readerl = cmdl.ExecuteReader();
-                    readerl.Read();
-                    if (!readerl.HasRows)  //we must zero out unused products
+                    try
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestspetlength select getdate()," + i.ToString() + ",0,0,0,1,0 select id=(select max(id) from datarequestspetlength with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestspetlength", int.Parse(reader["id"].ToString()));
-                        reader.Close();
+                        PETLength length = PETLength.GetAtID(i);
 
-                        if (!succeeded)
+                        if (length is null)  //we must zero out unused Widths
+                        {
+                            if (!PETLength.DataRequestInsert(con, length, false, true))
+                            {
+                                LabelTimeout.Visible = true;
+                                return;
+                            }
+                        }
+                        else if (!PETLength.DataRequestInsert(con, length, false))
                         {
                             LabelTimeout.Visible = true;
-                            break;
+                            return;
                         }
-                        readerl.Close();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestspetlength select getdate()," + i.ToString() + "," + readerl["sawindex"].ToString() + "," + readerl["LengthNominal"].ToString() + "," + readerl["PETPosition"].ToString() + ",1,0 select id=(select max(id) from datarequestspetlength with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestspetlength", int.Parse(reader["id"].ToString()));
-                        reader.Close();
-
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            break;
-                        }
-                        readerl.Close();
+                        Global.LogError(ex);
+                        return;
                     }
                 }
-                SqlCommand cmd15a = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2048 where (datarequests & 2048)=2048", connection);
-                cmd15a.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2048 where (datarequests & 2048)=2048", con))
+                    cmd.ExecuteNonQuery();
 
-                //products
-                SqlCommand cmd03 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4", connection);
-                cmd03.ExecuteNonQuery();
+                // Products
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4", con))
+                    cmd.ExecuteNonQuery();
                 for (int i = 1; i <= NumProducts; i++)
                 {
-                    SqlCommand cmdp = new SqlCommand("select * from products with(NOLOCK) where prodid=" + i, connection);
-                    SqlDataReader readerp = cmdp.ExecuteReader();
-                    readerp.Read();
-                    if (!readerp.HasRows)  //we must zero out unused products
+                    try
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestsproduct select getdate()," + i.ToString() + ",'False',0,0,0,0,0,0,0,0,1,0 select id=(select max(id) from datarequestsproduct with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestsproduct", int.Parse(reader["id"].ToString()));
-                        reader.Close();
-                        if (!succeeded)
+                        Product prod = Product.GetAtID(i);
+
+                        if (prod is null)  //we must zero out unused Widths
+                        {
+                            if (!Product.DataRequestInsert(con, prod, false, true))
+                            {
+                                LabelTimeout.Visible = true;
+                                return;
+                            }
+                        }
+                        else if (!Product.DataRequestInsert(con, prod, false))
                         {
                             LabelTimeout.Visible = true;
-                            break;
+                            return;
                         }
-                        readerp.Close();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        SqlCommand cmd = new SqlCommand("insert into datarequestsproduct select getdate()," + readerp["prodid"].ToString() + ",'True'," + readerp["ThicknessID"].ToString() + "," + readerp["WidthID"].ToString() + "," + readerp["gradeid"].ToString() + "," + readerp["moistureid"].ToString() + "," + readerp["specid"].ToString() + ",0,0,0,1,0 select id=(select max(id) from datarequestsproduct with(NOLOCK))", connection);
-                        SqlDataReader reader = cmd.ExecuteReader();
-                        reader.Read();
-                        //make sure message is processed
-                        succeeded = Raptor.MessageAckConfirm("datarequestsproduct", int.Parse(reader["id"].ToString()));
-                        reader.Close();
-                        if (!succeeded)
-                        {
-                            LabelTimeout.Visible = true;
-                            break;
-                        }
-                        readerp.Close();
+                        Global.LogError(ex);
+                        return;
                     }
                 }
-                SqlCommand cmd12 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-4 where (datarequests & 4)=4", connection);
-                cmd12.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-4 where (datarequests & 4)=4", con))
+                    cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
                 Global.LogError(ex);
             }
-
-            connection.Close();
         }
 
         protected void ButtonSendSorts_Click(object sender, EventArgs e)

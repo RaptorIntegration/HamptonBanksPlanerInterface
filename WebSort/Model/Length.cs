@@ -1,4 +1,5 @@
 ﻿using Mighty;
+
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
@@ -43,16 +44,25 @@ namespace WebSort.Model
             return db.AllWithParams("WHERE LengthID > 0 AND PetFlag = 0");
         }
 
+        public static Length GetAtID(int ID)
+        {
+            MightyOrm<Length> db = new MightyOrm<Length>(Global.MightyConString, "Lengths", "LengthID");
+            return db.Single(ID);
+        }
+
         public static void Save(Length length)
         {
             MightyOrm<Length> db = new MightyOrm<Length>(Global.MightyConString, "Lengths", "LengthID");
             db.Save(length);
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Length length, bool ZeroOut)
+        public static bool DataRequestInsert(SqlConnection con, Length length, bool CommSettings = true, bool ZeroOut = false)
         {
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con);
                 cmd.ExecuteNonQuery();
+            }
 
             using (SqlCommand cmd = new SqlCommand(DataRequestSql, con))
             {
@@ -75,20 +85,21 @@ namespace WebSort.Model
                     cmd.Parameters.AddWithValue("@Processed", 0);
                 }
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (!Raptor.MessageAckConfirm("DataRequestsLength", Global.GetValue<int>(reader, "id")))
                     {
-                        if (!Raptor.MessageAckConfirm("DataRequestsLength", Global.GetValue<int>(reader, "id")))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
 
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", con);
                 cmd.ExecuteNonQuery();
+            }
 
             return true;
         }

@@ -73,34 +73,50 @@ namespace WebSort.Model
             db.Save(thick);
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Thickness thick)
+        public static bool DataRequestInsert(SqlConnection con, Thickness thick, bool CommSettings = true, bool ZeroOut = false)
         {
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 16", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 16", con);
                 cmd.ExecuteNonQuery();
+            }
 
             using (SqlCommand cmd = new SqlCommand(DataRequestSql, con))
             {
-                cmd.Parameters.AddWithValue("@ThicknessID", thick.ID);
-                cmd.Parameters.AddWithValue("@ThickMin", thick.Minimum);
-                cmd.Parameters.AddWithValue("@ThickMax", thick.Maximum);
-                cmd.Parameters.AddWithValue("@ThickNom", thick.Nominal);
-                cmd.Parameters.AddWithValue("@Write", 1);
-                cmd.Parameters.AddWithValue("@Processed", 0);
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                if (ZeroOut)
                 {
-                    while (reader.Read())
+                    cmd.Parameters.AddWithValue("@ThicknessID", thick.ID);
+                    cmd.Parameters.AddWithValue("@ThickMin", 0);
+                    cmd.Parameters.AddWithValue("@ThickMax", 0);
+                    cmd.Parameters.AddWithValue("@ThickNom", 0);
+                    cmd.Parameters.AddWithValue("@Write", 1);
+                    cmd.Parameters.AddWithValue("@Processed", 0);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@ThicknessID", thick.ID);
+                    cmd.Parameters.AddWithValue("@ThickMin", thick.Minimum);
+                    cmd.Parameters.AddWithValue("@ThickMax", thick.Maximum);
+                    cmd.Parameters.AddWithValue("@ThickNom", thick.Nominal);
+                    cmd.Parameters.AddWithValue("@Write", 1);
+                    cmd.Parameters.AddWithValue("@Processed", 0);
+                }
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (!Raptor.MessageAckConfirm("DataRequestsThickness", Global.GetValue<int>(reader, "id")))
                     {
-                        if (!Raptor.MessageAckConfirm("DataRequestsThickness", Global.GetValue<int>(reader, "id")))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
 
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-16 where (datarequests & 16)=16", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-16 where (datarequests & 16)=16", con);
                 cmd.ExecuteNonQuery();
+            }
 
             return true;
         }

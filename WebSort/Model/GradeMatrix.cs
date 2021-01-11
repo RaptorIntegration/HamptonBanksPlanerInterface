@@ -163,17 +163,15 @@ namespace WebSort.Model
                     cmd.Parameters.AddWithValue("@Stamps", Stamps);
                     cmd.Parameters.AddWithValue("@GradeLabel", matrix.GradeLabel);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
                     {
-                        if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            bool succeeded = Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id"));
+                            if (!succeeded)
                             {
-                                bool succeeded = Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id"));
-                                if (!succeeded)
-                                {
-                                    return false;
-                                }
+                                return false;
                             }
                         }
                     }

@@ -73,34 +73,50 @@ namespace WebSort.Model
             db.Save(width);
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Width width)
+        public static bool DataRequestInsert(SqlConnection con, Width width, bool CommSettings = true, bool ZeroOut = false)
         {
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 32", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 32", con);
                 cmd.ExecuteNonQuery();
+            }
 
             using (SqlCommand cmd = new SqlCommand(DataRequestSql, con))
             {
-                cmd.Parameters.AddWithValue("@WidthID", width.ID);
-                cmd.Parameters.AddWithValue("@WidthMin", width.Minimum);
-                cmd.Parameters.AddWithValue("@WidthMax", width.Maximum);
-                cmd.Parameters.AddWithValue("@WidthNom", width.Nominal);
-                cmd.Parameters.AddWithValue("@Write", 1);
-                cmd.Parameters.AddWithValue("@Processed", 0);
-
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                if (ZeroOut)
                 {
-                    while (reader.Read())
+                    cmd.Parameters.AddWithValue("@WidthID", width.ID);
+                    cmd.Parameters.AddWithValue("@WidthMin", 0);
+                    cmd.Parameters.AddWithValue("@WidthMax", 0);
+                    cmd.Parameters.AddWithValue("@WidthNom", 0);
+                    cmd.Parameters.AddWithValue("@Write", 1);
+                    cmd.Parameters.AddWithValue("@Processed", 0);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("@WidthID", width.ID);
+                    cmd.Parameters.AddWithValue("@WidthMin", width.Minimum);
+                    cmd.Parameters.AddWithValue("@WidthMax", width.Maximum);
+                    cmd.Parameters.AddWithValue("@WidthNom", width.Nominal);
+                    cmd.Parameters.AddWithValue("@Write", 1);
+                    cmd.Parameters.AddWithValue("@Processed", 0);
+                }
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (!Raptor.MessageAckConfirm("DataRequestsWidth", Global.GetValue<int>(reader, "id")))
                     {
-                        if (!Raptor.MessageAckConfirm("DataRequestsWidth", Global.GetValue<int>(reader, "id")))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
 
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", con);
                 cmd.ExecuteNonQuery();
+            }
 
             return true;
         }

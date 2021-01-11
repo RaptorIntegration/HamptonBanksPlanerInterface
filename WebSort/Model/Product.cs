@@ -1,4 +1,5 @@
 ﻿using Mighty;
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
@@ -91,6 +92,12 @@ namespace WebSort.Model
                 });
         }
 
+        public static Product GetAtID(int ID)
+        {
+            MightyOrm<Product> db = new MightyOrm<Product>(Global.MightyConString, "Products", "ProdID");
+            return db.Single(ID);
+        }
+
         public Product AddThicksWidths(Thickness thick, Width width)
         {
             ThickMin = thick.Minimum;
@@ -154,10 +161,13 @@ namespace WebSort.Model
                 .ToList();
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Product product, bool ZeroOut)
+        public static bool DataRequestInsert(SqlConnection con, Product product, bool CommSettings = true, bool ZeroOut = false)
         {
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4", con);
                 cmd.ExecuteNonQuery();
+            }
 
             using (SqlCommand cmd = new SqlCommand(DataRequestSql, con))
             {
@@ -192,20 +202,21 @@ namespace WebSort.Model
                     cmd.Parameters.AddWithValue("@Processed", 0);
                 }
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (!Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
                     {
-                        if (!Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
 
-            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-4 where (datarequests & 4)=4", con))
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-4 where (datarequests & 4)=4", con);
                 cmd.ExecuteNonQuery();
+            }
 
             return true;
         }
