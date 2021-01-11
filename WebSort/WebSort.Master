@@ -212,6 +212,7 @@
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
         </main>
         <footer>
+            <span>&copy; 2020 - Raptor Integration</span>
             <span>Version: <%= GetVersion() %></span>
         </footer>
     </form>

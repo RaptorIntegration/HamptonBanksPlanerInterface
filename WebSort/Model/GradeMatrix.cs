@@ -88,7 +88,7 @@ namespace WebSort.Model
             insert into datarequestsgrade
             select getdate(),@PLCGradeID,gradeid,@Stamps,1,0
             from grades
-            where gradelabel='@GradeLabel';
+            where gradelabel=@GradeLabel;
             select id=(select max(id) from datarequestsgrade with(NOLOCK))";
 
         /// <summary>

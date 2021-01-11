@@ -169,8 +169,13 @@ main {
 
 footer {
     display:flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     color: var(--text-primary);
+    padding-right: 0.5rem;
+    font-size: 0.8rem;
+}
+footer > span {
+    margin-left: 3.5rem;
 }
 
 header {
