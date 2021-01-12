@@ -7,6 +7,8 @@ CREATE TABLE [dbo].[DataRequestsSort] (
    [SortSize] [smallint] NULL,
    [PkgsPerSort] [smallint] NULL,
    [OrderCount] [smallint] NULL,
+   [SecProdID] [smallint] NULL,
+   [SecSize] [smallint] NULL,
    [ProductMap0] [bigint] NULL,
    [ProductMap1] [bigint] NULL,
    [ProductMap2] [bigint] NULL,

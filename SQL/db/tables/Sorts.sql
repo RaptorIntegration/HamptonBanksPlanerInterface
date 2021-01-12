@@ -17,6 +17,8 @@ CREATE TABLE [dbo].[Sorts] (
    [SortSpraysLabel] [varchar](100) NULL,
    [BinID] [int] NULL,
    [TrimFlag] [bit] NULL,
+   [SecProdID] [smallint] NULL,
+   [SecSize] [smallint] NULL,
    [ProductsLabel] [varchar](1000) NULL
 
    ,CONSTRAINT [PK_SortsOnline] PRIMARY KEY CLUSTERED ([RecipeID], [SortID])
