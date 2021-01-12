@@ -283,7 +283,7 @@
                                     <input
                                         v-if="Table.Editing == Row.SortID + '_SecSize'"
                                         v-model.number="Row.SecSize"
-                                        v-on:blur="Update('SecSize', Row.SecSize, Row);"
+                                        v-on:blur="Row.SecSize = Math.round(Row.SecSize); Update('SecSize', Row.SecSize, Row);"
                                         v-on:focus="Prev(Row, 'SecSize')"
                                         type="number"
                                         spellcheck="false"

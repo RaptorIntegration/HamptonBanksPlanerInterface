@@ -292,7 +292,7 @@ namespace WebSort
                     }
                 }
             }
-            response.SimpleAudit(new Audit(product.ProdID.ToString(), "ProdID", "Products", true, false));
+            new Audit(product.ProdID.ToString(), "ProdID", "Products", true, false).InsertSimpleAudit();
             response.Good($"Deleted #{product.ProdID} - {product.ProdLabel}");
             return SaveResponse.Serialize(response);
         }

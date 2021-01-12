@@ -239,7 +239,7 @@ namespace WebSort
                 }
             }
 
-            response.SimpleAudit(new Audit(recipe.RecipeID.ToString(), "RecipeID", "Products", true, false));
+            new Audit(recipe.RecipeID.ToString(), "RecipeID", "Products", true, false).InsertSimpleAudit();
 
             response.Good($"Deleted Recipe {recipe.RecipeLabel}");
             return SaveResponse.Serialize(response);
