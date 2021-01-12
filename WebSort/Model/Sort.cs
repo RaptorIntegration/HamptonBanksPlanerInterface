@@ -26,6 +26,8 @@ namespace WebSort.Model
         public string SortSpraysLabel { get; set; }
         public int BinID { get; set; }
         public int TrimFlag { get; set; }
+        public int SecProdID { get; set; }
+        public short SecSize { get; set; }
         public string ProductsLabel { get; set; }
         public List<Stamp> SelectedStamps { get; set; }
         public bool Changed { get; set; }
@@ -39,7 +41,7 @@ namespace WebSort.Model
 
         public static string DataRequestsSortSQL = @"
             INSERT INTO DataRequestsSort SELECT GETDATE(),
-                @SortID, @SortLabel, @SortSize, @PkgsPerSort, @OrderCount,
+                @SortID, @SortLabel, @SortSize, @PkgsPerSort, @OrderCount, @SecProdID, @SecSize,
                 @ProductMap0, @ProductMap1, @ProductMap2, @ProductMap3, @ProductMap4, @ProductMap5,
                 @LengthMap, @ProductMap0c, @ProductMap1c, @ProductMap2c, @LengthMapc,
                 @ProductMap0Old, @ProductMap1Old, @ProductMap2Old, @ProductMap3Old, @ProductMap4Old, @ProductMap5Old,
@@ -65,6 +67,8 @@ namespace WebSort.Model
                     PkgsPerSort = Global.GetValue<int>(reader, "PkgsPerSort"),
                     RW = Global.GetValue<bool>(reader, "RW"),
                     OrderCount = Global.GetValue<int>(reader, "OrderCount"),
+                    SecProdID = Global.GetValue<int>(reader, "SecProdID"),
+                    SecSize = Global.GetValue<short>(reader, "SecSize"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
                     Changed = false,
                     SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "SortStamps"), stamps)

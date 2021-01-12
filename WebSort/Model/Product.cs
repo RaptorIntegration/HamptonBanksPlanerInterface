@@ -98,6 +98,30 @@ namespace WebSort.Model
             return db.Single(ID);
         }
 
+        public static List<object> GetProductGrades()
+        {
+            List<object> ret = new List<object>();
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("SELECT ProdID, ProdLabel + ' - ' + GradeLabel AS Label FROM Products,Grades WHERE Products.GradeID = Grades.GradeID AND ProdID > 0", con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ret.Add(new {
+                            ID = Global.GetValue<int>(reader, "ProdID"),
+                            Label = reader["Label"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return ret;
+        }
+
         public Product AddThicksWidths(Thickness thick, Width width)
         {
             ThickMin = thick.Minimum;

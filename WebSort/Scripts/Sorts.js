@@ -75,6 +75,15 @@ const v = new Vue({
                 { DataSource: 'RW', Header: 'RW' },
                 { DataSource: 'OrderCount', Header: 'Order Count' }
             ],
+            Products: [],
+
+            Previous: '',
+            Filter: '',
+            SortBy: '',
+            SortByAsc: true,
+            Edited: false,
+            Editing: false,
+            Timer: '',
         },
 
         Security: null,
@@ -109,12 +118,6 @@ const v = new Vue({
             Message: null
         },
 
-        Previous: '',
-        Filter: '',
-        SortBy: '',
-        SortByAsc: true,
-        Edited: false,
-        Editing: false,
         SaveResponse: {
             Message: '',
             ChangeList: [{
@@ -123,7 +126,7 @@ const v = new Vue({
                 EditedVal: ''
             }]
         },
-        Timer: '',
+
         Loading: false,
         Headers: {
             headers: {
@@ -136,20 +139,21 @@ const v = new Vue({
         this.GetSecurity()
         this.SetAutoUpdate();
         this.GetRecipes();
+        this.GetProductGrades();
     },
     computed: {
         FilterSorts: function () {
             let v = this
-            let SortDir = v.SortByAsc ? 'asc' : 'desc';
+            let SortDir = v.Table.SortByAsc ? 'asc' : 'desc';
 
-            if (v.SortBy && v.ChangedList.length == 0) {
-                v.Table.Sorts.sort(v.CompareValues(v.SortBy, SortDir));
+            if (v.Table.SortBy && v.ChangedList.length == 0) {
+                v.Table.Sorts.sort(v.CompareValues(v.Table.SortBy, SortDir));
             }
-            if (v.Filter) {
+            if (v.Table.Filter) {
                 return v.Table.Sorts.filter(s => {
-                    return (s.SortLabel.toUpperCase().includes(v.Filter.toUpperCase())
-                        | (s.Active ? 'active' : 'inactive') === v.Filter
-                        | s.SortID.toString().includes(v.Filter)
+                    return (s.SortLabel.toUpperCase().includes(v.Table.Filter.toUpperCase())
+                        | (s.Active ? 'active' : 'inactive') === v.Table.Filter
+                        | s.SortID.toString().includes(v.Table.Filter)
                         | v.ChangedList.some(e => e.SortID == s.SortID))
                 });
             } else {
@@ -275,6 +279,15 @@ const v = new Vue({
                     console.error(error);
                 });
         },
+        GetProductGrades: function () {
+            axios.post('Sorts.aspx/GetProductGrades', this.Headers)
+                .then(response => {
+                    this.Table.Products = JSON.parse(response.data.d);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
 
         ToggleGradeMatrix: function () {
             if (!this.GradeMatrix.Visible) {
@@ -283,7 +296,7 @@ const v = new Vue({
             } else {
                 this.SetAutoUpdate();
                 this.Editing = false;
-                this.Edited = false;
+                this.Table.Edited = false;
             }
 
             this.GradeMatrix.Visible = !this.GradeMatrix.Visible
@@ -435,14 +448,17 @@ const v = new Vue({
         },
 
         EditingCell: function (Row, Col) {
-            if (this.Editing && this.Editing.includes("ProductsLabel") && this.Editing === Row.SortID + '_' + Col) {
-                this.Editing = null
+            if (this.Table.Editing && this.Table.Editing.includes("ProductsLabel") && this.Table.Editing === Row.SortID + '_' + Col) {
+                this.Table.Editing = null
                 return;
             }
-            this.Editing = (Row.SortID + '_' + Col);
+            this.Table.Editing = (Row.SortID + '_' + Col);
             this.CancelAutoUpdate();
             if (Col == 'ProductsLabel') {
                 this.GetProductList(Row);
+            }
+            if (Col === 'SecProdID') {
+                this.Table.Previous = Row[Col]
             }
         },
         EditingGradeMatrixCell: function (Grade, Col) {
@@ -460,7 +476,7 @@ const v = new Vue({
                     'EditedVal': Product.Selected ? Product.Label : 'De-Selected ' + Product.Label
                 });
             }
-            v.Edited = true;
+            v.Table.Edited = true;
         },
         UpdateGradeMatrix: function (EditedCol, EditedVal, ChangedRow) {
             let v = this;
@@ -470,17 +486,17 @@ const v = new Vue({
                 ChangedRow.EditsList.find(e => e.EditedCol === EditedCol).EditedVal = EditedVal;
             } else {
                 if (typeof (EditedVal) === 'boolean') {
-                    v.Previous = !EditedVal;
+                    v.Table.Previous = !EditedVal;
                 }
                 ChangedRow.EditsList.push({
                     'Key': ChangedRow.SortID,
                     'EditedCol': EditedCol,
                     'EditedVal': EditedVal,
-                    'Previous': v.Previous
+                    'Previous': v.Table.Previous
                 });
             }
 
-            v.Edited = true;
+            v.Table.Edited = true;
             setTimeout(_ => v.Editing = false, 50);
         },
         Update: function (EditedCol, EditedVal, ChangedRow) {
@@ -491,21 +507,21 @@ const v = new Vue({
                 ChangedRow.EditsList.find(e => e.EditedCol === EditedCol).EditedVal = EditedVal;
             } else {
                 if (typeof (EditedVal) === 'boolean') {
-                    v.Previous = !EditedVal;
+                    v.Table.Previous = !EditedVal;
                 }
                 ChangedRow.EditsList.push({
                     'Key': ChangedRow.SortID,
                     'EditedCol': EditedCol,
                     'EditedVal': EditedVal,
-                    'Previous': v.Previous
+                    'Previous': v.Table.Previous
                 });
             }
 
-            v.Edited = true;
-            v.Editing = false;
+            v.Table.Edited = true;
+            v.Table.Editing = false;
         },
         Prev: function (Row, Col) {
-            this.Previous = Row[Col];
+            this.Table.Previous = Row[Col];
         },
         Save: function () {
             this.Loading = true;
@@ -528,15 +544,15 @@ const v = new Vue({
                 }).
                 finally(_ => {
                     this.Loading = false;
-                    this.Edited = false;
-                    this.Editing = false;
+                    this.Table.Edited = false;
+                    this.Table.Editing = false;
                 });
         },
         Cancel: function () {
             this.SetAutoUpdate();
             this.Loading = false;
-            this.Edited = false;
-            this.Editing = false;
+            this.Table.Edited = false;
+            this.Table.Editing = false;
         },
 
         SetToast: function (response) {
@@ -576,25 +592,25 @@ const v = new Vue({
         },
         Sort: function (Col) {
             let v = this
-            if (v.SortBy === Col) {
-                v.SortByAsc = !v.SortByAsc
+            if (v.Table.SortBy === Col) {
+                v.Table.SortByAsc = !v.Table.SortByAsc
             } else {
-                v.SortByAsc = true
+                v.Table.SortByAsc = true
             }
-            v.SortBy = Col;
+            v.Table.SortBy = Col;
         },
 
         CancelAutoUpdate: function () {
-            clearInterval(this.Timer);
+            clearInterval(this.Table.Timer);
         },
         SetAutoUpdate: function () {
             this.CancelAutoUpdate();
             this.GetData();
-            this.Timer = setInterval(this.GetData, 1000 * 5);
+            this.Table.Timer = setInterval(this.GetData, 1000 * 5);
         }
     },
     beforeDestroy() {
-        clearInterval(this.timer)
+        clearInterval(this.Table.timer)
     }
 });
 
@@ -603,3 +619,12 @@ function UpdateTable() {
 }
 
 window.addEventListener('keydown', function (e) { if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) { if (e.target.nodeName == 'INPUT' && e.target.type == 'text') { e.preventDefault(); return false; } } }, true);
+
+let content = document.getElementById('vue-content')
+content.addEventListener('click', function(event, element) {
+    if (!event.target.parentNode || event.target.parentNode.nodeName === 'TD' || event.target.nodeName === 'LABEL') {
+        event.stopPropagation();
+        return;
+    }
+    v.Table.Editing = null
+})

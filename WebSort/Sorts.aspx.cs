@@ -643,6 +643,13 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string GetProductGrades()
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(Product.GetProductGrades());
+        }
+
+        [WebMethod]
         public static string Save(Sort[] Changed, bool ActiveRecipe)
         {
             SaveResponse response = new SaveResponse("Sorts");
@@ -764,13 +771,15 @@ namespace WebSort
                                         cmd.Parameters.AddWithValue("@SortSize", Item.SortSize);
                                         cmd.Parameters.AddWithValue("@PkgsPerSort", Item.PkgsPerSort);
                                         cmd.Parameters.AddWithValue("@OrderCount", Item.OrderCount);
+                                        cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
+                                        cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
                                         cmd.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(LengthMap));
                                         cmd.Parameters.AddWithValue("@ProductMap0c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap1c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap2c", 0);
                                         cmd.Parameters.AddWithValue("@LengthMapc", 0);
                                         cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                        cmd.Parameters.AddWithValue("@SortSprays", SpraysPLC);
+                                        cmd.Parameters.AddWithValue("@SortSprays", (long)SpraysPLC);
                                         cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
                                         cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
                                         cmd.Parameters.AddWithValue("@TrimFlag", 1);
@@ -819,13 +828,15 @@ namespace WebSort
                                         cmd.Parameters.AddWithValue("@SortSize", Item.SortSize);
                                         cmd.Parameters.AddWithValue("@PkgsPerSort", Item.PkgsPerSort);
                                         cmd.Parameters.AddWithValue("@OrderCount", Item.OrderCount);
+                                        cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
+                                        cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
                                         cmd.Parameters.AddWithValue("@LengthMap", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap0c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap1c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap2c", 0);
                                         cmd.Parameters.AddWithValue("@LengthMapc", 0);
                                         cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                        cmd.Parameters.AddWithValue("@SortSprays", SpraysPLC);
+                                        cmd.Parameters.AddWithValue("@SortSprays", (long)SpraysPLC);
                                         cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
                                         cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
                                         cmd.Parameters.AddWithValue("@TrimFlag", 1);

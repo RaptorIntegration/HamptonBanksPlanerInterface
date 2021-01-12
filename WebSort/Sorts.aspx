@@ -151,7 +151,7 @@
                                 <td @click="EditingGradeMatrixCell(grade, 'GradeLabel')">
                                     <select 
 										v-on:focus="Prev(grade, 'GradeLabel')"
-                                        v-if="Editing == grade.PLCGradeID + '_GradeLabel'"
+                                        v-if="Table.Editing == grade.PLCGradeID + '_GradeLabel'"
                                         v-on:change="UpdateGradeMatrix('GradeLabel', grade.GradeLabel, grade)"
                                         v-model="grade.GradeLabel" 
                                         class="form-control">
@@ -184,7 +184,7 @@
                 <div class="above-table mb-3 align-items-center">
                      <div>
                         <transition name="component-fade" mode="out-in">
-                            <div v-if="Edited">
+                            <div v-if="Table.Edited">
                                 <input class="btn-save" type="button" v-on:click="Save" value="Save" />
                                 <input class="btn-cancel" type="button" v-on:click="Cancel" value="Cancel" />
                             </div>                            
@@ -214,7 +214,7 @@
                         </transition>
                     </div>
                     <div v-if="DropDown" style="min-height:34px;">
-                        <auto-complete :data="DropDown" v-model="Filter"></auto-complete>
+                        <auto-complete :data="DropDown" v-model="Table.Filter"></auto-complete>
                     </div>
                 </div>
                 <div class="row">
@@ -222,11 +222,13 @@
                         <table class="table">
                         <thead>
                             <tr>
-                            <th scope="col" style="width: 2%;" @click="Sort('SortID')">ID</th>
-                            <th scope="col" @click="Sort('SortLabel')">Label</th>
-                            <th scope="col" v-for="Col in Table.Columns" style="width: 5%;" @click="Sort(Col.DataSource)">{{ Col.Header }}</th>
-                            <th scope="col" @click="Sort('SortStamps')">Stamps</th>
-                            <th scope="col" @click="Sort('ProductsLabel')">Products</th>
+                                <th scope="col" style="width: 2%;" @click="Sort('SortID')">ID</th>
+                                <th scope="col" @click="Sort('SortLabel')">Label</th>
+                                <th scope="col" v-for="Col in Table.Columns" style="width: 2%;" @click="Sort(Col.DataSource)">{{ Col.Header }}</th>
+                                <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
+                                <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
+                                <th scope="col" style="width:5%;" @click="Sort('SortStamps')">Stamps</th>
+                                <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -235,7 +237,7 @@
                                 <th scope="row">{{ Row.SortID }}</th>
                                 <td @click="EditingCell(Row, 'SortLabel')" style="white-space:nowrap;">
                                     <input
-                                        v-if="Editing == Row.SortID + '_SortLabel'"
+                                        v-if="Table.Editing == Row.SortID + '_SortLabel'"
                                         v-model="Row.SortLabel"
                                         v-on:blur="Update('SortLabel', Row.SortLabel, Row);"
                                         v-on:focus="Prev(Row, 'SortLabel')"
@@ -248,7 +250,7 @@
                                 </td>
                                 <td v-for="Col in Table.Columns" @click="EditingCell(Row, Col.DataSource)">
                                     <input
-                                        v-if="Editing == Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'"
+                                        v-if="Table.Editing == Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'"
                                         v-model="Row[Col.DataSource]"
                                         v-on:blur="Update(Col.DataSource, Row[Col.DataSource], Row);"
                                         v-on:focus="Prev(Row, Col.DataSource)"
@@ -261,8 +263,33 @@
                                         v-on:change="Update(Col.DataSource, Row[Col.DataSource], Row);"
                                         type="checkbox"
                                         class="check">
-                                    <div v-if="Editing != Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'">
+                                    <div v-if="Table.Editing != Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'">
                                         <label>{{ Row[Col.DataSource] }}</label>
+                                    </div>
+                                </td>
+                                <td @click="EditingCell(Row, 'SecProdID')">
+                                    <select class="form-control" 
+                                        v-model.number="Row.SecProdID" 
+                                        v-if="Table.Editing == Row.SortID + '_SecProdID'" 
+                                        v-on:change="Update('SecProdID', Row.SecProdID, Row)">
+                                        <option value="0">None</option>
+                                        <option v-for="prod in Table.Products" v-bind:value="prod.ID">{{prod.Label}}</option>
+                                    </select>
+                                    <div v-else>
+                                        <label>{{ Row.SecProdID == 0 ? 'None' : Table.Products.find(f => f.ID == Row.SecProdID).Label }}</label>
+                                    </div>
+                                </td>
+                                <td @click="EditingCell(Row, 'SecSize')">
+                                    <input
+                                        v-if="Table.Editing == Row.SortID + '_SecSize'"
+                                        v-model.number="Row.SecSize"
+                                        v-on:blur="Update('SecSize', Row.SecSize, Row);"
+                                        v-on:focus="Prev(Row, 'SecSize')"
+                                        type="number"
+                                        spellcheck="false"
+                                        class="form-control">
+                                    <div v-else>
+                                        <label>{{ Row.SecSize }}</label>
                                     </div>
                                 </td>
                                 <td @click="EditingCell(Row, 'SortStamps')">
@@ -284,9 +311,9 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr class="no-hover" v-if="Editing === Row.SortID + '_ProductsLabel'">
+                            <tr class="no-hover" v-if="Table.Editing === Row.SortID + '_ProductsLabel'">
                                 <td colspan="12" class="no-hover">
-                                    <div class="row" style="padding:5px;" v-on:click="Editing = null">
+                                    <div class="row" style="padding:5px;" v-on:click="Table.Editing = null">
                                         <div class="col-10">
                                         <p style="font-size:14px; font-weight:700;">Products</p>
                                         </div>
