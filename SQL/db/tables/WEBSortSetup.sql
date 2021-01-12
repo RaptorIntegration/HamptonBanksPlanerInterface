@@ -30,7 +30,16 @@ CREATE TABLE [dbo].[WEBSortSetup] (
    [BinDetailWidth1] [int] NULL,
    [BinButtonCellSpacing1] [int] NULL,
    [nearsawoffset] [real] NULL,
-   [farsawoffset] [real] NULL
+   [farsawoffset] [real] NULL,
+   [trimlossfactorboards] [int] NULL,
+   [remanfactor] [real] NULL,
+   [remanfactorboards] [int] NULL,
+   [slashthresh] [real] NULL,
+   [slashthreshboards] [int] NULL,
+   [remanfactor1] [real] NULL,
+   [trimlossexcess] [real] NULL,
+   [IncDec] [int] NOT NULL
+      CONSTRAINT [WEBSortSetup_IncDec] DEFAULT ((1))
 )
 
 

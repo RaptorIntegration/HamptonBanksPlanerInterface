@@ -1,6 +1,5 @@
 CREATE TABLE [dbo].[PETLengths] (
-   [PETLengthID] [smallint] NOT NULL
-      IDENTITY (1,1),
+   [PETLengthID] [smallint] NOT NULL,
    [LengthLabel] [varchar](50) NULL,
    [SawIndex] [int] NULL,
    [LengthNominal] [real] NULL,

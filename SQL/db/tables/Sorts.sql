@@ -11,7 +11,7 @@ CREATE TABLE [dbo].[Sorts] (
    [PkgsPerSort] [smallint] NULL,
    [RW] [bit] NULL,
    [OrderCount] [smallint] NULL,
-   [SortStamps] [int] NULL,
+   [SortStamps] [bigint] NULL,
    [SortStampsLabel] [varchar](100) NULL,
    [SortSprays] [int] NULL,
    [SortSpraysLabel] [varchar](100) NULL,

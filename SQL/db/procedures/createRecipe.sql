@@ -15,7 +15,7 @@ BEGIN
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 	declare @sortcount smallint, @recipeid int,  @i smallint, @drivecount smallint
-	select @sortcount = 175
+	select @sortcount = 100
 	select @i=1
 
 	update Recipes set editing=0
@@ -24,12 +24,12 @@ BEGIN
 	while @i<=@sortcount
 	begin
 		delete from sorts where recipeid=@recipeid and sortid=@i
-		insert into sorts select @recipeid,@i,'Sort ' + convert(varchar,@i),1,0,1,118,1,118,1,0,0,0,'',0,'',0,1,''
+		insert into sorts select @recipeid,@i,'Sort ' + convert(varchar,@i),1,0,1,50,1,50,1,0,0,0,'',0,'',0,1,''
 		
 		select @i=@i+1
 	end
 	
-	/*select @drivecount = (select count(*) from drivesettings)
+	select @drivecount = (select count(*) from drivesettings)
 	select @i=1
 	while @i<=@drivecount
 	begin
@@ -37,10 +37,9 @@ BEGIN
 		insert into drives select @recipeid,@i,0,0,1,1,1,1,1,1,1,1,1,1
 		
 		select @i=@i+1
-	end*/
-	
+	end	
 	select @i=1
-	while @i<=32
+	while @i<=15
 	begin
 		delete from gradematrix where recipeid=@recipeid and plcgradeid=@i
 		insert into gradematrix select @recipeid,@i,@i,0,0

@@ -69,7 +69,7 @@ BEGIN
 	select @sqlstring = @sqlstring + 'L9=Length9Multiplier,'
 	select @sqlstring = @sqlstring + 'L10=Length10Multiplier'
 	select @sqlstring = @sqlstring + ' from drives,drivesettings where '
-	select @sqlstring = @sqlstring + ' drives.driveid=drivesettings.driveid '
+	select @sqlstring = @sqlstring + ' drives.driveid=drivesettings.driveid and recipeid=(select recipeid from recipes where online=1)'
 
 
 	EXECUTE sp_executesql @sqlstring

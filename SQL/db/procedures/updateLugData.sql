@@ -18,6 +18,7 @@ CREATE PROCEDURE [dbo].[updateLugData]
 @WidthActual real,
 @LengthIn real,
 @Fence real,
+@graderid int,
 @Saws bigint,
 @NET int,
 @FET int,
@@ -45,6 +46,9 @@ BEGIN
 	declare @sawbinary varchar(50), @min smallint
 	declare @thicknom real, @widthnom real
 	declare @trimlossfactor real, @trimlossfactor1 real, @volumeout real
+	
+	--override the exception code of no grade, since the plc is sorting them 
+	if @flags=4 select @flags=0
 	
 	select @trimlossfactor=(select trimlossfactor/100.0 from WEBSortSetup)
 	select @trimlossfactor1=(select (100.0 + (100.0-trimlossfactor))/100.0 from WEBSortSetup )
@@ -329,29 +333,8 @@ BEGIN
 		exec updateBinProducts @BayNum
 				
 		select @sorted=1
-		select @sortcode=1
+		select @sortcode=1	
 		
-		--Order Management
-		if (select active from ordermanagementsettings) = 1
-		begin
-			declare @s int, @recipeid smallint, @sortsize smallint
-			select @recipeid=(select recipeid from recipes where online=1)
-			select @s=1
-			while @s<=(select max(sortid) from sorts where recipeid=@recipeid)
-			begin
-				if (select ordercount from sorts where sortid=@s and recipeid=@recipeid) = 1
-				begin					
-					if (select count(*) from OrderManagementAnticipation where sortid=@s) = 0
-						insert into OrderManagementAnticipation select @s,prodid,lengthid,sortsize*2,Porter_Cant_Anticipation,Porter_Bucking_Anticipation,
-						NBE_Edger_Anticipation,BoardScannerQ_Anticipation from sorts,sortproductlengths,OrderManagementSettings where sorts.sortid=@s and sorts.recipeid=@recipeid
-						and sorts.SortID=SortProductLengths.SortID and sorts.RecipeID=SortProductLengths.RecipeID
-					update OrderManagementAnticipation set OrderPiecesRemaining = OrderPiecesRemaining - 1
-					where orderpiecesremaining > 0 and WEBSortproductID=@ProductID and WEBSortLengthID=@LengthID
-					delete from OrderManagementAnticipation where OrderPiecesRemaining=0
-				end
-				select @s=@s+1
-			end
-		end
 	end
 	else if @Flags>=0
 	begin
@@ -370,11 +353,7 @@ BEGIN
 		end
 	end
 	
-	if @flags=22 and @Baynum in (select binid from bins with (nolock)  where binstatus<>4)  --good pith data boards
-	begin
-		select @sorted=1
-		select @sortcode=22
-	end
+	
 	
 
 	/*target summary*/

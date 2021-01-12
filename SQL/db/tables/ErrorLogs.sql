@@ -7,7 +7,7 @@ CREATE TABLE [dbo].[ErrorLogs] (
    [Message] [nvarchar](max) NOT NULL,
    [Exception] [nvarchar](max) NULL
 
-   ,CONSTRAINT [PK_dbo.Log] PRIMARY KEY CLUSTERED ([Id])
+   ,CONSTRAINT [PK_dbo.ErrorLogs] PRIMARY KEY CLUSTERED ([Id])
 )
 
 

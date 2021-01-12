@@ -21,7 +21,7 @@ BEGIN
 	delete from sortlengths where recipeid=@RecipeID
 	delete from sortproductlengths where recipeid=@RecipeID
 	delete from gradematrix where recipeid=@RecipeID
-	--delete from drives where recipeid=@RecipeID
+	delete from drives where recipeid=@RecipeID
 	update recipes set editing=1 where online=1
 END
 GO

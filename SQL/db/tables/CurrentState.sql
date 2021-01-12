@@ -25,7 +25,10 @@ CREATE TABLE [dbo].[CurrentState] (
    [trimloss] [real] NULL,
    [CurrentInputVolume] [real] NULL,
    [BinsSpare] [smallint] NULL,
-   [CurrentVolumePerLug] [real] NULL
+   [CurrentVolumePerLug] [real] NULL,
+   [remancount] [int] NULL,
+   [slashcount] [int] NULL,
+   [trimlossshift] [real] NULL
 )
 
 

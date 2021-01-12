@@ -20,8 +20,8 @@ BEGIN
 	select @currentday = (select datepart(dw,@currenttime))
 	
 	--prevent running this again if it has already been processed
-	if (select ABS(datediff(mi,@currenttime,ShiftEnd)) from Shifts where ShiftIndex = (select MAX(shiftindex)-1 from Shifts)) <=2
-		return
+	--if (select ABS(datediff(mi,@currenttime,ShiftEnd)) from Shifts where ShiftIndex = (select MAX(shiftindex)-1 from Shifts)) <=2
+	--	return
 
 	if (select count(*) from shifts) = 0
 		select @currentshiftindex = 0
@@ -38,31 +38,7 @@ BEGIN
 		RunIndexStart = (select MAX(runindex) from runs), RunIndexEnd = (select MAX(runindex) from Runs)
 		execute upReportHeader
 		
-	if (select COUNT(*) from ProductionBoards where sorted=1 and ShiftIndex=(select max(shiftindex)-1 from shifts)) > 0
-	begin
-		BEGIN TRY	
-			--email reports
-			
-			select @filepath = 'c:\raptorwebsort\emailreports\'
-			declare @f varchar(100)
-			select @f=(select 'del /Q ' + @filepath + '*.pdf"')
-			exec master..xp_cmdshell @f,no_output
-			select @f=(select 'del /Q ' + @filepath + '*.xls"')
-			exec master..xp_cmdshell @f,no_output
 	
-			Exec master.dbo.xp_cmdshell 'c:\raptorwebsort\emailreports\run.cmd >> c:\raptorwebsort\emailreports\emaillog.txt',no_output
-			Exec master.dbo.xp_cmdshell 'c:\raptorwebsort\emailreports\runpdf.cmd >> c:\raptorwebsort\emailreports\emaillog.txt',no_output
-			EXEC msdb.dbo.sp_send_dbmail @recipients='jhall@nflmill.com;ceckhardt@nflmill.com;swatson@nflmill.com;kdunn@nflmill.com;kforsburg@nflmill.com;rspiers@nflmill.com;mmaciel@nflmill.com;abe@trustbiztech.com;ACousins@trlcmill.com;RSchneider@trlcmill.com;nbucey@trlcmill.com;kevin.bushell@raptorint.ca', @subject='Daily Reports',	@body='Daily reports from the Raptor System',	@body_format = 'HTML', @file_attachments='c:\raptorwebsort\emailreports\production detail.xls;c:\raptorwebsort\emailreports\production summary.xls' ;
-			EXEC msdb.dbo.sp_send_dbmail @recipients='jhall@nflmill.com;ceckhardt@nflmill.com;swatson@nflmill.com;kdunn@nflmill.com;kforsburg@nflmill.com;rspiers@nflmill.com;mmaciel@nflmill.com;ACousins@trlcmill.com;RSchneider@trlcmill.com;nbucey@trlcmill.com;fschmidbauer@trlcmill.com', @subject='Daily Reports',	@body='Daily reports from the Raptor System',	@body_format = 'HTML', @file_attachments='c:\raptorwebsort\emailreports\production detail.pdf;c:\raptorwebsort\emailreports\production summary.pdf' ;
-			
-
-
-			insert into RaptorShiftMasterLog select getdate(),'reports emailed'
-		END TRY
-		BEGIN CATCH
-			insert into RaptorShiftMasterLog select getdate(),'emailing reports failed'
-		END CATCH
-	end
 
 	-- clear and move currentstate data
 	insert into currentstateprevious select @currentshiftindex,@currentrunindex,CurrentVolume,CurrentPieces,CurrentShiftLugFill,CurrentUptime,CurrentVolumePerHour,CurrentPiecesPerHour,CurrentLPM from CurrentState

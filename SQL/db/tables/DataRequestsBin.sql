@@ -20,7 +20,7 @@ CREATE TABLE [dbo].[DataRequestsBin] (
    [ProductMap3Old] [bigint] NULL,
    [ProductMap4Old] [bigint] NULL,
    [ProductMap5Old] [bigint] NULL,
-   [BinStamps] [int] NULL,
+   [BinStamps] [bigint] NULL,
    [BinSprays] [int] NULL,
    [SortID] [int] NULL,
    [TrimFlag] [bit] NULL,

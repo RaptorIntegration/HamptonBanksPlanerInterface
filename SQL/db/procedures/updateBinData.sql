@@ -15,7 +15,7 @@ CREATE PROCEDURE [dbo].[updateBinData]
 @Count int,
 @RdmWidthFlag bit,
 @Status int,
-@Stamps int,
+@Stamps bigint,
 @Sprays int,
 @TrimFlag bit,
 @SortXRef int,
@@ -328,7 +328,7 @@ BEGIN
 				end			
 
 				--create file for TagTrack inventory system
-				execute selectTicket @Packagenumber
+				-- execute selectTicket @Packagenumber
 				Select @Loop = @Loop + 1
 			end
 			
@@ -397,8 +397,6 @@ BEGIN
 				if (select ordercount from Sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)) = 0
 				begin
 					update Sorts set Active=0 where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)
-					exec updateOrderManagement
-					exec updateRaptorDataToProSortScan
 					--delete from alarmsettingsinfeed where alarmid=@SortXRef
 					--insert into alarmsettingsinfeed select @SortXRef,0,sortlabel + ': PACKAGE ORDER COMPLETE',2,3 from sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)
 				end

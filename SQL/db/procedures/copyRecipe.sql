@@ -29,7 +29,7 @@ BEGIN
 	delete from sortlengthschild where recipeid=@newrecipeid
 	delete from sortproductlengthschild where recipeid=@newrecipeid
 	delete from gradematrix where recipeid=@newrecipeid
-	--delete from drives where recipeid=@newrecipeid
+	delete from drives where recipeid=@newrecipeid
 
 	insert into sorts select @newrecipeid,sortid,sortlabel,active,sortsize,zone1start,zone1stop,zone2start,zone2stop,
 	pkgspersort,rw,ordercount,sortstamps,sortstampslabel,sortsprays,sortsprayslabel,binid,trimflag,productslabel
@@ -48,10 +48,10 @@ BEGIN
 	from sortproductlengthschild where recipeid=@recipeid
 	insert into gradematrix select @newrecipeid,plcgradeid,websortgradeid,gradestamps,[default]
 	from gradematrix where recipeid=@recipeid
-	/*insert into drives select @newrecipeid,driveid,command,actual,length1multiplier,length2multiplier,length3multiplier,length4multiplier,length5multiplier
+	insert into drives select @newrecipeid,driveid,command,actual,length1multiplier,length2multiplier,length3multiplier,length4multiplier,length5multiplier
 	,length6multiplier,length7multiplier,length8multiplier,length9multiplier,length10multiplier
 	from drives where recipeid=@recipeid
-*/		
+		
 		
 		
 	

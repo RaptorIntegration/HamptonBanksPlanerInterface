@@ -6,7 +6,7 @@ CREATE TABLE [dbo].[Bins] (
    [BinSize] [int] NULL,
    [BinCount] [int] NULL,
    [RW] [bit] NULL,
-   [BinStamps] [int] NULL,
+   [BinStamps] [bigint] NULL,
    [BinStampsLabel] [varchar](100) NULL,
    [BinSprays] [int] NULL,
    [BinSpraysLabel] [varchar](100) NULL,

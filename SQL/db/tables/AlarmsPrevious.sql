@@ -11,6 +11,5 @@ CREATE TABLE [dbo].[AlarmsPrevious] (
    ,CONSTRAINT [PK_AlarmsPrevious] PRIMARY KEY CLUSTERED ([ShiftIndex], [RunIndex], [AlarmID], [StartTime])
 )
 
-CREATE NONCLUSTERED INDEX [StopTimeIndex, sysname,] ON [dbo].[AlarmsPrevious] ([StopTime])
 
 GO

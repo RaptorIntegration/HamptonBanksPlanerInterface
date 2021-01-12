@@ -17,7 +17,8 @@ BEGIN
 	
 	update alarmdefaultaccumulatedtime set accumulatedtime = accumulatedtime + abs(datediff(ss,getdate(),lasttimestamp))
 	update AlarmDefaultAccumulatedTime set lasttimestamp = GETDATE()
-	
+		
+
 
 	create table #tempmessages
 	(
@@ -132,7 +133,20 @@ BEGIN
 				update #tempmessages set Data = (select Data from alarmsettings where AlarmID = @aid) where AlarmID = @aid
 				update alarms set Data = (select Data from alarmsettings where AlarmID = @aid) where AlarmID = @aid and stoptime is null
 				
-				
+				if @aid=319-- and (select COUNT(*) from ProductionDiverterFail where BayID=999) > 0
+				begin
+					declare @Shift int
+					declare @Run int, @BayID smallint
+					select @Shift=max(shiftindex) from Shifts
+					select @Run=max(runindex) from Runs
+					select @BayID = (select Data from alarmsettings where AlarmID = 319)
+					if (select count(*) from ProductionDiverterFail where shiftindex=@shift and runindex=@run and BayID=@BayID) > 0
+						update ProductionDiverterFail set boardcount=Boardcount+1 where 
+						shiftindex=@shift and runindex=@Run	and BayID=@BayID
+					else
+						insert into ProductionDiverterFail select @shift,@run,@Bayid,1		
+					delete from ProductionDiverterFail where BayID = 999	
+				end
 			
 			end
 		end

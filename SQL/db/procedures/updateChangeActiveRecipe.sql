@@ -39,7 +39,6 @@ BEGIN
 
 	-- send PLC the run thickness and width
     update RaptorCommSettings set DataRequests = DataRequests | 32768
-    
 	
 END
 GO

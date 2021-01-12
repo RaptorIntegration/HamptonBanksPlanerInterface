@@ -17,7 +17,6 @@ BEGIN
 	
 	update alarmdefaultaccumulatedtime set accumulatedtime = accumulatedtime + abs(datediff(ss,getdate(),lasttimestamp))
 	update AlarmDefaultAccumulatedTime set lasttimestamp = GETDATE()
-	
 
 	create table #tempmessages
 	(
