@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
@@ -119,27 +120,25 @@ namespace WebSort
             if (changes?.Length > 0)
             {
                 int RecipeID = Recipe.GetEditingRecipe().RecipeID;
-                using (SqlConnection con = new SqlConnection(Global.ConnectionString))
-                {
-                    con.Open();
+                using SqlConnection con = new SqlConnection(Global.ConnectionString);
+                con.Open();
 
-                    foreach (GradeMatrix change in changes)
+                foreach (GradeMatrix change in changes)
+                {
+                    try
                     {
-                        try
+                        if (!GradeMatrix.SaveData(change, con, RecipeID))
                         {
-                            if (!GradeMatrix.SaveData(change, con, RecipeID))
-                            {
-                                response.Bad("PLC Timeout");
-                                return SaveResponse.Serialize(response);
-                            }
-                            response.AddEdits(change.EditsList);
-                        }
-                        catch (Exception ex)
-                        {
-                            Global.LogError(ex);
-                            response.Bad($"Error saving PLCGradeID: {change.PLCGradeID}");
+                            response.Bad("PLC Timeout");
                             return SaveResponse.Serialize(response);
                         }
+                        response.AddEdits(change.EditsList);
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        response.Bad($"Error saving PLCGradeID: {change.PLCGradeID}");
+                        return SaveResponse.Serialize(response);
                     }
                 }
             }
@@ -578,15 +577,11 @@ namespace WebSort
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT * FROM Sorts WHERE RecipeID = (SELECT RecipeID FROM Recipes WHERE Editing=1)", con))
+                using SqlCommand cmd = new SqlCommand("SELECT * FROM Sorts WHERE RecipeID = (SELECT RecipeID FROM Recipes WHERE Editing=1)", con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            Sorts = Sort.PopulateSortList(reader);
-                        }
-                    }
+                    Sorts = Sort.PopulateSortList(reader);
                 }
             }
             return serializer.Serialize(Sorts);
@@ -658,7 +653,7 @@ namespace WebSort
                 return SaveResponse.Serialize(response);
             }
 
-            int Stamps = 0, Sprays = 0, StampsPLC = 0, SpraysPLC = 0;
+            uint OldStamps = 0, Sprays = 0, SpraysPLC = 0;
 
             string RecipeID = "0", ProductString = "", LengthString = "";
             string Update;
@@ -702,6 +697,8 @@ namespace WebSort
                             GetDBProductMap(ref ProductString, ref LengthString, con, Item, ref LengthMap, ProductMap, ProductMapOld, RecipeID);
                         }
 
+                        Item.SortStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
+
                         foreach (Edit Edit in Item.EditsList)
                         {
                             // Invalid package size
@@ -712,15 +709,32 @@ namespace WebSort
                             }
 
                             // General update statement
-                            if (Edit.EditedCol != "Products")
+                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "SortStamps")
                             {
                                 Update = "UPDATE Sorts SET " + Edit.EditedCol + "=@Value WHERE RecipeID=" + RecipeID + " AND SortID=@ID";
-                                using (SqlCommand cmd = new SqlCommand(Update, con))
+                                using SqlCommand cmd = new SqlCommand(Update, con);
+                                cmd.Parameters.AddWithValue("@Value", Edit.EditedVal);
+                                cmd.Parameters.AddWithValue("@ID", Item.SortID);
+                                cmd.ExecuteNonQuery();
+                            }
+                            if (Edit.EditedCol == "SortStamps")
+                            {
+                                using (SqlCommand cmd2 = new SqlCommand("SELECT SortStamps FROM Sorts WHERE SortID=@SortID AND RecipeID=@RecipeID", con))
                                 {
-                                    cmd.Parameters.AddWithValue("@Value", Edit.EditedVal);
-                                    cmd.Parameters.AddWithValue("@ID", Item.SortID);
-                                    cmd.ExecuteNonQuery();
+                                    cmd2.Parameters.AddWithValue("@SortID", Item.SortID);
+                                    cmd2.Parameters.AddWithValue("@RecipeID", RecipeID);
+                                    using SqlDataReader reader = cmd2.ExecuteReader();
+                                    while (reader.Read())
+                                    {
+                                        OldStamps = Global.GetValue<uint>(reader, "SortStamps");
+                                    }
                                 }
+
+                                using SqlCommand cmd = new SqlCommand("UPDATE Sorts SET SortStamps=@SortStamps WHERE RecipeID=@RecipeID AND SortID=@ID", con);
+                                cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
+                                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+                                cmd.Parameters.AddWithValue("@ID", Item.SortID);
+                                cmd.ExecuteNonQuery();
                             }
 
                             // Order Count -> 0
@@ -730,19 +744,6 @@ namespace WebSort
                                 {
                                     cmd.Parameters.AddWithValue("@ID", Item.SortID);
                                     cmd.ExecuteNonQuery();
-                                }
-                            }
-
-                            // SortStamps
-                            using (SqlCommand cmd = new SqlCommand("select sortstamps from sorts where sortid=" + Item.SortID.ToString() + " and recipeid=" + RecipeID, con))
-                            using (SqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        StampsPLC = Convert.ToInt32(reader["sortstamps"].ToString());
-                                    }
                                 }
                             }
 
@@ -768,7 +769,7 @@ namespace WebSort
                                         cmd.Parameters.AddWithValue("@ProductMap1c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap2c", 0);
                                         cmd.Parameters.AddWithValue("@LengthMapc", 0);
-                                        cmd.Parameters.AddWithValue("@SortStamps", StampsPLC);
+                                        cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
                                         cmd.Parameters.AddWithValue("@SortSprays", SpraysPLC);
                                         cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
                                         cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
@@ -823,7 +824,7 @@ namespace WebSort
                                         cmd.Parameters.AddWithValue("@ProductMap1c", 0);
                                         cmd.Parameters.AddWithValue("@ProductMap2c", 0);
                                         cmd.Parameters.AddWithValue("@LengthMapc", 0);
-                                        cmd.Parameters.AddWithValue("@SortStamps", StampsPLC);
+                                        cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
                                         cmd.Parameters.AddWithValue("@SortSprays", SpraysPLC);
                                         cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
                                         cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
@@ -893,10 +894,15 @@ namespace WebSort
                             UpdateSortProductsGUI(con, Item, RecipeID);
 
                             Edit.Key = Item.SortID;
+
+                            if (Edit.EditedCol == "SortStamps")
+                            {
+                                response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.SortStamps, OldStamps, Item.SortID));
+                            }
                         } // end foreach edit
                         ProductString = "";
                         LengthString = "";
-                        response.AddEdits(Item.EditsList);
+                        response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "SortStamps").ToList());
                     } // end foreach item
                 }
             } // End connection

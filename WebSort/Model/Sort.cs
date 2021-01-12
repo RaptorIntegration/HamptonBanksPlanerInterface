@@ -20,7 +20,14 @@ namespace WebSort.Model
         public int PkgsPerSort { get; set; }
         public bool RW { get; set; }
         public int OrderCount { get; set; }
+        public long SortStamps { get; set; }
+        public string SortStampsLabel { get; set; }
+        public int SortSprays { get; set; }
+        public string SortSpraysLabel { get; set; }
+        public int BinID { get; set; }
+        public int TrimFlag { get; set; }
         public string ProductsLabel { get; set; }
+        public List<Stamp> SelectedStamps { get; set; }
         public bool Changed { get; set; }
         public ProductLengths ProdLen { get; set; }
         public List<Edit> EditsList { get; set; }
@@ -42,6 +49,7 @@ namespace WebSort.Model
         public static List<Sort> PopulateSortList(SqlDataReader reader)
         {
             List<Sort> SortList = new List<Sort>();
+            List<Stamp> stamps = Stamp.GetStamps();
             while (reader.Read())
             {
                 SortList.Add(new Sort
@@ -58,7 +66,8 @@ namespace WebSort.Model
                     RW = Global.GetValue<bool>(reader, "RW"),
                     OrderCount = Global.GetValue<int>(reader, "OrderCount"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
-                    Changed = false
+                    Changed = false,
+                    SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "SortStamps"), stamps)
                 });
             }
 
@@ -71,13 +80,11 @@ namespace WebSort.Model
             {
                 foreach (Edit edit in edits)
                 {
-                    using (SqlCommand cmd = new SqlCommand("UPDATE Sorts SET ProductsLabel = REPLACE(ProductsLabel, @Old, @New)", con))
-                    {
-                        cmd.Parameters.AddWithValue("@New", edit.EditedVal);
-                        cmd.Parameters.AddWithValue("@Old", edit.Previous);
+                    using SqlCommand cmd = new SqlCommand("UPDATE Sorts SET ProductsLabel = REPLACE(ProductsLabel, @Old, @New)", con);
+                    cmd.Parameters.AddWithValue("@New", edit.EditedVal);
+                    cmd.Parameters.AddWithValue("@Old", edit.Previous);
 
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

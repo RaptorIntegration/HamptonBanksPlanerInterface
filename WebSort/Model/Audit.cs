@@ -1,4 +1,5 @@
 ﻿using Mighty;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace WebSort.Model
         public static IEnumerable<Audit> GetAll()
         {
             MightyOrm<Audit> db = new MightyOrm<Audit>(Global.MightyConString, "Audit", "ID");
-            return db.All().OrderByDescending(o => o.TimeStamp);
+            return db.All().OrderByDescending(o => o.TimeStamp).Take(100);
         }
     }
 }

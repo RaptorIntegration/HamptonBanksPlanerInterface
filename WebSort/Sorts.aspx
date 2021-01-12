@@ -213,18 +213,19 @@
                         </table>
                         </transition>
                     </div>
-                    <div v-if="DropDown">
+                    <div v-if="DropDown" style="min-height:34px;">
                         <auto-complete :data="DropDown" v-model="Filter"></auto-complete>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center">
-                        <table class="table" style="max-width:1600px;">
+                        <table class="table">
                         <thead>
                             <tr>
                             <th scope="col" style="width: 2%;" @click="Sort('SortID')">ID</th>
                             <th scope="col" @click="Sort('SortLabel')">Label</th>
                             <th scope="col" v-for="Col in Table.Columns" style="width: 5%;" @click="Sort(Col.DataSource)">{{ Col.Header }}</th>
+                            <th scope="col" @click="Sort('SortStamps')">Stamps</th>
                             <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                             </tr>
                         </thead>
@@ -264,7 +265,20 @@
                                         <label>{{ Row[Col.DataSource] }}</label>
                                     </div>
                                 </td>
-                                    <td @click="EditingCell(Row, 'ProductsLabel'); ">
+                                <td @click="EditingCell(Row, 'SortStamps')">
+                                    <div class="stamp-container">
+                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">                                            
+                                            <input
+                                                v-bind:id="'stamp-' + Row.SortID + '-' + stamp.ID"
+                                                v-on:change="Update('SortStamps', stamp.Selected, Row);"
+                                                v-model="stamp.Selected"
+                                                type="checkbox"
+                                                class="check">
+                                            <label v-bind:for="'stamp-' + Row.SortID + '-' + stamp.ID">{{stamp.Description}}</label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td @click="EditingCell(Row, 'ProductsLabel'); ">
                                     <div>
                                         <label>{{ Row.ProductsLabel }}</label>
                                     </div>

@@ -213,19 +213,17 @@ namespace WebSort
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             List<Bin> Sorts = new List<Bin>();
 
-            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinPercent, " +
+            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
                                "[SortID], [ProductsLabel] FROM [Bins] with(NOLOCK)";
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand(sql, con))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using SqlCommand cmd = new SqlCommand(sql, con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    if (reader.HasRows)
-                    {
-                        Sorts = Bin.PopulateBinList(reader);
-                    }
+                    Sorts = Bin.PopulateBinList(reader);
                 }
             }
             return serializer.Serialize(Sorts);
@@ -291,7 +289,7 @@ namespace WebSort
         {
             SaveResponse response = new SaveResponse("Bins");
 
-            int Sprays = 0, StampsPLC = 0, SpraysPLC = 0;
+            uint Sprays = 0, OldStamps = 0, StampsPLC = 0, SpraysPLC = 0;
             int StatusOriginal = 0;
 
             bool succeeded = true;
@@ -312,9 +310,11 @@ namespace WebSort
                 {
                     foreach (Bin Item in Changed)
                     {
-                        int LengthMap = 0;
+                        uint LengthMap = 0;
                         uint[] ProductMap = new uint[30];
                         uint[] ProductMapOld = new uint[30];
+
+                        Item.BinStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
 
                         // Length and Product Map
                         if (Item.ProdLen != null)  // Products changed
@@ -359,7 +359,7 @@ namespace WebSort
                                     cmd.Parameters.AddWithValue("@Count", Item.BinCount);
                                     cmd.Parameters.AddWithValue("@RdmWidthFlag", 0);
                                     cmd.Parameters.AddWithValue("@Status", Item.BinStatus);
-                                    cmd.Parameters.AddWithValue("@Stamps", 0);
+                                    cmd.Parameters.AddWithValue("@Stamps", Item.BinStamps);
                                     cmd.Parameters.AddWithValue("@Sprays", 0);
                                     cmd.Parameters.AddWithValue("@TrimFlag", 1);
                                     cmd.Parameters.AddWithValue("@SortXRef", Item.SortID);
@@ -420,7 +420,7 @@ namespace WebSort
                             } // End BinStatus
 
                             // General update statement
-                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus")
+                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus" && Edit.EditedCol != "BinStamps")
                             {
                                 Update = "UPDATE Bins SET " + Edit.EditedCol + "=@Value WHERE BinID=@BinID; UPDATE Bins SET BinPercent=(SELECT COALESCE(BinCount*100 / NULLIF(BinSize,0), 0) FROM Bins WHERE BinID=@BinID) WHERE BinID = @BinID";
                                 using (SqlCommand cmd = new SqlCommand(Update, con))
@@ -431,17 +431,22 @@ namespace WebSort
                                 }
                             }
 
-                            // BinStamps
-                            using (SqlCommand cmd = new SqlCommand("select BinStamps from Bins where BinID=" + Item.BinID.ToString(), con))
-                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            if (Edit.EditedCol == "BinStamps")
                             {
-                                if (reader.HasRows)
+                                using (SqlCommand cmd2 = new SqlCommand("SELECT BinStamps FROM Bins WHERE BinID=@BinID", con))
                                 {
+                                    cmd2.Parameters.AddWithValue("@BinID", Item.BinID);
+                                    using SqlDataReader reader = cmd2.ExecuteReader();
                                     while (reader.Read())
                                     {
-                                        StampsPLC = Convert.ToInt32(reader["BinStamps"].ToString());
+                                        OldStamps = Global.GetValue<uint>(reader, "BinStamps");
                                     }
                                 }
+
+                                using SqlCommand cmd = new SqlCommand("UPDATE Bins SET BinStamps=@BinStamps WHERE BinID=@BinID", con);
+                                cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
+                                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
+                                cmd.ExecuteNonQuery();
                             }
 
                             SpraysPLC |= Sprays;
@@ -465,9 +470,9 @@ namespace WebSort
                                     cmd.Parameters.AddWithValue($"@ProductMap{i}", ProductMap[i].ToString());
                                     cmd.Parameters.AddWithValue($"@ProductMap{i}Old", ProductMap[i].ToString());
                                 }
-                                cmd.Parameters.AddWithValue("@LengthMap", LengthMap);
-                                cmd.Parameters.AddWithValue("@BinStamps", 0);
-                                cmd.Parameters.AddWithValue("@BinSprays", Sprays);
+                                cmd.Parameters.AddWithValue("@LengthMap", (long)LengthMap);
+                                cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
+                                cmd.Parameters.AddWithValue("@BinSprays", (long)Sprays);
                                 cmd.Parameters.AddWithValue("@SortID", Item.SortID);
                                 cmd.Parameters.AddWithValue("@TrimFlag", 0);
                                 cmd.Parameters.AddWithValue("@RW", 0);
@@ -551,9 +556,14 @@ namespace WebSort
                                 }
                             }
 
+                            if (Edit.EditedCol == "BinStamps")
+                            {
+                                response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.BinStamps, OldStamps, Item.BinID));
+                            }
+
                             Edit.Key = Item.BinID;
                         } // end foreach edit
-                        response.AddEdits(Item.EditsList);
+                        response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "BinStamps").ToList());
                     } // end foreach item
                 }
             } // End connection
@@ -686,7 +696,7 @@ namespace WebSort
             }
         }
 
-        private static void GetDBProductMap(SqlConnection con, Bin Item, ref int LengthMap, uint[] ProductMap, uint[] ProductMapOld)
+        private static void GetDBProductMap(SqlConnection con, Bin Item, ref uint LengthMap, uint[] ProductMap, uint[] ProductMapOld)
         {
             // Product Map
             ProductLengths PL = new ProductLengths();
@@ -722,14 +732,14 @@ namespace WebSort
                         // Use only selected
                         foreach (ProductLengths.Lengths L in PL.LengthsList.Where(l => l.Selected).ToList())
                         {
-                            LengthMap |= Convert.ToInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
+                            LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
                         }
                     }
                 }
             }
         }
 
-        private static void GetSelectedProductMap(Bin Item, ref int LengthMap, uint[] ProductMap)
+        private static void GetSelectedProductMap(Bin Item, ref uint LengthMap, uint[] ProductMap)
         {
             ProductLengths SelectedProductLengths = new ProductLengths()
             {
@@ -746,7 +756,7 @@ namespace WebSort
             // Length Map
             foreach (ProductLengths.Lengths L in SelectedProductLengths.LengthsList)
             {
-                LengthMap |= Convert.ToInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
+                LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
             }
         }
 

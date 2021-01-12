@@ -231,8 +231,8 @@
 }
 
 .stamp-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    display:flex;
+    flex-wrap:nowrap;
 }
 .stamp-inner-container {
     display: grid;

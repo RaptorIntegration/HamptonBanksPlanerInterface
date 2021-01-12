@@ -145,6 +145,7 @@
                                             <th scope="col" v-for="Col in Columns" style="width: 5.5%;" @click="Sort(Col.DataSource)">{{Col.Header}}</th>
                                             <th scope="col" style="width: 5%;" @click="Sort('BinPercent')">Full</th>
                                             <th scope="col" style="width: 5%;" @click="Sort('SortID')">Sort ID</th>
+                                            <th scope="col" style="width: 20%" @click="Sort('BinStamps')">Stamps</th>
                                             <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                                         </tr>
                                     </thead>
@@ -194,6 +195,19 @@
                                                 </td>
                                                 <td>
                                                     {{ Row.SortID }}
+                                                </td>
+                                                 <td @click="EditingCell(Row, 'BinStamps')">
+                                                    <div class="stamp-container">
+                                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">                                            
+                                                            <input
+                                                                v-bind:id="'stamp-' + Row.SortID + '-' + stamp.ID"
+                                                                v-on:change="Update('BinStamps', stamp.Selected, Row);"
+                                                                v-model="stamp.Selected"
+                                                                type="checkbox"
+                                                                class="check">
+                                                            <label v-bind:for="'stamp-' + Row.SortID + '-' + stamp.ID">{{stamp.Description}}</label>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td @click="EditingCell(Row, 'ProductsLabel'); ">
                                                     <div>

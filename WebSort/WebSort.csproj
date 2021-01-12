@@ -369,6 +369,7 @@
     <Compile Include="Model\Recipe.cs" />
     <Compile Include="Model\SaveResponse.cs" />
     <Compile Include="Model\Sort.cs" />
+    <Compile Include="Model\Stamp.cs" />
     <Compile Include="Model\Thickness.cs" />
     <Compile Include="Model\User.cs" />
     <Compile Include="Model\Width.cs" />

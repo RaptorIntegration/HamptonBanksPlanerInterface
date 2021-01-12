@@ -233,3 +233,18 @@
     align-items: center;
     display: flex;
 }
+
+.stamp-container {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.stamp-inner-container {
+    display: grid;
+    grid-template-columns: 25px auto;
+    align-items: center;
+}
+
+    .stamp-inner-container label {
+        cursor: pointer;
+    }
