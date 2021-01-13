@@ -17,6 +17,7 @@
                 <input type="button" class="tablinks" v-bind:class="{active: Tab == 'Widths'}" value="Widths" v-on:click="Tab = 'Widths'" />
                 <input type="button" class="tablinks" v-bind:class="{active: Tab == 'Lengths'}" value="Lengths" v-on:click="Tab = 'Lengths'" />
                 <input type="button" class="tablinks" style="display: none" v-bind:class="{active: Tab == 'PETLengths'}" value="PET Lengths" v-on:click="Tab = 'PETLengths'" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 'Graders'}" value="Graders" v-on:click="Tab = 'Graders'" />
             </div>
             <transition name="fade" mode="out-in">
                 <div v-if="Tab === 'Products'" key="0" >
@@ -698,6 +699,80 @@
                                     </thead>
                                     <tbody>
                                     <tr v-for="Row in PETLengths.SaveResponse.ChangedList">
+                                        <td>{{ Row.Key }}</td>
+                                        <td>{{ Row.EditedCol }}</td>
+                                        <td>{{ Row.EditedVal }}</td>
+                                        <td>{{ Row.Previous }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>                       
+                    </div>
+                </div>
+                <div v-else-if="Tab === 'Graders'" key="5" class="grades" >
+                    <div class="above-table mb-3">
+                        <div>
+                            <input type="button" class="btn-raptor mr-4" value="Add New Grader" v-on:click="ShowNewGrader" v-bind:disabled="SecurityEnabled" />
+                            <input type="button" class="btn-raptor" value="Save Change(s)" v-on:click="Save(Graders, 'graders')" v-if="Graders.Edited" />
+                        </div>                        
+                    </div>  
+                    <div class="row" @keyup.enter="Graders.Editing = false" tabindex="0" style="outline:none;">
+                        <div class="grade-grid">
+                             <div class="card grade-card" v-if="Graders.New">
+                                <span class="card-title">New Grader</span>
+                                <div class="product-grid mt-3">
+                                    <div>
+                                        <label>Description</label>
+                                        <input type="text" class="form-control" v-model="Graders.New.GraderDescription" />
+                                    </div>                                    
+                                    <div>
+                                        <input type="button" class="btn-raptor" value="Save" v-on:click="AddNew(Graders, 'graders')" v-bind:disabled="SecurityEnabled" />
+                                        <input type="button" class="btn-raptor" value="Cancel" v-on:click="CancelNew(Graders)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <transition name="fade" mode="out-in">
+                                <table style="max-width: 600px;" class="table" v-if="Graders.List.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:20%;" v-on:click="Sort('GraderID', Graders)">Grader/Colour ID</th>
+                                            <th style="width:80%;" v-on:click="Sort('GraderDescription', Graders)">Grader/Colour Description</th>                                        
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="grader in GradersSorted">
+                                            <td>{{grader.GraderID}}</td>
+                                            <td @click="EditingCell(Graders, 'GraderDescription', grader.GraderID)">                                            
+                                                <input
+                                                    v-if="Graders.Editing === grader.GraderID + '_GraderDescription'"
+                                                    v-model="grader.GraderDescription"
+                                                    v-on:blur="Update('GraderDescription', grader.GraderDescription, grader, Graders, 'GraderID');"
+                                                    v-on:focus="Prev(grader.GraderDescription, Graders)"
+                                                    type="text"
+                                                    spellcheck="false"
+                                                    class="form-control">
+                                                <div v-else>
+                                                    <label>{{grader.GraderDescription}}</label>
+                                                </div>
+                                            </td>                                                                    
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </transition>   
+                            <div class="table-sm">
+                                <table class="table table-edits" v-if="Graders.SaveResponse.ChangedList.length">
+                                    <caption v-if="Graders.SaveResponse.ChangedList.length">{{ Graders.SaveResponse.ChangedList.length }} Changes Made</caption>
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 25%">Grader ID</th>
+                                        <th scope="col">Changed Column</th>
+                                        <th scope="col">Changed To</th>
+                                        <th scope="col">Previous</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="Row in Graders.SaveResponse.ChangedList">
                                         <td>{{ Row.Key }}</td>
                                         <td>{{ Row.EditedCol }}</td>
                                         <td>{{ Row.EditedVal }}</td>

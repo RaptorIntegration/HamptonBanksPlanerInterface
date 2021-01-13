@@ -141,10 +141,12 @@
                                         <tr>
                                             <th scope="col" style="width: 2%;" @click="Sort('BinID')">Bay</th>
                                             <th scope="col" style="width: 20%;" @click="Sort('BinLabel')">Label</th>
-                                            <th scope="col" style="width: 5.5%;" @click="Sort('BinStatus')">Label</th>
-                                            <th scope="col" v-for="Col in Columns" style="width: 5.5%;" @click="Sort(Col.DataSource)">{{Col.Header}}</th>
-                                            <th scope="col" style="width: 5%;" @click="Sort('BinPercent')">Full</th>
-                                            <th scope="col" style="width: 5%;" @click="Sort('SortID')">Sort ID</th>
+                                            <th scope="col" style="width: 5%;" @click="Sort('BinStatus')">Label</th>
+                                            <th scope="col" v-for="Col in Columns" style="width: 2%;" @click="Sort(Col.DataSource)">{{Col.Header}}</th>
+                                            <th scope="col" style="width: 2%;" @click="Sort('BinPercent')">Full</th>
+                                            <th scope="col" style="width: 2%;" @click="Sort('SortID')">Sort ID</th>
+                                            <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
+                                            <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
                                             <th scope="col" style="width: 20%" @click="Sort('BinStamps')">Stamps</th>
                                             <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                                         </tr>
@@ -195,6 +197,32 @@
                                                 </td>
                                                 <td>
                                                     {{ Row.SortID }}
+                                                </td>
+                                                <td @click="EditingCell(Row, 'SecProdID')">
+                                                    <select class="form-control" 
+                                                        v-model.number="Row.SecProdID" 
+                                                        v-if="Editing == Row.BinID + '_SecProdID'" 
+                                                        v-on:blur="Editing = false"
+                                                        v-on:change="Update('SecProdID', Row.SecProdID, Row)">
+                                                        <option value="0">None</option>
+                                                        <option v-for="prod in ProductGrades" v-bind:value="prod.ID">{{prod.Label}}</option>
+                                                    </select>
+                                                    <div v-else>
+                                                        <label>{{ Row.SecProdID == 0 ? 'None' : ProductGrades.find(f => f.ID == Row.SecProdID).Label }}</label>
+                                                    </div>
+                                                </td>
+                                                <td @click="EditingCell(Row, 'SecSize')">
+                                                    <input
+                                                        v-if="Editing == Row.BinID + '_SecSize'"
+                                                        v-model.number="Row.SecSize"
+                                                        v-on:blur="Row.SecSize = Math.round(Row.SecSize); Update('SecSize', Row.SecSize, Row);"
+                                                        v-on:focus="Prev(Row, 'SecSize')"
+                                                        type="number"
+                                                        spellcheck="false"
+                                                        class="form-control">
+                                                    <div v-else>
+                                                        <label>{{ Row.SecSize }}</label>
+                                                    </div>
                                                 </td>
                                                  <td @click="EditingCell(Row, 'BinStamps')">
                                                     <div class="stamp-container">

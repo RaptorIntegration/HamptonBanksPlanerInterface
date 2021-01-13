@@ -21,6 +21,9 @@ namespace WebSort.Model
         public int BinPercent { get; set; }
         public int SortID { get; set; }
         public bool TrimFlag { get; set; }
+        public int SecProdID { get; set; }
+        public short SecSize { get; set; }
+        public short SecCount { get; set; }
         public string ProductsLabel { get; set; }
         public List<Stamp> SelectedStamps { get; set; }
         public bool Changed { get; set; }
@@ -51,6 +54,8 @@ namespace WebSort.Model
                     BinPercent = Global.GetValue<int>(reader, "BinPercent"),
                     SortID = Global.GetValue<int>(reader, "SortID"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
+                    SecProdID = Global.GetValue<int>(reader, "SecProdID"),
+                    SecSize = Global.GetValue<short>(reader, "SecSize"),
                     Changed = false,
                     SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "BinStamps"), stamps)
                 });

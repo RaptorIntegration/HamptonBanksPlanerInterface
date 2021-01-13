@@ -361,6 +361,7 @@
     <Compile Include="Model\ErrorLog.cs" />
     <Compile Include="Model\Grade.cs" />
     <Compile Include="Model\GradeMatrix.cs" />
+    <Compile Include="Model\Graders.cs" />
     <Compile Include="Model\Length.cs" />
     <Compile Include="Model\PETLength.cs" />
     <Compile Include="Model\ProdStats.cs" />

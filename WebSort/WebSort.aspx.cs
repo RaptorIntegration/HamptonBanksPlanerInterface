@@ -214,7 +214,7 @@ namespace WebSort
             List<Bin> Sorts = new List<Bin>();
 
             const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
-                               "[SortID], [ProductsLabel] FROM [Bins] with(NOLOCK)";
+                               "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK)";
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
             {
@@ -264,6 +264,13 @@ namespace WebSort
                 }
             }
             return serializer.Serialize(PL);
+        }
+
+        [WebMethod]
+        public static string GetProductGrades()
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            return serializer.Serialize(Product.GetProductGrades());
         }
 
         [WebMethod]
