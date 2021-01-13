@@ -29,7 +29,7 @@
 
         }
     </script>
-    <dx:ASPxPageControl ID="ASPxPageControl1" runat="server" ActiveTabIndex="0"
+    <dx:ASPxPageControl ID="ASPxPageControl1" runat="server" ActiveTabIndex="2"
         SaveStateToCookies="True"
         CssFilePath="~/App_Themes/BlackGlass/{0}/styles.css"
         CssPostfix="BlackGlass">
@@ -355,6 +355,78 @@ update [Parameters] set [itemname]=@itemname where [id]=@ID">
                     </dx:ContentControl>
                 </ContentCollection>
             </dx:TabPage>
+            <dx:TabPage Text="Chain Inhibits">
+                            <ContentCollection>
+                                <dx:ContentControl runat="server" SupportsDisabledAttribute="True">
+                                
+                                
+                                        <asp:UpdatePanel ID="UpdatePanel3" runat="server" UpdateMode="Conditional">
+                                            <ContentTemplate>
+                                                <asp:GridView ID="GridView3" runat="server" 
+                                                    AutoGenerateColumns="False" DataKeyNames="ID" DataSourceID="SqlDataSource3" 
+                                                    SkinID="gridviewSkin" 
+                                                    ondatabound="GridView3_DataBound" EnableModelValidation="True" Width="500px" OnRowUpdating="GridView3_RowUpdating">
+                                                    <EditRowStyle Wrap="True"  />
+                                                    <Columns>
+                                                        <asp:TemplateField ShowHeader="False">
+                                                            <EditItemTemplate>
+                                                                <asp:Button ID="Button1" runat="server" CausesValidation="True" 
+                                                                    CommandName="Update" Text="Save" Width="70px" />
+                                                                &nbsp;<asp:Button ID="Button2" runat="server" CausesValidation="False" 
+                                                                    CommandName="Cancel" Text="Cancel" Width="70px" />
+                                                                <br />
+                                                                
+                                                            </EditItemTemplate>
+                                                            <ItemTemplate>
+                                                                <asp:Button ID="Button1" runat="server" CausesValidation="False" 
+                                                                    CommandName="Edit" Text="Edit" Width="70px" />
+                                                                 
+                                                            </ItemTemplate>
+                                                        </asp:TemplateField>
+                                                        <asp:BoundField DataField="ID" HeaderText="ID" ReadOnly="True" 
+                                                            SortExpression="ID" Visible="true"/>
+                                                       
+                                                        <asp:BoundField DataField="description" HeaderText="Description" 
+                                                            SortExpression="description" >
+                                                        
+                                            </asp:BoundField>
+                                                        <asp:BoundField DataField="X" HeaderText="Instances" 
+                                                            SortExpression="X" />
+                                                        <asp:BoundField DataField="Y" HeaderText="Period" 
+                                                            SortExpression="Y" />
+                                                        
+                                                    </Columns>
+                                                </asp:GridView>
+                                                <br />
+                                                <asp:SqlDataSource ID="SqlDataSource3" runat="server" ConnectionString="<%$ ConnectionStrings:RaptorWebSortConnectionString %>" 
+                                                    SelectCommand="select * from chaininhibits order by id"
+                                                     UpdateCommand="UPDATE [ChainInhibits] SET description= @description, [x] =@x,y=@y WHERE [id] = @ID">
+                                                    <DeleteParameters>
+                                                        <asp:ControlParameter ControlID="ASPxTabControl1" Name="CategoryName" PropertyName="ActiveTab.Text" Type="String" />
+                                                        <asp:Parameter Name="ID" Type="Int32" />
+                                                    </DeleteParameters>
+                                                    <SelectParameters>
+                                                        <asp:ControlParameter ControlID="ASPxTabControl1" Name="CategoryName" PropertyName="ActiveTab.Text" Type="String" />
+                                                    </SelectParameters>
+                                                    <UpdateParameters>
+                                                        <asp:ControlParameter ControlID="ASPxTabControl1" Name="CategoryName" PropertyName="ActiveTab.Text" Type="String" />
+                                                        <asp:Parameter Name="description" Type="String" />
+                                                        <asp:Parameter Name="ID" Type="Int32" />
+                                                        <asp:Parameter Name="x" Type="Int32" />
+                                                        <asp:Parameter Name="y" Type="Int32" />
+                                                        
+                                                    </UpdateParameters>
+                                                </asp:SqlDataSource>
+                                            </ContentTemplate>
+                                            <Triggers>
+                                                <asp:AsyncPostBackTrigger ControlID="ASPxTabControl1" 
+                                                    EventName="ActiveTabChanged" />
+                                                <asp:AsyncPostBackTrigger ControlID="GridView1" EventName="DataBound" />
+                                            </Triggers>
+                                        </asp:UpdatePanel>
+                                    </dx:ContentControl>
+                            </ContentCollection>
+                        </dx:TabPage>
         </TabPages>
     </dx:ASPxPageControl>
 </asp:Content>

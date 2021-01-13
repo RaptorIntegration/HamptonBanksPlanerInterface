@@ -3,12 +3,14 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
 using WebSort.Model;
+using Logix;
 
 namespace WebSort
 {
     public partial class Timing : BasePage
     {
         private static User CurrentUser;
+        Logix.Controller MyPLC = new Logix.Controller();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -686,6 +688,62 @@ namespace WebSort
 
         protected void Button8_Click(object sender, EventArgs e)
         {
+        }
+
+        protected void GridView3_DataBound(object sender, EventArgs e)
+        {
+            if (GridView1.Rows.Count == 10)
+                ButtonInsertNewItem.Enabled = false;
+            else
+                ButtonInsertNewItem.Enabled = true;
+        }
+
+        protected void GridView3_RowUpdating(object sender, GridViewUpdateEventArgs e)
+        {
+            if ((int)Session["OnlineSetup"] == 1)
+            {
+                Tag MyTagX, MyTagY;
+
+
+                Raptor cs1 = new Raptor();
+                string connectionString = Global.ConnectionString;
+                System.Data.SqlClient.SqlConnection connection;
+                connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                SqlCommand cmdip = new SqlCommand("select * from RaptorCommSettings", connection);
+                SqlDataReader readerip = cmdip.ExecuteReader();
+                readerip.Read();
+                if (readerip.HasRows)
+                {
+                    MyPLC.IPAddress = readerip["PLCIPAddress"].ToString();
+                    MyPLC.Path = readerip["PLCProcessorSlot"].ToString();
+                    MyPLC.Timeout = int.Parse(readerip["PLCTimeout"].ToString());
+
+                }
+                readerip.Close();
+                connection.Close();
+                if (MyPLC.Connect() != ResultCode.E_SUCCESS)
+                {
+                    //return;
+                }
+                //for (int i = 0; i < 10; i++)
+                {
+                    MyTagX = new Tag("WebSortCountX[" + e.RowIndex + "].PRE");
+                    MyTagX.DataType = Logix.Tag.ATOMIC.DINT;
+                    MyTagY = new Tag("WebSortCountY[" + e.RowIndex + "].PRE");
+                    MyTagY.DataType = Logix.Tag.ATOMIC.DINT;
+
+                    try
+                    {
+                        MyTagX.Value = (((TextBox)GridView2.Rows[e.RowIndex].Cells[3].Controls[0]).Text);
+                        MyPLC.WriteTag(MyTagX);
+                        MyTagY.Value = (((TextBox)GridView2.Rows[e.RowIndex].Cells[4].Controls[0]).Text);
+                        MyPLC.WriteTag(MyTagY);
+                    }
+                    catch { }
+                }
+            }
         }
     }
 }

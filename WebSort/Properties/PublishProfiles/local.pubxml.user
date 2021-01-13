@@ -496,10 +496,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/15/2018 13:29:46</publishTime>
     </File>
     <File Include="bin/WebSort.dll">
-      <publishTime>01/05/2021 09:19:52</publishTime>
+      <publishTime>01/13/2021 09:40:09</publishTime>
     </File>
     <File Include="bin/WebSort.pdb">
-      <publishTime>01/05/2021 09:19:52</publishTime>
+      <publishTime>01/13/2021 09:40:09</publishTime>
     </File>
     <File Include="Boards.aspx">
       <publishTime>01/05/2021 08:55:25</publishTime>
@@ -508,7 +508,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="CSS/Base.css">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:00</publishTime>
     </File>
     <File Include="CSS/biondi-webfont.woff">
       <publishTime>08/25/2020 09:03:10</publishTime>
@@ -523,7 +523,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="CSS/ErrorLogs.css">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:00</publishTime>
     </File>
     <File Include="CSS/Fonts/biondi-webfont.woff">
       <publishTime>01/05/2021 08:55:25</publishTime>
@@ -553,10 +553,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/25/2020 09:03:10</publishTime>
     </File>
     <File Include="CSS/Sorts.css">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:00</publishTime>
     </File>
     <File Include="CSS/WebSort.css">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:00</publishTime>
     </File>
     <File Include="DeviceDiagnostics.aspx">
       <publishTime>01/05/2021 08:55:25</publishTime>
@@ -760,7 +760,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="Scripts/Sorts.js">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:01</publishTime>
     </File>
     <File Include="Scripts/vue/vue.js">
       <publishTime>01/05/2021 08:55:25</publishTime>
@@ -769,7 +769,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="Scripts/WebSort.js">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:01</publishTime>
     </File>
     <File Include="Security.aspx">
       <publishTime>01/05/2021 08:55:25</publishTime>
@@ -778,25 +778,25 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="Sorts.aspx">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:01</publishTime>
     </File>
     <File Include="Targets.aspx">
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="Timing.aspx">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/13/2021 09:43:41</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>01/05/2021 09:19:53</publishTime>
+      <publishTime>01/13/2021 09:40:09</publishTime>
     </File>
     <File Include="Web.sitemap">
       <publishTime>01/05/2021 08:55:25</publishTime>
     </File>
     <File Include="WebSort.aspx">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:01</publishTime>
     </File>
     <File Include="WebSort.Master">
-      <publishTime>01/05/2021 08:55:25</publishTime>
+      <publishTime>01/12/2021 13:49:01</publishTime>
     </File>
   </ItemGroup>
 </Project>
