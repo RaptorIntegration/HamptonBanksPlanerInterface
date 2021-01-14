@@ -2,11 +2,49 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 
 namespace WebSort.Model
 {
     public class Bin
     {
+        public Bin()
+        {
+            EditsList = new List<Edit>();
+        }
+
+        public Bin(SqlDataReader reader)
+        {
+            string[] except = new string[] { "SelectedStamps", "ProdLen", "Changed", "EditsList", "ProductMapCount", "DataRequestBinSQL" };
+            foreach (PropertyInfo property in typeof(Bin).GetProperties().Where(p => !except.Contains(p.Name)))
+            {
+                try
+                {
+                    var val = reader[property.Name] is DBNull ? null : reader[property.Name];
+
+                    if (val != null)
+                    {
+                        try
+                        {
+                            property.SetValue(this, Convert.ChangeType(val, property.PropertyType));
+                        }
+                        catch (Exception ex)
+                        {
+                            Global.LogError(ex);
+                            throw;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    throw;
+                }
+            }
+            Changed = false;
+            EditsList = new List<Edit>();
+        }
+
         public int BinID { get; set; }
         public string BinLabel { get; set; }
         public int BinStatus { get; set; }
@@ -26,15 +64,10 @@ namespace WebSort.Model
         public short SecCount { get; set; }
         public string ProductsLabel { get; set; }
         public List<Stamp> SelectedStamps { get; set; }
-        public bool Changed { get; set; }
         public ProductLengths ProdLen { get; set; }
+        public bool Changed { get; set; }
         public List<Edit> EditsList { get; set; }
-
-        public Bin()
-        {
-            EditsList = new List<Edit>();
-        }
-
+        public static int ProductMapCount { get; set; }
         public static string DataRequestBinSQL { get; set; }
 
         public static List<Bin> PopulateBinList(SqlDataReader reader)
@@ -64,18 +97,7 @@ namespace WebSort.Model
             return BinList;
         }
 
-        public static uint ZeroProductLengthMap(int ProductMapCount, uint[] ProductMap, uint[] ProductMapOld)
-        {
-            for (int index = 0; index < ProductMapCount; index++)
-            {
-                ProductMap[index] = 0;
-                ProductMapOld[index] = 0;
-            }
-
-            return 0;
-        }
-
-        public static uint GetProductLengthMap(uint LengthMap, SqlConnection con, uint[] ProductMap, int BinID)
+        public static Map GetProductLengthMap(SqlConnection con, Map map, int BinID)
         {
             using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binproducts where binID = {BinID}", con))
             using (SqlDataReader ReaderBinProducts = cmdInner.ExecuteReader())
@@ -84,7 +106,7 @@ namespace WebSort.Model
                 {
                     while (ReaderBinProducts.Read())
                     {
-                        SetProductMap(ProductMap, ReaderBinProducts);
+                        Map.SetProductMap(map, ReaderBinProducts);
                     }
                 }
             }
@@ -96,25 +118,12 @@ namespace WebSort.Model
                 {
                     while (ReaderBinLengths.Read())
                     {
-                        //length map per bin
-                        LengthMap = SetLengthMap(LengthMap, ReaderBinLengths);
+                        Map.SetLengthMap(map, ReaderBinLengths);
                     }
                 }
             }
 
-            return LengthMap;
-        }
-
-        public static uint SetLengthMap(uint LengthMap, SqlDataReader ReaderBinLengths)
-        {
-            LengthMap |= Convert.ToUInt32(Math.Pow(2, Global.GetValue<int>(ReaderBinLengths, "LengthID")));
-            return LengthMap;
-        }
-
-        public static void SetProductMap(uint[] ProductMap, SqlDataReader ReaderBinProducts)
-        {
-            int ProdID = Global.GetValue<int>(ReaderBinProducts, "ProdID");
-            ProductMap[ProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(ProdID.ToString()) - (32 * (ProdID / 32))));
+            return map;
         }
 
         public static void UpdateLabels(IEnumerable<Edit> edits, SqlConnection con)
@@ -132,6 +141,135 @@ namespace WebSort.Model
                     }
                 }
             }
+        }
+
+        public static int GetDataRequestsBinColumns(SqlConnection con)
+        {
+            IEnumerable<string> Columns = null;
+
+            using (SqlCommand cmd = new SqlCommand("Select TOP 1 * FROM DataRequestsBin", con))
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    Columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+                }
+            }
+
+            if (Columns?.Any() == true)
+            {
+                DataRequestBinSQL = "INSERT INTO datarequestsbin SELECT getdate(),";
+                foreach (string col in Columns.Where(c => c != "TimeStamp" && c != "ID"))
+                {
+                    DataRequestBinSQL += $"@{col},";
+                }
+                DataRequestBinSQL = DataRequestBinSQL.Remove(DataRequestBinSQL.Length - 1, 1);
+                DataRequestBinSQL += ";SELECT id = (select max(id) FROM datarequestsbin with(NOLOCK))";
+
+                return Columns.Count(c => c.Contains("ProductMap") && !c.EndsWith("c")) / 2;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public static bool DataRequestInsert(SqlConnection con, Bin Item, Map map, int OriginalStatus, bool CommSettings = true, bool Ack = true)
+        {
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("UPDATE RaptorCommSettings SET DataRequests = DataRequests | 1", con);
+                cmd.ExecuteNonQuery();
+            }
+
+            if (ProductMapCount <= 0 || string.IsNullOrEmpty(DataRequestBinSQL))
+            {
+                ProductMapCount = GetDataRequestsBinColumns(con);
+            }
+            if (ProductMapCount == -1)
+            {
+                return false;
+            }
+
+            using (SqlCommand cmd = new SqlCommand(DataRequestBinSQL, con))
+            {
+                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
+                cmd.Parameters.AddWithValue("@BinLabel", Item.BinLabel);
+                cmd.Parameters.AddWithValue("@BinStatus", Item.BinStatus);
+                cmd.Parameters.AddWithValue("@BinSize", Item.BinSize);
+                cmd.Parameters.AddWithValue("@BinCount", Item.BinCount);
+                for (int i = 0; i < ProductMapCount; i++)
+                {
+                    cmd.Parameters.AddWithValue($"@ProductMap{i}", map.ProductMap[i].ToString());
+                    cmd.Parameters.AddWithValue($"@ProductMap{i}Old", map.ProductMap[i].ToString());
+                }
+                cmd.Parameters.AddWithValue("@LengthMap", (long)map.LengthMap);
+                cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
+                cmd.Parameters.AddWithValue("@BinSprays", Item.BinSprays);
+                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
+                cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
+                cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
+                cmd.Parameters.AddWithValue("@SecCount", Item.SecCount);
+                cmd.Parameters.AddWithValue("@TrimFlag", 0);
+                cmd.Parameters.AddWithValue("@RW", 0);
+                cmd.Parameters.AddWithValue("@ProductsOnly", 2);
+                cmd.Parameters.AddWithValue("@Write", 1);
+                cmd.Parameters.AddWithValue("@Processed", 0);
+
+                // Spare
+                if (Item.BinStatus == 0)
+                {
+                    for (int i = 0; i < ProductMapCount; i++)
+                    {
+                        cmd.Parameters[$"@ProductMap{i}"].Value = 0;
+                    }
+                    cmd.Parameters["@lengthMap"].Value = 0;
+                    cmd.Parameters["@BinLabel"].Value = "";
+                    cmd.Parameters["@BinSize"].Value = 0;
+                    cmd.Parameters["@BinCount"].Value = 0;
+                    cmd.Parameters["@SortID"].Value = 0;
+                }
+                // If products for this bin were edited
+                if (Item.ProdLen != null)
+                {
+                    for (int i = 0; i < ProductMapCount; i++)
+                    {
+                        cmd.Parameters[$"@ProductMap{i}Old"].Value = map.ProductMapOld[i].ToString();
+                    }
+                }
+
+                if (Item.BinLabel.Length > 20)
+                {
+                    cmd.Parameters["@BinLabel"].Value = Item.BinLabel.Remove(20);
+                }
+
+                //don't send a message to the PLC for a virtual bay that is being set to spare or full
+                if (OriginalStatus != 5 || (OriginalStatus == 5 && Item.BinStatus >= 5))
+                {
+                    try
+                    {
+                        using SqlDataReader reader = cmd.ExecuteReader();
+                        reader.Read();
+                        if (Ack && !Raptor.MessageAckConfirm("datarequestsbin", int.Parse(reader["id"].ToString())))
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        return false;
+                    }
+                }
+            }
+
+            if (CommSettings)
+            {
+                using SqlCommand cmd = new SqlCommand("UPDATE RaptorCommSettings SET datarequests = datarequests-1 WHERE (datarequests & 1)=1", con);
+                cmd.ExecuteNonQuery();
+            }
+
+            return true;
         }
     }
 }

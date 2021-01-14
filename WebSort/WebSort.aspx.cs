@@ -296,10 +296,8 @@ namespace WebSort
         {
             SaveResponse response = new SaveResponse("Bins");
 
-            uint Sprays = 0, OldStamps = 0, StampsPLC = 0, SpraysPLC = 0;
+            uint OldStamps = 0;
             int StatusOriginal = 0;
-
-            bool succeeded = true;
 
             string Update;
 
@@ -317,9 +315,7 @@ namespace WebSort
                 {
                     foreach (Bin Item in Changed)
                     {
-                        uint LengthMap = 0;
-                        uint[] ProductMap = new uint[30];
-                        uint[] ProductMapOld = new uint[30];
+                        Map map = new Map();
 
                         Item.BinStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
 
@@ -327,14 +323,14 @@ namespace WebSort
                         if (Item.ProdLen != null)  // Products changed
                         {
                             // Only Selected Products and Lengths
-                            GetSelectedProductMap(Item, ref LengthMap, ProductMap);
+                            Map.GetSelectedProductMapBin(Item, map);
 
                             // Product Map Old
-                            GetProductMapOld(con, Item, ProductMapOld);
+                            Map.GetProductMapOldBin(con, Item, map);
                         }
                         else // No products changed, ProductMap = ProductMapOld
                         {
-                            GetDBProductMap(con, Item, ref LengthMap, ProductMap, ProductMapOld);
+                            Map.GetDBProductMapBin(con, Item, map);
                         }
 
                         foreach (Edit Edit in Item.EditsList)
@@ -456,97 +452,10 @@ namespace WebSort
                                 cmd.ExecuteNonQuery();
                             }
 
-                            SpraysPLC |= Sprays;
-
-                            using (SqlCommand cmd = new SqlCommand("UPDATE RaptorCommSettings SET DataRequests = DataRequests | 1", con))
+                            if (!Bin.DataRequestInsert(con, Item, map, StatusOriginal))
                             {
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            int ProductMapCount = GetDataRequestsBinColumns(con);
-
-                            using (SqlCommand cmd = new SqlCommand(Bin.DataRequestBinSQL, con))
-                            {
-                                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
-                                cmd.Parameters.AddWithValue("@BinLabel", Item.BinLabel);
-                                cmd.Parameters.AddWithValue("@BinStatus", Item.BinStatus);
-                                cmd.Parameters.AddWithValue("@BinSize", Item.BinSize);
-                                cmd.Parameters.AddWithValue("@BinCount", Item.BinCount);
-                                for (int i = 0; i < ProductMapCount; i++)
-                                {
-                                    cmd.Parameters.AddWithValue($"@ProductMap{i}", ProductMap[i].ToString());
-                                    cmd.Parameters.AddWithValue($"@ProductMap{i}Old", ProductMap[i].ToString());
-                                }
-                                cmd.Parameters.AddWithValue("@LengthMap", (long)LengthMap);
-                                cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
-                                cmd.Parameters.AddWithValue("@BinSprays", (long)Sprays);
-                                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                                cmd.Parameters.AddWithValue("@TrimFlag", 0);
-                                cmd.Parameters.AddWithValue("@RW", 0);
-                                cmd.Parameters.AddWithValue("@ProductsOnly", 2);
-                                cmd.Parameters.AddWithValue("@Write", 1);
-                                cmd.Parameters.AddWithValue("@Processed", 0);
-
-                                // Spare
-                                if (Item.BinStatus == 0)
-                                {
-                                    for (int i = 0; i < ProductMapCount; i++)
-                                    {
-                                        cmd.Parameters[$"@ProductMap{i}"].Value = 0;
-                                    }
-                                    cmd.Parameters["@lengthMap"].Value = 0;
-                                    cmd.Parameters["@BinLabel"].Value = "";
-                                    cmd.Parameters["@BinSize"].Value = 0;
-                                    cmd.Parameters["@BinCount"].Value = 0;
-                                    cmd.Parameters["@SortID"].Value = 0;
-                                }
-                                // If products for this bin were edited
-                                if (Item.ProdLen != null)
-                                {
-                                    for (int i = 0; i < ProductMapCount; i++)
-                                    {
-                                        cmd.Parameters[$"@ProductMap{i}Old"].Value = ProductMapOld[i].ToString();
-                                    }
-                                }
-
-                                if (Item.BinLabel.Length > 20)
-                                {
-                                    cmd.Parameters["@BinLabel"].Value = Item.BinLabel.Remove(20);
-                                }
-
-                                //don't send a message to the PLC for a virtual bay that is being set to spare or full
-                                if (StatusOriginal != 5 || (StatusOriginal == 5 && Item.BinStatus != 0 && Item.BinStatus != 2 && Item.BinStatus != 1 && Item.BinStatus != 3 && Item.BinStatus != 4))
-                                {
-                                    try
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Global.LogError(ex);
-                                        response.Bad("Error saving");
-                                        return SaveResponse.Serialize(response);
-                                    }
-
-                                    if (Global.OnlineSetup)
-                                    {
-                                        using (SqlDataReader reader = cmd.ExecuteReader())
-                                        {
-                                            reader.Read();
-                                            // Make sure message is processed
-                                            succeeded = Raptor.MessageAckConfirm("datarequestsbin", int.Parse(reader["id"].ToString()));
-                                        }
-                                        if (!succeeded)
-                                        {
-                                            response.Bad("PLC Timeout");
-                                            return SaveResponse.Serialize(response);
-                                        }
-                                    }
-                                }
-                            } // End Command
-                            using (SqlCommand cmd = new SqlCommand("UPDATE RaptorCommSettings SET datarequests = datarequests-1 WHERE (datarequests & 1)=1", con))
-                            {
-                                cmd.ExecuteNonQuery();
+                                response.Bad("PLC Timeout");
+                                return SaveResponse.Serialize(response);
                             }
 
                             if (Edit.EditedCol != "BinStatus" && Item.BinStatus != 0)
@@ -669,123 +578,6 @@ namespace WebSort
                 cmd.Parameters.AddWithValue("@ProductsLabel", ProductLabel);
 
                 cmd.ExecuteNonQuery();
-            }
-        }
-
-        private static int GetDataRequestsBinColumns(SqlConnection con)
-        {
-            IEnumerable<string> Columns = null;
-
-            using (SqlCommand cmd = new SqlCommand("Select TOP 1 * FROM DataRequestsBin", con))
-            using (SqlDataReader reader = cmd.ExecuteReader())
-            {
-                if (reader.HasRows)
-                {
-                    Columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
-                }
-            }
-
-            if (Columns?.Any() == true)
-            {
-                Bin.DataRequestBinSQL = "INSERT INTO datarequestsbin SELECT getdate(),";
-                foreach (string col in Columns.Where(c => c != "TimeStamp" && c != "ID"))
-                {
-                    Bin.DataRequestBinSQL += $"@{col},";
-                }
-                Bin.DataRequestBinSQL = Bin.DataRequestBinSQL.Remove(Bin.DataRequestBinSQL.Length - 1, 1);
-                Bin.DataRequestBinSQL += ";SELECT id = (select max(id) FROM datarequestsbin with(NOLOCK))";
-
-                return Columns.Count(c => c.Contains("ProductMap")) / 2;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        private static void GetDBProductMap(SqlConnection con, Bin Item, ref uint LengthMap, uint[] ProductMap, uint[] ProductMapOld)
-        {
-            // Product Map
-            ProductLengths PL = new ProductLengths();
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.BinProdMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateProductList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
-                        {
-                            ProductMap[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                            ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                        }
-                    }
-                }
-            }
-
-            // Length Map
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.BinLengthMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateLengthList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Lengths L in PL.LengthsList.Where(l => l.Selected).ToList())
-                        {
-                            LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void GetSelectedProductMap(Bin Item, ref uint LengthMap, uint[] ProductMap)
-        {
-            ProductLengths SelectedProductLengths = new ProductLengths()
-            {
-                ProductsList = Item.ProdLen.ProductsList.Where(p => p.Selected).ToList(),
-                LengthsList = Item.ProdLen.LengthsList.Where(l => l.Selected).ToList()
-            };
-
-            // Product Map New
-            foreach (ProductLengths.Products P in SelectedProductLengths.ProductsList)
-            {
-                ProductMap[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-            }
-
-            // Length Map
-            foreach (ProductLengths.Lengths L in SelectedProductLengths.LengthsList)
-            {
-                LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
-            }
-        }
-
-        private static void GetProductMapOld(SqlConnection con, Bin Item, uint[] ProductMapOld)
-        {
-            ProductLengths PL = new ProductLengths();
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.BinProdMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@BinID", Item.SortID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateProductList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
-                        {
-                            ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                        }
-                    }
-                }
             }
         }
 
