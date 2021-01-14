@@ -97,7 +97,7 @@ namespace WebSort.Model
             return BinList;
         }
 
-        public static Map GetProductLengthMap(SqlConnection con, Map map, int BinID)
+        public static void GetProductLengthMap(SqlConnection con, Map map, int BinID)
         {
             using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binproducts where binID = {BinID}", con))
             using (SqlDataReader ReaderBinProducts = cmdInner.ExecuteReader())
@@ -106,7 +106,15 @@ namespace WebSort.Model
                 {
                     while (ReaderBinProducts.Read())
                     {
-                        Map.SetProductMap(map, ReaderBinProducts);
+                        try
+                        {
+                            Map.SetProductMap(map, ReaderBinProducts);
+                        }
+                        catch (Exception ex)
+                        {
+                            Global.LogError(ex);
+                            throw;
+                        }
                     }
                 }
             }
@@ -118,12 +126,18 @@ namespace WebSort.Model
                 {
                     while (ReaderBinLengths.Read())
                     {
-                        Map.SetLengthMap(map, ReaderBinLengths);
+                        try
+                        {
+                            Map.SetLengthMap(map, ReaderBinLengths);
+                        }
+                        catch (Exception ex)
+                        {
+                            Global.LogError(ex);
+                            throw;
+                        }
                     }
                 }
             }
-
-            return map;
         }
 
         public static void UpdateLabels(IEnumerable<Edit> edits, SqlConnection con)

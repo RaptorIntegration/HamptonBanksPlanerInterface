@@ -310,7 +310,7 @@ namespace WebSort
                                     Map map = new Map();
                                     try
                                     {
-                                        map = Bin.GetProductLengthMap(con, map, bin.BinID);
+                                        Bin.GetProductLengthMap(con, map, bin.BinID);
                                     }
                                     catch (Exception ex)
                                     {
@@ -345,11 +345,11 @@ namespace WebSort
                         while (readerSorts.Read())
                         {
                             Map map = new Map();
-                            int SortID = Global.GetValue<int>(readerSorts, "SortID");
+                            Sort sort = new Sort(readerSorts);
 
                             try
                             {
-                                Map.GetProductLengthMapDBSort(con, SortID, map, recipe.RecipeID);
+                                Map.GetProductLengthMapDBSort(con, sort.SortID, map, recipe.RecipeID);
                             }
                             catch (Exception ex)
                             {
@@ -359,47 +359,10 @@ namespace WebSort
                                 throw;
                             }
 
-                            using (SqlCommand cmdRequest = new SqlCommand(Sort.DataRequestsSortSQL, con))
+                            if (!Sort.DataRequestInsert(con, sort, map, false, false))
                             {
-                                cmdRequest.Parameters.AddWithValue("@SortID", SortID);
-                                cmdRequest.Parameters.AddWithValue("@SortLabel", Global.GetValue<string>(readerSorts, "SortLabel"));
-                                cmdRequest.Parameters.AddWithValue("@SortSize", Global.GetValue<int>(readerSorts, "SortSize"));
-                                cmdRequest.Parameters.AddWithValue("@PkgsPerSort", Global.GetValue<int>(readerSorts, "PkgsPerSort"));
-                                cmdRequest.Parameters.AddWithValue("@OrderCount", Global.GetValue<int>(readerSorts, "OrderCount"));
-                                cmdRequest.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(map.LengthMap));
-                                cmdRequest.Parameters.AddWithValue("@SortStamps", Global.GetValue<int>(readerSorts, "SortStamps"));
-                                cmdRequest.Parameters.AddWithValue("@SortSprays", Global.GetValue<int>(readerSorts, "SortSprays"));
-                                cmdRequest.Parameters.AddWithValue("@Zone1", (Global.GetValue<int>(readerSorts, "zone1stop") * 256) + Global.GetValue<int>(readerSorts, "zone1start"));
-                                cmdRequest.Parameters.AddWithValue("@Zone2", (Global.GetValue<int>(readerSorts, "zone2stop") * 256) + Global.GetValue<int>(readerSorts, "zone1start"));
-                                cmdRequest.Parameters.AddWithValue("@TrimFlag", Global.GetValue<int>(readerSorts, "TrimFlag"));
-                                cmdRequest.Parameters.AddWithValue("@RW", Global.GetValue<bool>(readerSorts, "RW"));
-                                cmdRequest.Parameters.AddWithValue("@Active", Global.GetValue<bool>(readerSorts, "Active"));
-                                cmdRequest.Parameters.AddWithValue("@ProductsOnly", 2);
-                                cmdRequest.Parameters.AddWithValue("@Write", 1);
-                                cmdRequest.Parameters.AddWithValue("@Processed", 0);
-
-                                cmdRequest.Parameters.AddWithValue("@ProductMap0c", 0);
-                                cmdRequest.Parameters.AddWithValue("@ProductMap1c", 0);
-                                cmdRequest.Parameters.AddWithValue("@ProductMap2c", 0);
-                                cmdRequest.Parameters.AddWithValue("@LengthMapc", 0);
-
-                                for (int index = 0; index < Bin.ProductMapCount; index++)
-                                {
-                                    cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", Convert.ToInt32(map.ProductMap[index]));
-                                    cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", 0);
-                                }
-
-                                using (SqlDataReader reader = cmdRequest.ExecuteReader())
-                                {
-                                    while (reader.Read())
-                                    {
-                                        if (!Raptor.MessageAckConfirm("datarequestssort", Global.GetValue<int>(reader, "id")))
-                                        {
-                                            response.Bad("PLC Timeout");
-                                            return SaveResponse.Serialize(response);
-                                        }
-                                    }
-                                }
+                                response.Bad("PLC Timeout");
+                                return SaveResponse.Serialize(response);
                             }
                         }
                     }
