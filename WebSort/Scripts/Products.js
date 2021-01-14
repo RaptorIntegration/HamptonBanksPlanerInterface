@@ -123,7 +123,7 @@
     },
     mounted: function () {
         setTimeout(_ => this.GetSecurity());
-        this.Refresh();        
+        this.Refresh();
     },
     watch: {
         Tab: function () {
@@ -158,7 +158,7 @@
 
         ThickSortedByNom: function () {
             if (this.Thicks.List.length) {
-                return [...this.Thicks.List].sort((a,b) => a.Nominal - b.Nominal)
+                return [...this.Thicks.List].sort((a, b) => a.Nominal - b.Nominal)
             } else {
                 return null
             }
@@ -535,7 +535,6 @@
             this.Graders.New = {
                 "GraderID": 0,
                 "GraderDescription": "",
-                "StationID": 0,                
             }
         },
         ShowNewPETLength: function () {
@@ -574,7 +573,7 @@
             }, 3000)
         },
 
-        Refresh: function () {            
+        Refresh: function () {
             setTimeout(_ => this.GetProducts());
             setTimeout(_ => this.GetGrades(), 10);
             setTimeout(_ => this.GetThicknesses(), 100);

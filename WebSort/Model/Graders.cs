@@ -16,7 +16,6 @@ namespace WebSort.Model
         public int GraderID { get; set; }
 
         public string GraderDescription { get; set; }
-        public int StationID { get; set; }
 
         [DatabaseIgnore]
         public List<Edit> EditsList { get; set; }
