@@ -260,6 +260,7 @@
                                     <input
                                         v-if="typeof(Row[Col.DataSource]) === 'boolean'"
                                         v-model="Row[Col.DataSource]"
+                                        v-on:blur="Table.Editing = false"
                                         v-on:change="Update(Col.DataSource, Row[Col.DataSource], Row);"
                                         type="checkbox"
                                         class="check">
@@ -271,7 +272,8 @@
                                     <select class="form-control" 
                                         v-model.number="Row.SecProdID" 
                                         v-if="Table.Editing == Row.SortID + '_SecProdID'" 
-                                        v-on:change="Update('SecProdID', Row.SecProdID, Row)">
+                                        v-on:blur="Table.Editing = false"
+                                        v-on:change="Update('SecProdID', Row.SecProdID, Row);">
                                         <option value="0">None</option>
                                         <option v-for="prod in Table.Products" v-bind:value="prod.ID">{{prod.Label}}</option>
                                     </select>
