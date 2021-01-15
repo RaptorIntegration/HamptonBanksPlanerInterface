@@ -530,12 +530,10 @@ namespace WebSort
                     cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
                     cmd.Parameters.AddWithValue("@SortID", SortID);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
                     {
-                        if (reader.HasRows)
-                        {
-                            PL.PopulateProductList(reader);
-                        }
+                        PL.PopulateProductList(reader);
                     }
                 }
 
@@ -544,12 +542,10 @@ namespace WebSort
                     cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
                     cmd.Parameters.AddWithValue("@SortID", SortID);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
                     {
-                        if (reader.HasRows)
-                        {
-                            PL.PopulateLengthList(reader);
-                        }
+                        PL.PopulateLengthList(reader);
                     }
                 }
             }
