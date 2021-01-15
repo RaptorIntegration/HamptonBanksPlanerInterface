@@ -185,7 +185,7 @@ namespace WebSort.Model
                 .ToList();
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Product product, bool CommSettings = true, bool ZeroOut = false)
+        public static bool DataRequestInsert(SqlConnection con, Product product, bool CommSettings = true, bool Ack = true, bool ZeroOut = false)
         {
             if (CommSettings)
             {
@@ -229,7 +229,7 @@ namespace WebSort.Model
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (!Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
+                    if (Ack && !Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
                     {
                         return false;
                     }
