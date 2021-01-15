@@ -214,8 +214,8 @@ namespace WebSort.Model
                 cmd.Parameters.AddWithValue("@BinCount", Item.BinCount);
                 for (int i = 0; i < ProductMapCount; i++)
                 {
-                    cmd.Parameters.AddWithValue($"@ProductMap{i}", map.ProductMap[i].ToString());
-                    cmd.Parameters.AddWithValue($"@ProductMap{i}Old", map.ProductMap[i].ToString());
+                    cmd.Parameters.AddWithValue($"@ProductMap{i}", (long)map.ProductMap[i]);
+                    cmd.Parameters.AddWithValue($"@ProductMap{i}Old", (long)map.ProductMap[i]);
                 }
                 cmd.Parameters.AddWithValue("@LengthMap", (long)map.LengthMap);
                 cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
@@ -248,7 +248,7 @@ namespace WebSort.Model
                 {
                     for (int i = 0; i < ProductMapCount; i++)
                     {
-                        cmd.Parameters[$"@ProductMap{i}Old"].Value = map.ProductMapOld[i].ToString();
+                        cmd.Parameters[$"@ProductMap{i}Old"].Value = (long)map.ProductMapOld[i];
                     }
                 }
 

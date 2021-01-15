@@ -24,6 +24,11 @@ namespace WebSort.Model
 
         public uint LengthMap { get; set; }
 
+        public static uint CalcMap(int ID)
+        {
+            return Convert.ToUInt32(Math.Pow(2, double.Parse(ID.ToString()) - (32 * (ID / 32))));
+        }
+
         public static Map SetLengthMap(Map map, SqlDataReader ReaderLengths)
         {
             map.LengthMap |= Convert.ToUInt32(Math.Pow(2, Global.GetValue<int>(ReaderLengths, "LengthID")));
@@ -197,6 +202,129 @@ namespace WebSort.Model
                             throw;
                         }
                     }
+                }
+            }
+        }
+
+        public static void GetDBProductMapSort(SqlConnection con, Sort Item, Map map, int RecipeID)
+        {
+            // Product Map
+            ProductLengths PL = new ProductLengths();
+            using (SqlCommand cmd = new SqlCommand(ProductLengths.SortProdMapSql, con))
+            {
+                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    try
+                    {
+                        PL.PopulateProductList(reader);
+
+                        // Use only selected
+                        foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
+                        {
+                            map.ProductMap[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
+                            map.ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        throw;
+                    }
+                }
+            }
+
+            // Length Map
+            using (SqlCommand cmd = new SqlCommand(ProductLengths.SortLengthMapSql, con))
+            {
+                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    try
+                    {
+                        PL.PopulateLengthList(reader);
+
+                        // Use only selected
+                        foreach (ProductLengths.Lengths L in PL.LengthsList.Where(l => l.Selected).ToList())
+                        {
+                            map.LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public static void GetSelectedProductMapSort(Sort Item, Map map)
+        {
+            ProductLengths SelectedProductLengths = new ProductLengths()
+            {
+                ProductsList = Item.ProdLen.ProductsList.Where(p => p.Selected).ToList(),
+                LengthsList = Item.ProdLen.LengthsList.Where(l => l.Selected).ToList()
+            };
+
+            // Product Map New
+            try
+            {
+                foreach (ProductLengths.Products P in SelectedProductLengths.ProductsList)
+                {
+                    map.ProductMap[P.ID / 32] |= CalcMap(P.ID);
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                throw;
+            }
+
+            // Length Map
+            try
+            {
+                foreach (ProductLengths.Lengths L in SelectedProductLengths.LengthsList)
+                {
+                    map.LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                throw;
+            }
+        }
+
+        public static void GetProductMapOldSort(SqlConnection con, Sort Item, Map map, int RecipeID)
+        {
+            ProductLengths PL = new ProductLengths();
+            using SqlCommand cmd = new SqlCommand(ProductLengths.SortProdMapSql, con);
+
+            cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+            cmd.Parameters.AddWithValue("@SortID", Item.SortID);
+
+            using SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                try
+                {
+                    PL.PopulateProductList(reader);
+
+                    // Use only selected
+                    foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
+                    {
+                        map.ProductMapOld[P.ID / 32] |= CalcMap(P.ID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    throw;
                 }
             }
         }

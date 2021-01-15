@@ -16,7 +16,7 @@ namespace WebSort.Model
 
         public Sort(SqlDataReader reader)
         {
-            string[] except = new string[] { "SelectedStamps", "ProdLen", "Changed", "EditsList", "DataRequestsSortSQL" };
+            string[] except = new string[] { "SelectedStamps", "ProdLen", "Changed", "EditsList", "ProductMapCount", "DataRequestsSortSQL" };
             foreach (PropertyInfo property in typeof(Sort).GetProperties().Where(p => !except.Contains(p.Name)))
             {
                 try
@@ -73,6 +73,8 @@ namespace WebSort.Model
         public ProductLengths ProdLen { get; set; }
         public List<Edit> EditsList { get; set; }
 
+        public static int ProductMapCount { get; set; }
+
         public static string DataRequestsSortSQL = @"
             INSERT INTO DataRequestsSort SELECT GETDATE(),
                 @SortID, @SortLabel, @SortSize, @PkgsPerSort, @OrderCount, @SecProdID, @SecSize,
@@ -127,12 +129,54 @@ namespace WebSort.Model
             }
         }
 
-        public static bool DataRequestInsert(SqlConnection con, Sort sort, Map map, bool CommSettings = true, bool Ack = true)
+        public static int GetDataRequestsSortColumns(SqlConnection con)
+        {
+            IEnumerable<string> Columns = null;
+
+            using (SqlCommand cmd = new SqlCommand("Select TOP 1 * FROM DataRequestsSort", con))
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    Columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
+                }
+            }
+
+            if (Columns?.Any() == true)
+            {
+                DataRequestsSortSQL = "INSERT INTO DataRequestsSort SELECT getdate(),";
+                foreach (string col in Columns.Where(c => c != "TimeStamp" && c != "ID"))
+                {
+                    DataRequestsSortSQL += $"@{col},";
+                }
+
+                // Remove comma
+                DataRequestsSortSQL = DataRequestsSortSQL.Remove(DataRequestsSortSQL.Length - 1, 1);
+                DataRequestsSortSQL += ";SELECT id = (select max(id) FROM DataRequestsSort with(NOLOCK))";
+
+                return Columns.Count(c => c.Contains("ProductMap") && !c.EndsWith("c")) / 2;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public static bool DataRequestInsert(SqlConnection con, Sort sort, Map map, bool CommSettings = true, bool Ack = true, bool ZeroOut = false, bool ProductsOnlyZero = false)
         {
             if (CommSettings)
             {
                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2", con))
                     cmd.ExecuteNonQuery();
+            }
+
+            if (ProductMapCount <= 0 || string.IsNullOrEmpty(DataRequestsSortSQL))
+            {
+                ProductMapCount = GetDataRequestsSortColumns(con);
+            }
+            if (ProductMapCount == -1)
+            {
+                return false;
             }
 
             using (SqlCommand cmdRequest = new SqlCommand(DataRequestsSortSQL, con))
@@ -144,7 +188,7 @@ namespace WebSort.Model
                 cmdRequest.Parameters.AddWithValue("@OrderCount", sort.OrderCount);
                 cmdRequest.Parameters.AddWithValue("@SecProdID", sort.SecProdID);
                 cmdRequest.Parameters.AddWithValue("@SecSize", sort.SecSize);
-                cmdRequest.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(map.LengthMap));
+                cmdRequest.Parameters.AddWithValue("@LengthMap", ZeroOut ? 0 : Convert.ToInt64(map.LengthMap));
                 cmdRequest.Parameters.AddWithValue("@SortStamps", sort.SortStamps);
                 cmdRequest.Parameters.AddWithValue("@SortSprays", sort.SortSprays);
                 cmdRequest.Parameters.AddWithValue("@Zone1", (sort.Zone1Stop * 256) + sort.Zone1Start);
@@ -152,7 +196,7 @@ namespace WebSort.Model
                 cmdRequest.Parameters.AddWithValue("@TrimFlag", sort.TrimFlag);
                 cmdRequest.Parameters.AddWithValue("@RW", sort.RW);
                 cmdRequest.Parameters.AddWithValue("@Active", sort.Active);
-                cmdRequest.Parameters.AddWithValue("@ProductsOnly", 2);
+                cmdRequest.Parameters.AddWithValue("@ProductsOnly", ProductsOnlyZero ? 0 : ZeroOut ? 1 : 2);
                 cmdRequest.Parameters.AddWithValue("@Write", 1);
                 cmdRequest.Parameters.AddWithValue("@Processed", 0);
 
@@ -161,10 +205,21 @@ namespace WebSort.Model
                 cmdRequest.Parameters.AddWithValue("@ProductMap2c", 0);
                 cmdRequest.Parameters.AddWithValue("@LengthMapc", 0);
 
-                for (int index = 0; index < Bin.ProductMapCount; index++)
+                if (ZeroOut)
                 {
-                    cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", Convert.ToInt32(map.ProductMap[index]));
-                    cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", Convert.ToInt32(map.ProductMapOld[index]));
+                    for (int index = 0; index < ProductMapCount; index++)
+                    {
+                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", 0);
+                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", Convert.ToInt64(map.ProductMapOld[index]));
+                    }
+                }
+                else
+                {
+                    for (int index = 0; index < ProductMapCount; index++)
+                    {
+                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", Convert.ToInt64(map.ProductMap[index]));
+                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", Convert.ToInt64(map.ProductMapOld[index]));
+                    }
                 }
 
                 try
