@@ -51,6 +51,7 @@
     <Compile Include="SortTests.cs" />
     <Compile Include="BinTests.cs" />
     <Compile Include="MapTests.cs" />
+    <Compile Include="ReportTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">

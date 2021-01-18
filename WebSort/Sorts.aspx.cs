@@ -310,7 +310,7 @@ namespace WebSort
                                     Map map = new Map();
                                     try
                                     {
-                                        Bin.GetProductLengthMap(con, map, bin.BinID);
+                                        Map.GetProductLengthMapDBBin(con, map, bin.BinID);
                                     }
                                     catch (Exception ex)
                                     {
@@ -349,7 +349,7 @@ namespace WebSort
 
                             try
                             {
-                                Map.GetProductLengthMapDBSort(con, sort.SortID, map, recipe.RecipeID);
+                                Map.GetProductLengthMapDBSort(con, map, sort.SortID, recipe.RecipeID);
                             }
                             catch (Exception ex)
                             {

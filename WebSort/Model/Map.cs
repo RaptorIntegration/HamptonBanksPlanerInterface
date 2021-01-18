@@ -52,6 +52,51 @@ namespace WebSort.Model
             return 0;
         }
 
+        #region Bin
+
+        public static void GetProductLengthMapDBBin(SqlConnection con, Map map, int BinID)
+        {
+            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binproducts where binID = {BinID}", con))
+            using (SqlDataReader ReaderBinProducts = cmdInner.ExecuteReader())
+            {
+                if (ReaderBinProducts.HasRows)
+                {
+                    while (ReaderBinProducts.Read())
+                    {
+                        try
+                        {
+                            Map.SetProductMap(map, ReaderBinProducts);
+                        }
+                        catch (Exception ex)
+                        {
+                            Global.LogError(ex);
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from binlengths where binID = {BinID}", con))
+            using (SqlDataReader ReaderBinLengths = cmdInner.ExecuteReader())
+            {
+                if (ReaderBinLengths.HasRows)
+                {
+                    while (ReaderBinLengths.Read())
+                    {
+                        try
+                        {
+                            Map.SetLengthMap(map, ReaderBinLengths);
+                        }
+                        catch (Exception ex)
+                        {
+                            Global.LogError(ex);
+                            throw;
+                        }
+                    }
+                }
+            }
+        }
+
         public static void GetDBProductMapBin(SqlConnection con, Bin Item, Map map)
         {
             // Product Map
@@ -163,7 +208,11 @@ namespace WebSort.Model
             }
         }
 
-        public static void GetProductLengthMapDBSort(SqlConnection con, int SortID, Map map, int RecipeID)
+        #endregion Bin
+
+        #region Sort
+
+        public static void GetProductLengthMapDBSort(SqlConnection con, Map map, int SortID, int RecipeID)
         {
             using (SqlCommand cmdInner = new SqlCommand($"select ProdID from sortproducts where sortID = {SortID} and recipeid= {RecipeID}", con))
             using (SqlDataReader readerSortProducts = cmdInner.ExecuteReader())
@@ -328,5 +377,7 @@ namespace WebSort.Model
                 }
             }
         }
+
+        #endregion Sort
     }
 }
