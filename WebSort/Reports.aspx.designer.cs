@@ -15,13 +15,13 @@ namespace WebSort
     {
 
         /// <summary>
-        /// Panel3 control.
+        /// UpdatePanelReports control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel Panel3;
+        protected global::System.Web.UI.UpdatePanel UpdatePanelReports;
 
         /// <summary>
         /// TreeView1 control.
@@ -33,6 +33,15 @@ namespace WebSort
         protected global::System.Web.UI.WebControls.TreeView TreeView1;
 
         /// <summary>
+        /// CrystalReportViewer1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::CrystalDecisions.Web.CrystalReportViewer CrystalReportViewer1;
+
+        /// <summary>
         /// CheckBox1 control.
         /// </summary>
         /// <remarks>
@@ -40,24 +49,6 @@ namespace WebSort
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox CheckBox1;
-
-        /// <summary>
-        /// Label1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
-
-        /// <summary>
-        /// Label2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
 
         /// <summary>
         /// ButtonPrint control.
@@ -78,15 +69,6 @@ namespace WebSort
         protected global::System.Web.UI.WebControls.Button ButtonPrintNow;
 
         /// <summary>
-        /// Label3 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label3;
-
-        /// <summary>
         /// cmbPrinters control.
         /// </summary>
         /// <remarks>
@@ -96,15 +78,6 @@ namespace WebSort
         protected global::System.Web.UI.WebControls.DropDownList cmbPrinters;
 
         /// <summary>
-        /// Label4 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label4;
-
-        /// <summary>
         /// TextBox1 control.
         /// </summary>
         /// <remarks>
@@ -112,15 +85,6 @@ namespace WebSort
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TextBox1;
-
-        /// <summary>
-        /// Panel2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel Panel2;
 
         /// <summary>
         /// RadioButtonCurrentShift control.
@@ -247,24 +211,6 @@ namespace WebSort
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.SqlDataSource SqlDataSource1;
-
-        /// <summary>
-        /// Panel1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel Panel1;
-
-        /// <summary>
-        /// CrystalReportViewer1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::CrystalDecisions.Web.CrystalReportViewer CrystalReportViewer1;
 
         /// <summary>
         /// CrystalReportSource1 control.
