@@ -14,6 +14,18 @@ namespace WebSort.Model
                 con.Open();
                 Bin.ProductMapCount = Bin.GetDataRequestsBinColumns(con);
             }
+            if (Sort.ProductMapCount <= 0)
+            {
+                using SqlConnection con = new SqlConnection(Global.ConnectionString);
+                con.Open();
+                Sort.ProductMapCount = Sort.GetDataRequestsSortColumns(con);
+            }
+            if (Sort.ProductMapCount != Bin.ProductMapCount)
+            {
+                Exception ex = new Exception($"Sort ProductMapCount != Bin ProductMapCount; Sort: {Sort.ProductMapCount}, Bin {Bin.ProductMapCount}");
+                Global.LogError(ex);
+                throw ex;
+            }
 
             ProductMap = new uint[Bin.ProductMapCount];
             ProductMapOld = new uint[Bin.ProductMapCount];

@@ -25,7 +25,7 @@ namespace Tests
             return cmd.ExecuteReader();
         }
 
-        [TestMethod]
+        [TestMethod, TestCategory("All")]
         public void Reports()
         {
             using SqlCommand cmd = new SqlCommand("SELECT NAME FROM SYS.PROCEDURES WHERE NAME Like 'Rep%'", Con);
