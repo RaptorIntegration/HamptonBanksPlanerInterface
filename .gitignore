@@ -17,3 +17,5 @@ WebSort/obj/*
 WebSort/bin/app.publish
 Tests/bin/Debug
 Tests/obj
+Dashboard/bin/Debug
+Dashboard/obj

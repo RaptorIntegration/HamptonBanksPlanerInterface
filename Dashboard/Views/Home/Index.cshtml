@@ -1,0 +1,49 @@
+﻿@{
+	ViewData["Title"] = "Home";
+}
+
+<div class="container-fluid d-flex flex-column justify-content-between" id="app">
+	<div class="row card-background mb-1" style="flex: 0">
+		<div class="col-1 d-flex justify-content-start">
+			<img src="~/logo-img.svg" class="logo-img" />
+		</div>
+		<div class="col-11 d-flex justify-content-between">
+			<span style="color: #e0e0e0;">Vol/Hr: {{ VPH }}</span>
+			<span v-bind:class="Severity">{{ Alarm }}</span>
+			<span style="color: #e0e0e0;">Pcs/Hr: {{ PPH }}</span>
+		</div>
+	</div>
+	<div class="row flex-1 mb-1">
+		<div class="col-8 pl-0 d-flex">
+			<div class="chart-container card-background" style="width: 100%;">
+				<canvas id="Total"></canvas>
+			</div>
+		</div>
+
+        <div class="col-4 pl-0 d-flex flex-column">
+            <div class="card-background d-flex">
+                <div class="box-chart" style="height:100%;">
+                    <canvas id="TrimLoss"></canvas>
+                </div>
+            </div>
+            <div class="card-background mt-2">
+                <div class="box-chart" style="height:100%;">
+                    <canvas id="LugFill"></canvas>
+                </div>
+            </div>
+        </div>
+	</div>
+	<div class="row flex-1">
+		<div class="col-7 pl-0">
+			<div class="chart-container card-background">
+				<canvas id="Grades"></canvas>
+			</div>
+		</div>
+
+		<div class="col-5 pl-0 pr-0">
+			<div class="card-background">
+				<canvas id="Pie"></canvas>
+			</div>
+		</div>
+	</div>
+</div>

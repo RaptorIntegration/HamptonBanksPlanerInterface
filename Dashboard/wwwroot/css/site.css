@@ -1,0 +1,224 @@
+﻿html {
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 2vw;
+    line-height: calc(1.3em + (1.5 - 1.2) * ((100vw - 300px)/(1600 - 300)));
+}
+
+body {
+    background-color: #1e202f;
+}
+
+#app {
+    height: 99vh;
+}
+
+.height10 {
+    max-height: 10vh;
+    height: 10vh;
+}
+
+.height45 {
+    max-height: 45vh;
+}
+
+.height {
+    height: 100%;
+}
+
+.dashboard-container {
+    height: 99vh;
+    max-height: 99vh;
+}
+
+.grade-bar {
+    flex: 2;
+    box-sizing: border-box;
+    max-height: 60vh;
+}
+
+.logo-img {
+    width: auto;
+    height: 1.25rem;
+}
+
+.card-container {
+    padding: 0.2rem;
+    border-radius: 4px;
+    margin: 0.25rem;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.card-background {
+    background-color: #292a3e;
+    border-radius: 0.1rem;
+    height: 100%;
+}
+
+.small-card {
+    flex: 1 1 40%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    max-height: 29vh;
+}
+
+.stacked-bar-container {
+    flex: 2;
+}
+
+.inner-col {
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.box-chart {
+    flex: 3 0 auto;
+    width: 100%;
+}
+
+.flex {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.count {
+    color: white;
+    font-size: 0.9rem;
+    letter-spacing: 0.4rem;
+}
+
+.title {
+    color: white;
+    font-size: 0.6rem;
+    letter-spacing: 0.1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.p-1 {
+    padding: 0.25rem !important;
+}
+
+.p-2 {
+    padding: 0.5rem !important;
+}
+
+.p-3 {
+    padding: 1rem !important;
+}
+
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+.p-5 {
+    padding: 3rem !important;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+.table {
+    width: 100%;
+    height: 100%;
+    font-size: 0.8rem;
+    text-align: center;
+    overflow: hidden;
+}
+
+    .table th,
+    .table td {
+        padding: 0.15rem;
+        vertical-align: top;
+    }
+
+    .table thead th {
+        vertical-align: bottom;
+    }
+
+.table-borderless th,
+.table-borderless td,
+.table-borderless thead th,
+.table-borderless tbody + tbody {
+    border: 0;
+}
+
+.table-dark,
+.table-dark > th,
+.table-dark > td {
+    background-color: #292a3e;
+}
+
+.table-dark {
+    color: #fff;
+    background-color: #292a3e;
+}
+
+    .table-dark th,
+    .table-dark td,
+    .table-dark thead th {
+        border-color: #292a3e;
+    }
+
+    .table-dark.table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.table > tbody > tr > th {
+    vertical-align: middle;
+}
+
+.table tbody tr td:last-child {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    justify-content: flex-end;
+    height: 100%;
+    align-items: center;
+}
+
+    .table tbody tr td:last-child div {
+        flex: 1;
+        margin-left: 0.1rem;
+    }
+
+        .table tbody tr td:last-child div div {
+            max-height: 1rem;
+            width: 0%;
+        }
+
+.table tbody tr td span {
+    width: 20%;
+}
+
+#table-container {
+    max-height: 47vh;
+    overflow: hidden;
+}
+
+.low {
+    color: #ffffff
+}
+
+.medium {
+    color: #ffa726
+}
+
+.high {
+    color: #ff3628
+}
