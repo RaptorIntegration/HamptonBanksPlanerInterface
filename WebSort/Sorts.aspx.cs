@@ -279,169 +279,118 @@ namespace WebSort
         [WebMethod]
         public static string ActivateRecipe(Recipe recipe, bool full, bool reset)
         {
-            uint LengthMap;
             int EditingRecipeID = Recipe.GetEditingRecipe().RecipeID;
             SaveResponse response = new SaveResponse("Recipes");
 
             //send sorts to PLC
             if (Global.OnlineSetup)
             {
-                using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+                using SqlConnection con = new SqlConnection(Global.ConnectionString);
+                con.Open();
+
+                try
                 {
-                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand("update websortsetup set activeproductlistzero=1", con))
+                        cmd.ExecuteNonQuery();
 
-                    int ProductMapCount = GetDataRequestsSortColumns(con);
-                    uint[] ProductMap = new uint[ProductMapCount];
-                    uint[] ProductMapOld = new uint[ProductMapCount];
-
-                    try
+                    if (full)
                     {
-                        using (SqlCommand cmd = new SqlCommand("update websortsetup set activeproductlistzero=1", con))
+                        using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 1", con))
                             cmd.ExecuteNonQuery();
 
-                        if (full)
+                        using (SqlCommand cmd = new SqlCommand("select * from bins where binstatus=1", con))
+                        using (SqlDataReader ReaderBins = cmd.ExecuteReader())
                         {
-                            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 1", con))
-                                cmd.ExecuteNonQuery();
-
-                            using (SqlCommand cmd = new SqlCommand("select * from bins where binstatus=1", con))
-                            using (SqlDataReader ReaderBins = cmd.ExecuteReader())
+                            if (ReaderBins.HasRows)
                             {
-                                if (ReaderBins.HasRows)
+                                while (ReaderBins.Read())
                                 {
-                                    while (ReaderBins.Read())
+                                    Bin bin = new Bin(ReaderBins);
+
+                                    Map map = new Map();
+                                    try
                                     {
-                                        int BinID = Global.GetValue<int>(ReaderBins, "BinID");
-                                        LengthMap = Bin.ZeroProductLengthMap(ProductMapCount, ProductMap, ProductMapOld);
-                                        LengthMap = Bin.GetProductLengthMap(LengthMap, con, ProductMap, BinID);
-
-                                        using (SqlCommand cmdRequest = new SqlCommand(Bin.DataRequestBinSQL, con))
-                                        {
-                                            cmdRequest.Parameters.AddWithValue("@BinID", BinID);
-                                            cmdRequest.Parameters.AddWithValue("@BinLabel", Global.GetValue<string>(ReaderBins, "BinLabel"));
-                                            cmdRequest.Parameters.AddWithValue("@BinSize", Global.GetValue<int>(ReaderBins, "BinSize"));
-                                            cmdRequest.Parameters.AddWithValue("@BinCount", Global.GetValue<int>(ReaderBins, "BinCount"));
-                                            cmdRequest.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(LengthMap));
-                                            cmdRequest.Parameters.AddWithValue("@BinStamps", Global.GetValue<int>(ReaderBins, "BinStamps"));
-                                            cmdRequest.Parameters.AddWithValue("@BinSprays", 0);
-                                            cmdRequest.Parameters.AddWithValue("@SortID", Global.GetValue<int>(ReaderBins, "SortID"));
-                                            cmdRequest.Parameters.AddWithValue("@TrimFlag", 1);
-                                            cmdRequest.Parameters.AddWithValue("@RW", 0);
-                                            cmdRequest.Parameters.AddWithValue("@ProductsOnly", 0);
-                                            cmdRequest.Parameters.AddWithValue("@Write", 1);
-                                            cmdRequest.Parameters.AddWithValue("@Processed", 0);
-
-                                            for (int index = 0; index < ProductMapCount; index++)
-                                            {
-                                                cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", Convert.ToInt32(ProductMap[index]));
-                                                cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", 0);
-                                            }
-
-                                            using (SqlDataReader reader = cmd.ExecuteReader())
-                                            {
-                                                while (reader.Read())
-                                                {
-                                                    if (!Raptor.MessageAckConfirm("datarequestsbin", int.Parse(reader["id"].ToString())))
-                                                    {
-                                                        response.Bad("PLC Timeout");
-                                                        return SaveResponse.Serialize(response);
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        using (SqlCommand cmdstatus = new SqlCommand($"update bins set binstatus = 2,bins.binstatuslabel=binstatus.binstatuslabel from binstatus where binstatus.binstatus=2 and binid={BinID}", con))
-                                            cmdstatus.ExecuteNonQuery();
+                                        Map.GetProductLengthMapDBBin(con, map, bin.BinID);
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        Global.LogError(ex);
+                                        response.Bad("PLC Timeout");
+                                        return SaveResponse.Serialize(response);
+                                        throw;
+                                    }
+
+                                    if (!Bin.DataRequestInsert(con, bin, map, bin.BinStatus, CommSettings: false, Ack: false))
+                                    {
+                                        response.Bad("PLC Timeout");
+                                        return SaveResponse.Serialize(response);
+                                    }
+
+                                    using (SqlCommand cmdstatus = new SqlCommand($"update bins set binstatus = 2,bins.binstatuslabel=binstatus.binstatuslabel from binstatus where binstatus.binstatus=2 and binid={bin.BinID}", con))
+                                        cmdstatus.ExecuteNonQuery();
                                 }
                             }
-
-                            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-1 where (datarequests & 1)=1", con))
-                                cmd.ExecuteNonQuery();
                         }
 
-                        using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2", con))
+                        using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-1 where (datarequests & 1)=1", con))
                             cmd.ExecuteNonQuery();
-                        using (SqlCommand cmd = new SqlCommand("select * from sorts with(NOLOCK) where recipeid=" + recipe.RecipeID, con))
-                        using (SqlDataReader readerSorts = cmd.ExecuteReader())
+                    }
+
+                    using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2", con))
+                        cmd.ExecuteNonQuery();
+
+                    using (SqlCommand cmd = new SqlCommand("select * from sorts with(NOLOCK) where recipeid=" + recipe.RecipeID, con))
+                    using (SqlDataReader readerSorts = cmd.ExecuteReader())
+                    {
+                        while (readerSorts.Read())
                         {
-                            while (readerSorts.Read())
+                            Map map = new Map();
+                            Sort sort = new Sort(readerSorts);
+
+                            try
                             {
-                                int SortID = Global.GetValue<int>(readerSorts, "SortID");
-                                LengthMap = Bin.ZeroProductLengthMap(ProductMapCount, ProductMap, ProductMapOld);
+                                Map.GetProductLengthMapDBSort(con, map, sort.SortID, recipe.RecipeID);
+                            }
+                            catch (Exception ex)
+                            {
+                                Global.LogError(ex);
+                                response.Bad("PLC Timeout");
+                                return SaveResponse.Serialize(response);
+                                throw;
+                            }
 
-                                using (SqlCommand cmdInner = new SqlCommand($"select ProdID from sortproducts where sortID = {SortID} and recipeid=(select recipeid from recipes where online=1)", con))
-                                using (SqlDataReader readerSortProducts = cmdInner.ExecuteReader())
+                            if (!Sort.DataRequestInsert(con, sort, map, false, false))
+                            {
+                                response.Bad("PLC Timeout");
+                                return SaveResponse.Serialize(response);
+                            }
+                        }
+                    }
+
+                    //send grade map to PLC
+                    using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 8", con))
+                        cmd.ExecuteNonQuery();
+
+                    using (SqlCommand cmd = new SqlCommand($"select * from gradematrix with(NOLOCK) where recipeid={recipe.RecipeID}", con))
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            using (SqlCommand cmdInner = new SqlCommand(Grade.DataRequestsGradeSql, con))
+                            {
+                                cmdInner.Parameters.AddWithValue("@GradeID", Global.GetValue<int>(reader, "plcgradeID"));
+                                cmdInner.Parameters.AddWithValue("@GradeIDX", Global.GetValue<int>(reader, "websortgradeID"));
+                                cmdInner.Parameters.AddWithValue("@GradeStamps", 0);
+                                cmdInner.Parameters.AddWithValue("@Write", 1);
+                                cmdInner.Parameters.AddWithValue("@Processed", 0);
+
+                                using (SqlDataReader readerInner = cmdInner.ExecuteReader())
                                 {
-                                    if (readerSortProducts.HasRows)
+                                    if (readerInner.HasRows)
                                     {
-                                        while (readerSortProducts.Read())
+                                        while (readerInner.Read())
                                         {
-                                            Bin.SetProductMap(ProductMapOld, readerSortProducts);
-                                        }
-                                    }
-                                }
-
-                                using (SqlCommand cmdInner = new SqlCommand($"select ProdID from sortproducts where sortID = {SortID} and recipeid={recipe.RecipeID}", con))
-                                using (SqlDataReader readerSortProducts = cmdInner.ExecuteReader())
-                                {
-                                    if (readerSortProducts.HasRows)
-                                    {
-                                        while (readerSortProducts.Read())
-                                        {
-                                            Bin.SetProductMap(ProductMap, readerSortProducts);
-                                        }
-                                    }
-                                }
-
-                                using (SqlCommand cmdInner = new SqlCommand($"select LengthID from sortlengths where sortID = {SortID} and recipeid={recipe.RecipeID}", con))
-                                using (SqlDataReader readerSortLengths = cmdInner.ExecuteReader())
-                                {
-                                    if (readerSortLengths.HasRows)
-                                    {
-                                        while (readerSortLengths.Read())
-                                        {
-                                            //length map per sort
-                                            LengthMap = Bin.SetLengthMap(LengthMap, readerSortLengths);
-                                        }
-                                    }
-                                }
-
-                                using (SqlCommand cmdRequest = new SqlCommand(Sort.DataRequestsSortSQL, con))
-                                {
-                                    cmdRequest.Parameters.AddWithValue("@SortID", SortID);
-                                    cmdRequest.Parameters.AddWithValue("@SortLabel", Global.GetValue<string>(readerSorts, "SortLabel"));
-                                    cmdRequest.Parameters.AddWithValue("@SortSize", Global.GetValue<int>(readerSorts, "SortSize"));
-                                    cmdRequest.Parameters.AddWithValue("@PkgsPerSort", Global.GetValue<int>(readerSorts, "PkgsPerSort"));
-                                    cmdRequest.Parameters.AddWithValue("@OrderCount", Global.GetValue<int>(readerSorts, "OrderCount"));
-                                    cmdRequest.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(LengthMap));
-                                    cmdRequest.Parameters.AddWithValue("@SortStamps", Global.GetValue<int>(readerSorts, "SortStamps"));
-                                    cmdRequest.Parameters.AddWithValue("@SortSprays", Global.GetValue<int>(readerSorts, "SortSprays"));
-                                    cmdRequest.Parameters.AddWithValue("@Zone1", (Global.GetValue<int>(readerSorts, "zone1stop") * 256) + Global.GetValue<int>(readerSorts, "zone1start"));
-                                    cmdRequest.Parameters.AddWithValue("@Zone2", (Global.GetValue<int>(readerSorts, "zone2stop") * 256) + Global.GetValue<int>(readerSorts, "zone1start"));
-                                    cmdRequest.Parameters.AddWithValue("@TrimFlag", Global.GetValue<int>(readerSorts, "TrimFlag"));
-                                    cmdRequest.Parameters.AddWithValue("@RW", Global.GetValue<bool>(readerSorts, "RW"));
-                                    cmdRequest.Parameters.AddWithValue("@Active", Global.GetValue<bool>(readerSorts, "Active"));
-                                    cmdRequest.Parameters.AddWithValue("@ProductsOnly", 2);
-                                    cmdRequest.Parameters.AddWithValue("@Write", 1);
-                                    cmdRequest.Parameters.AddWithValue("@Processed", 0);
-
-                                    cmdRequest.Parameters.AddWithValue("@ProductMap0c", 0);
-                                    cmdRequest.Parameters.AddWithValue("@ProductMap1c", 0);
-                                    cmdRequest.Parameters.AddWithValue("@ProductMap2c", 0);
-                                    cmdRequest.Parameters.AddWithValue("@LengthMapc", 0);
-
-                                    for (int index = 0; index < ProductMapCount; index++)
-                                    {
-                                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}", Convert.ToInt32(ProductMap[index]));
-                                        cmdRequest.Parameters.AddWithValue($"@ProductMap{index}Old", 0);
-                                    }
-
-                                    using (SqlDataReader reader = cmdRequest.ExecuteReader())
-                                    {
-                                        while (reader.Read())
-                                        {
-                                            if (!Raptor.MessageAckConfirm("datarequestssort", Global.GetValue<int>(reader, "id")))
+                                            if (!Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(readerInner, "id")))
                                             {
                                                 response.Bad("PLC Timeout");
                                                 return SaveResponse.Serialize(response);
@@ -451,66 +400,31 @@ namespace WebSort
                                 }
                             }
                         }
-
-                        //send grade map to PLC
-                        using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 8", con))
-                            cmd.ExecuteNonQuery();
-
-                        using (SqlCommand cmd = new SqlCommand($"select * from gradematrix with(NOLOCK) where recipeid={recipe.RecipeID}", con))
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                using (SqlCommand cmdInner = new SqlCommand(Grade.DataRequestsGradeSql, con))
-                                {
-                                    cmdInner.Parameters.AddWithValue("@GradeID", Global.GetValue<int>(reader, "plcgradeID"));
-                                    cmdInner.Parameters.AddWithValue("@GradeIDX", Global.GetValue<int>(reader, "websortgradeID"));
-                                    cmdInner.Parameters.AddWithValue("@GradeStamps", 0);
-                                    cmdInner.Parameters.AddWithValue("@Write", 1);
-                                    cmdInner.Parameters.AddWithValue("@Processed", 0);
-
-                                    using (SqlDataReader readerInner = cmdInner.ExecuteReader())
-                                    {
-                                        if (readerInner.HasRows)
-                                        {
-                                            while (readerInner.Read())
-                                            {
-                                                if (!Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(readerInner, "id")))
-                                                {
-                                                    response.Bad("PLC Timeout");
-                                                    return SaveResponse.Serialize(response);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Global.LogError(ex);
-                        response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
-                        return SaveResponse.Serialize(response);
-                    }
-
-                    try
-                    {
-                        Recipe.ChangeActive(recipe);
-
-                        using (SqlCommand cmd = new SqlCommand($"updatechangeactiverecipe {EditingRecipeID}, '{reset}'", con))
-                            cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Global.LogError(ex);
-                        response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
-                        return SaveResponse.Serialize(response);
-                    }
-
-                    response.Good($"Activated recipe \"{recipe.RecipeLabel}\"");
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
                     return SaveResponse.Serialize(response);
                 }
+
+                try
+                {
+                    Recipe.ChangeActive(recipe);
+
+                    using (SqlCommand cmd = new SqlCommand($"updatechangeactiverecipe {EditingRecipeID}, '{reset}'", con))
+                        cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
+                    return SaveResponse.Serialize(response);
+                }
+
+                response.Good($"Activated recipe \"{recipe.RecipeLabel}\"");
+                return SaveResponse.Serialize(response);
             }
             else
             {
@@ -616,12 +530,10 @@ namespace WebSort
                     cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
                     cmd.Parameters.AddWithValue("@SortID", SortID);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
                     {
-                        if (reader.HasRows)
-                        {
-                            PL.PopulateProductList(reader);
-                        }
+                        PL.PopulateProductList(reader);
                     }
                 }
 
@@ -630,12 +542,10 @@ namespace WebSort
                     cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
                     cmd.Parameters.AddWithValue("@SortID", SortID);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
                     {
-                        if (reader.HasRows)
-                        {
-                            PL.PopulateLengthList(reader);
-                        }
+                        PL.PopulateLengthList(reader);
                     }
                 }
             }
@@ -660,48 +570,33 @@ namespace WebSort
                 return SaveResponse.Serialize(response);
             }
 
-            uint OldStamps = 0, Sprays = 0, SpraysPLC = 0;
-
-            string RecipeID = "0", ProductString = "", LengthString = "";
+            uint OldStamps = 0;
             string Update;
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
             {
                 con.Open();
 
-                // RecipeID
-                using (SqlCommand cmd = new SqlCommand("SELECT RecipeID FROM Recipes WHERE Editing=1", con))
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            RecipeID = reader["RecipeID"].ToString();
-                        }
-                    }
-                }
+                Recipe EditingRecipe = Recipe.GetEditingRecipe();
 
                 if (Changed.Length > 0)
                 {
                     foreach (Sort Item in Changed)
                     {
-                        uint LengthMap = 0;
-                        uint[] ProductMap = new uint[30];
-                        uint[] ProductMapOld = new uint[30];
+                        Map map = new Map();
 
                         // Length and Product Map
                         if (Item.ProdLen != null)  // Products changed
                         {
                             // Only Selected Products and Lengths
-                            GetSelectedProductMap(ref ProductString, ref LengthString, Item, ref LengthMap, ProductMap);
+                            Map.GetSelectedProductMapSort(Item, map);
 
                             // Product Map Old
-                            GetProductMapOld(con, Item, ProductMapOld, RecipeID);
+                            Map.GetProductMapOldSort(con, Item, map, EditingRecipe.RecipeID);
                         }
                         else // No products changed, ProductMap = ProductMapOld
                         {
-                            GetDBProductMap(ref ProductString, ref LengthString, con, Item, ref LengthMap, ProductMap, ProductMapOld, RecipeID);
+                            Map.GetDBProductMapSort(con, Item, map, EditingRecipe.RecipeID);
                         }
 
                         Item.SortStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
@@ -718,7 +613,7 @@ namespace WebSort
                             // General update statement
                             if (Edit.EditedCol != "Products" && Edit.EditedCol != "SortStamps")
                             {
-                                Update = "UPDATE Sorts SET " + Edit.EditedCol + "=@Value WHERE RecipeID=" + RecipeID + " AND SortID=@ID";
+                                Update = "UPDATE Sorts SET " + Edit.EditedCol + "=@Value WHERE RecipeID=" + EditingRecipe.RecipeID + " AND SortID=@ID";
                                 using SqlCommand cmd = new SqlCommand(Update, con);
                                 cmd.Parameters.AddWithValue("@Value", Edit.EditedVal);
                                 cmd.Parameters.AddWithValue("@ID", Item.SortID);
@@ -729,7 +624,7 @@ namespace WebSort
                                 using (SqlCommand cmd2 = new SqlCommand("SELECT SortStamps FROM Sorts WHERE SortID=@SortID AND RecipeID=@RecipeID", con))
                                 {
                                     cmd2.Parameters.AddWithValue("@SortID", Item.SortID);
-                                    cmd2.Parameters.AddWithValue("@RecipeID", RecipeID);
+                                    cmd2.Parameters.AddWithValue("@RecipeID", EditingRecipe.RecipeID);
                                     using SqlDataReader reader = cmd2.ExecuteReader();
                                     while (reader.Read())
                                     {
@@ -739,7 +634,7 @@ namespace WebSort
 
                                 using SqlCommand cmd = new SqlCommand("UPDATE Sorts SET SortStamps=@SortStamps WHERE RecipeID=@RecipeID AND SortID=@ID", con);
                                 cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+                                cmd.Parameters.AddWithValue("@RecipeID", EditingRecipe.RecipeID);
                                 cmd.Parameters.AddWithValue("@ID", Item.SortID);
                                 cmd.ExecuteNonQuery();
                             }
@@ -754,155 +649,65 @@ namespace WebSort
                                 }
                             }
 
-                            SpraysPLC |= Sprays;
-
                             if (Global.OnlineSetup && ActiveRecipe)
                             {
-                                int ProductMapCount = GetDataRequestsSortColumns(con);
                                 if (Item.Active)
                                 {
-                                    using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2", con))
-                                        cmd.ExecuteNonQuery();
-
-                                    using (SqlCommand cmd = new SqlCommand(Sort.DataRequestsSortSQL, con))
+                                    try
                                     {
-                                        cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                                        cmd.Parameters.AddWithValue("@SortLabel", Item.SortLabel);
-                                        cmd.Parameters.AddWithValue("@SortSize", Item.SortSize);
-                                        cmd.Parameters.AddWithValue("@PkgsPerSort", Item.PkgsPerSort);
-                                        cmd.Parameters.AddWithValue("@OrderCount", Item.OrderCount);
-                                        cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
-                                        cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
-                                        cmd.Parameters.AddWithValue("@LengthMap", Convert.ToInt32(LengthMap));
-                                        cmd.Parameters.AddWithValue("@ProductMap0c", 0);
-                                        cmd.Parameters.AddWithValue("@ProductMap1c", 0);
-                                        cmd.Parameters.AddWithValue("@ProductMap2c", 0);
-                                        cmd.Parameters.AddWithValue("@LengthMapc", 0);
-                                        cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                        cmd.Parameters.AddWithValue("@SortSprays", (long)SpraysPLC);
-                                        cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
-                                        cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
-                                        cmd.Parameters.AddWithValue("@TrimFlag", 1);
-                                        cmd.Parameters.AddWithValue("@RW", Item.RW);
-                                        cmd.Parameters.AddWithValue("@Active", Item.Active);
-                                        cmd.Parameters.AddWithValue("@ProductsOnly", 2);
-                                        cmd.Parameters.AddWithValue("@Write", 1);
-                                        cmd.Parameters.AddWithValue("@Processed", 0);
-
-                                        for (int p = 0; p < ProductMapCount; p++)
+                                        if (!Sort.DataRequestInsert(con, Item, map))
                                         {
-                                            cmd.Parameters.AddWithValue("@ProductMap" + p.ToString(), Convert.ToInt32(ProductMap[p]));
-                                            cmd.Parameters.AddWithValue("@ProductMap" + p.ToString() + "Old", Convert.ToInt32(ProductMapOld[p]));
+                                            response.Bad("PLC Timeout");
+                                            return SaveResponse.Serialize(response);
                                         }
-
-                                        using (SqlDataReader reader = cmd.ExecuteReader())
-                                        {
-                                            while (reader.Read())
-                                            {
-                                                try
-                                                {
-                                                    if (!Raptor.MessageAckConfirm("datarequestssort", int.Parse(reader["id"].ToString())))
-                                                    {
-                                                        response.Bad("PLC Timeout");
-                                                        return SaveResponse.Serialize(response);
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Global.LogError(ex);
-                                                }
-                                            }
-                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Global.LogError(ex);
+                                        response.Bad("Error Saving");
+                                        return SaveResponse.Serialize(response);
                                     }
                                 }
                                 else
                                 {
-                                    //first send products only with zeroes for products and lengths
-                                    using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2", con))
-                                        cmd.ExecuteNonQuery();
-
-                                    using (SqlCommand cmd = new SqlCommand(Sort.DataRequestsSortSQL, con))
+                                    // First zero out product/length map
+                                    try
                                     {
-                                        cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                                        cmd.Parameters.AddWithValue("@SortLabel", Item.SortLabel);
-                                        cmd.Parameters.AddWithValue("@SortSize", Item.SortSize);
-                                        cmd.Parameters.AddWithValue("@PkgsPerSort", Item.PkgsPerSort);
-                                        cmd.Parameters.AddWithValue("@OrderCount", Item.OrderCount);
-                                        cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
-                                        cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
-                                        cmd.Parameters.AddWithValue("@LengthMap", 0);
-                                        cmd.Parameters.AddWithValue("@ProductMap0c", 0);
-                                        cmd.Parameters.AddWithValue("@ProductMap1c", 0);
-                                        cmd.Parameters.AddWithValue("@ProductMap2c", 0);
-                                        cmd.Parameters.AddWithValue("@LengthMapc", 0);
-                                        cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                        cmd.Parameters.AddWithValue("@SortSprays", (long)SpraysPLC);
-                                        cmd.Parameters.AddWithValue("@Zone1", (Item.Zone1Stop * 256) + Item.Zone1Start);
-                                        cmd.Parameters.AddWithValue("@Zone2", (Item.Zone2Stop * 256) + Item.Zone2Start);
-                                        cmd.Parameters.AddWithValue("@TrimFlag", 1);
-                                        cmd.Parameters.AddWithValue("@RW", Item.RW);
-                                        cmd.Parameters.AddWithValue("@Active", Item.Active);
-                                        cmd.Parameters.AddWithValue("@ProductsOnly", 1);
-                                        cmd.Parameters.AddWithValue("@Write", 1);
-                                        cmd.Parameters.AddWithValue("@Processed", 0);
-
-                                        for (int p = 0; p < ProductMapCount; p++)
+                                        if (!Sort.DataRequestInsert(con, Item, map, ZeroOut: true))
                                         {
-                                            cmd.Parameters.AddWithValue("@ProductMap" + p.ToString(), 0);
-                                            cmd.Parameters.AddWithValue("@ProductMap" + p.ToString() + "Old", Convert.ToInt32(ProductMapOld[p]));
-                                        }
-
-                                        using (SqlDataReader reader = cmd.ExecuteReader())
-                                        {
-                                            while (reader.Read())
-                                            {
-                                                try
-                                                {
-                                                    if (Raptor.MessageAckConfirm("datarequestssort", int.Parse(reader["id"].ToString())))
-                                                    {
-                                                        response.Bad("PLC Timeout");
-                                                        return SaveResponse.Serialize(response);
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Global.LogError(ex);
-                                                }
-                                            }
-                                        }
-
-                                        //then send to the sort udt only
-                                        for (int j = 0; j < ProductMapCount; j++)
-                                        {
-                                            cmd.Parameters["@ProductMap" + j.ToString()].Value = ProductMap[j];
-                                        }
-                                        cmd.Parameters["@ProductsOnly"].Value = 0;
-
-                                        using (SqlDataReader reader = cmd.ExecuteReader())
-                                        {
-                                            while (reader.Read())
-                                            {
-                                                try
-                                                {
-                                                    if (Raptor.MessageAckConfirm("datarequestssort", int.Parse(reader["id"].ToString())))
-                                                    {
-                                                        response.Bad("PLC Timeout");
-                                                        return SaveResponse.Serialize(response);
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    Global.LogError(ex);
-                                                }
-                                            }
+                                            response.Bad("PLC Timeout");
+                                            return SaveResponse.Serialize(response);
                                         }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        Global.LogError(ex);
+                                        response.Bad("Error Saving");
+                                        return SaveResponse.Serialize(response);
+                                    }
+
+                                    // Then send new product/length map
+                                    try
+                                    {
+                                        if (!Sort.DataRequestInsert(con, Item, map, ProductsOnlyZero: true))
+                                        {
+                                            response.Bad("PLC Timeout");
+                                            return SaveResponse.Serialize(response);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Global.LogError(ex);
+                                        response.Bad("Error Saving");
+                                        return SaveResponse.Serialize(response);
+                                    }
                                 }
-                            } // end if OnlineSetup and ActiveRecipe
+                            }
+
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
 
-                            UpdateSortProductsGUI(con, Item, RecipeID);
+                            UpdateSortProductsGUI(con, Item, EditingRecipe.RecipeID);
 
                             Edit.Key = Item.SortID;
 
@@ -911,8 +716,7 @@ namespace WebSort
                                 response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.SortStamps, OldStamps, Item.SortID));
                             }
                         } // end foreach edit
-                        ProductString = "";
-                        LengthString = "";
+
                         response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "SortStamps").ToList());
                     } // end foreach item
                 }
@@ -921,7 +725,7 @@ namespace WebSort
             return SaveResponse.Serialize(response);
         }
 
-        private static void UpdateSortProductsGUI(SqlConnection con, Sort Item, string RecipeID)
+        private static void UpdateSortProductsGUI(SqlConnection con, Sort Item, int RecipeID)
         {
             string ProductLabel = "";
 
@@ -972,130 +776,6 @@ namespace WebSort
                 cmd.Parameters.AddWithValue("@ProductsLabel", ProductLabel);
 
                 cmd.ExecuteNonQuery();
-            }
-        }
-
-        private static int GetDataRequestsSortColumns(SqlConnection con)
-        {
-            IEnumerable<string> Columns = null;
-
-            using (SqlCommand cmd = new SqlCommand("Select TOP 1 * FROM DataRequestsSort", con))
-            using (SqlDataReader reader = cmd.ExecuteReader())
-            {
-                if (reader.HasRows)
-                {
-                    Columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
-                }
-            }
-
-            if (Columns?.Any() == true)
-            {
-                Sort.DataRequestsSortSQL = "INSERT INTO DataRequestsSort SELECT getdate(),";
-                foreach (string col in Columns.Where(c => c != "TimeStamp" && c != "ID"))
-                {
-                    Sort.DataRequestsSortSQL += $"@{col},";
-                }
-                Sort.DataRequestsSortSQL = Sort.DataRequestsSortSQL.Remove(Sort.DataRequestsSortSQL.Length - 1, 1);
-                Sort.DataRequestsSortSQL += ";SELECT id = (select max(id) FROM datarequestsSort with(NOLOCK))";
-
-                return Columns.Count(c => c.Contains("ProductMap") && !c.EndsWith("c")) / 2;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        private static void GetDBProductMap(ref string ProductString, ref string LengthString, SqlConnection con, Sort Item, ref uint LengthMap, uint[] ProductMap, uint[] ProductMapOld, string RecipeID)
-        {
-            // Product Map
-            ProductLengths PL = new ProductLengths();
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.SortProdMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
-                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateProductList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
-                        {
-                            ProductMap[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                            ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                            ProductString += P.Label + "|";
-                        }
-                    }
-                }
-            }
-
-            // Length Map
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.SortLengthMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
-                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateLengthList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Lengths L in PL.LengthsList.Where(l => l.Selected).ToList())
-                        {
-                            LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
-                            LengthString += L.Label + "|";
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void GetSelectedProductMap(ref string ProductString, ref string LengthString, Sort Item, ref uint LengthMap, uint[] ProductMap)
-        {
-            ProductLengths SelectedProductLengths = new ProductLengths()
-            {
-                ProductsList = Item.ProdLen.ProductsList.Where(p => p.Selected).ToList(),
-                LengthsList = Item.ProdLen.LengthsList.Where(l => l.Selected).ToList()
-            };
-
-            // Product Map New
-            foreach (ProductLengths.Products P in SelectedProductLengths.ProductsList)
-            {
-                ProductMap[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                ProductString += P.Label + "|";
-            }
-
-            // Length Map
-            foreach (ProductLengths.Lengths L in SelectedProductLengths.LengthsList)
-            {
-                LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
-                LengthString += L.Label + "|";
-            }
-        }
-
-        private static void GetProductMapOld(SqlConnection con, Sort Item, uint[] ProductMapOld, string RecipeID)
-        {
-            ProductLengths PL = new ProductLengths();
-            using (SqlCommand cmd = new SqlCommand(ProductLengths.SortProdMapSql, con))
-            {
-                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
-                cmd.Parameters.AddWithValue("@SortID", Item.SortID);
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-                        PL.PopulateProductList(reader);
-
-                        // Use only selected
-                        foreach (ProductLengths.Products P in PL.ProductsList.Where(p => p.Selected).ToList())
-                        {
-                            ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
-                        }
-                    }
-                }
             }
         }
 

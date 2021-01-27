@@ -619,12 +619,3 @@ function UpdateTable() {
 }
 
 window.addEventListener('keydown', function (e) { if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) { if (e.target.nodeName == 'INPUT' && e.target.type == 'text') { e.preventDefault(); return false; } } }, true);
-
-let content = document.getElementById('vue-content')
-content.addEventListener('click', function(event, element) {
-    if (!event.target.parentNode || event.target.parentNode.nodeName === 'TD' || event.target.nodeName === 'LABEL') {
-        event.stopPropagation();
-        return;
-    }
-    v.Table.Editing = null
-})

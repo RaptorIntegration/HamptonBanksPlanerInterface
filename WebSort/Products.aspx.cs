@@ -214,6 +214,13 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string GetGraders()
+        {
+            JavaScriptSerializer s = new JavaScriptSerializer();
+            return s.Serialize(Graders.GetAll());
+        }
+
+        [WebMethod]
         public static string GetSecurity()
         {
             return CurrentUser.Access.ToString();
@@ -725,7 +732,7 @@ namespace WebSort
                 catch (Exception ex)
                 {
                     Global.LogError(ex);
-                    response.Bad("Error saving grade");
+                    response.Bad("Error saving length");
                     return SaveResponse.Serialize(response);
                 }
                 response.AddEdits(length.EditsList);
@@ -804,6 +811,51 @@ namespace WebSort
             }
 
             response.Good(PETLengths.Length > 1 ? "PETLengths Saved!" : "PETLength Saved");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string SaveGraders(Graders[] graders)
+        {
+            SaveResponse response = new SaveResponse("Graders");
+
+            foreach (Graders grader in graders)
+            {
+                try
+                {
+                    Graders.Save(grader);
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error saving grades");
+                    return SaveResponse.Serialize(response);
+                }
+                response.AddEdits(grader.EditsList);
+            }
+
+            response.Good(graders.Length > 1 ? "Graders Saved!" : "Grader Saved");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string AddNewGraders(Graders graders)
+        {
+            SaveResponse response = new SaveResponse("Graders");
+
+            try
+            {
+                Graders.Save(graders);
+                response.AddEdits(graders.EditsList);
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                response.Bad("Error saving grade");
+                return SaveResponse.Serialize(response);
+            }
+
+            response.Good($"Grader {graders.GraderDescription} Saved!");
             return SaveResponse.Serialize(response);
         }
 

@@ -8,7 +8,7 @@ namespace Tests
     [TestClass]
     public class Basic
     {
-        [TestMethod]
+        [TestMethod, TestCategory("Version")]
         public void Version()
         {
             User user = Global.GetSecurity("Home", "Raptor");

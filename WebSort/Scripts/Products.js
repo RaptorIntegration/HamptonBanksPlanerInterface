@@ -95,6 +95,21 @@
                 ChangedList: []
             },
         },
+
+        Graders: {
+            List: [],
+            Cols: ['GraderID', 'GraderDescription'],
+            SortByAsc: false,
+            SortBy: '',
+            Editing: null,
+            Edited: false,
+            New: null,
+            SaveResponse: {
+                Message: '',
+                ChangedList: []
+            },
+        },
+
         NearSawOffSet: 0,
 
         Security: null,
@@ -108,24 +123,12 @@
     },
     mounted: function () {
         setTimeout(_ => this.GetSecurity());
-        this.Refresh();        
+        this.Refresh();
     },
     watch: {
-        Tab: function (val) {
-            if (val === 'Products') {
-                this.GetProducts()
-            } else if (val === 'Grades') {
-                this.GetGrades()
-            } else if (val === 'Thicknesses') {
-                this.GetThicknesses()
-            } else if (val === 'Widths') {
-                this.GetWidths()
-            } else if (val === 'Lengths') {
-                this.GetLengths()
-            } else if (val === 'PETLengths') {
-                this.GetPETLengths()
-            }
-        },
+        Tab: function () {
+            this.RefreshTab()
+        }
     },
     computed: {
         FilteredProducts: function () {
@@ -155,7 +158,7 @@
 
         ThickSortedByNom: function () {
             if (this.Thicks.List.length) {
-                return [...this.Thicks.List].sort((a,b) => a.Nominal - b.Nominal)
+                return [...this.Thicks.List].sort((a, b) => a.Nominal - b.Nominal)
             } else {
                 return null
             }
@@ -233,6 +236,19 @@
                 return null
             }
         },
+        GradersSorted: function () {
+            if (this.Graders.List.length) {
+                let SortDir = this.Graders.SortByAsc ? 'asc' : 'desc';
+
+                if (this.Graders.SortBy) {
+                    return [...this.Graders.List].sort(this.CompareValues(this.Graders.SortBy, SortDir));
+                } else {
+                    return this.Graders.List
+                }
+            } else {
+                return null
+            }
+        },
 
         SecurityEnabled: function () {
             return this.Security != 1
@@ -296,6 +312,15 @@
                 .then(response => {
                     this.GetNearSaw();
                     this.PETLengths.List = JSON.parse(response.data.d);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        GetGraders: function () {
+            axios.post('Products.aspx/GetGraders', this.Headers)
+                .then(response => {
+                    this.Graders.List = JSON.parse(response.data.d);
                 })
                 .catch(error => {
                     console.error(error);
@@ -369,8 +394,8 @@
                     console.error(error);
                     this.Toast(JSON.parse(error.data.d));
                 })
-                .finally(_ => {
-                    this.Refresh()
+                .finally(() => {
+                    this.RefreshTab()
 
                     this.Loading = false;
                     table.Edited = false;
@@ -396,11 +421,7 @@
                 })
                 .finally(_ => {
                     table.New = null
-
-                    this.GetThicknesses()
-                    this.GetWidths()
-                    this.GetGrades();
-                    this.GetLengths();
+                    this.RefreshTab()
                 });
         },
 
@@ -510,7 +531,12 @@
                 "PETLengthID": 0
             }
         },
-
+        ShowNewGrader: function () {
+            this.Graders.New = {
+                "GraderID": 0,
+                "GraderDescription": "",
+            }
+        },
         ShowNewPETLength: function () {
             this.PETLengths.New = {
                 "PETLengthID": 0,
@@ -520,6 +546,7 @@
                 "PETPosition": 0
             }
         },
+
         SaveNearSaw: function () {
             let data = JSON.stringify({ NearSawOffSet: this.NearSawOffSet })
 
@@ -546,13 +573,34 @@
             }, 3000)
         },
 
-        Refresh: function () {            
+        Refresh: function () {
             setTimeout(_ => this.GetProducts());
             setTimeout(_ => this.GetGrades(), 10);
             setTimeout(_ => this.GetThicknesses(), 100);
-            setTimeout(_ => this.GetWidths(), 100);
-            setTimeout(_ => this.GetLengths(), 100);
-            setTimeout(_ => this.GetPETLengths(), 100);
+            setTimeout(_ => this.GetWidths(), 120);
+            setTimeout(_ => this.GetLengths(), 130);
+            setTimeout(_ => this.GetPETLengths(), 140);
+            setTimeout(_ => this.GetGraders(), 150);
+        },
+        RefreshTab: function () {
+            if (this.Tab === 'Products') {
+                this.GetProducts()
+                this.GetGrades()
+                this.GetThicknesses()
+                this.GetWidths()
+            } else if (this.Tab === 'Grades') {
+                this.GetGrades()
+            } else if (this.Tab === 'Thicknesses') {
+                this.GetThicknesses()
+            } else if (this.Tab === 'Widths') {
+                this.GetWidths()
+            } else if (this.Tab === 'Lengths') {
+                this.GetLengths()
+            } else if (this.Tab === 'PETLengths') {
+                this.GetPETLengths()
+            } else if (this.Tab == 'Graders') {
+                this.GetGraders()
+            }
         },
 
         CompareValues: function (key, order = 'asc') {

@@ -156,8 +156,7 @@ namespace Tests
             {
                 con.Open();
 
-                bool success = Product.DataRequestInsert(con, prod, false, ZeroOut: false);
-                Assert.IsFalse(success);
+                Assert.IsTrue(Product.DataRequestInsert(con, prod, false, ZeroOut: false, Ack: false));
 
                 using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 * FROM DataRequestsProduct WHERE Processed = 0", con))
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -175,8 +174,7 @@ namespace Tests
                 using (SqlCommand cmd = new SqlCommand("DELETE FROM DataRequestsProduct WHERE Processed = 0", con))
                     Assert.IsTrue(cmd.ExecuteNonQuery() > 0);
 
-                success = Product.DataRequestInsert(con, prod, false, ZeroOut: true);
-                Assert.IsFalse(success);
+                Assert.IsTrue(Product.DataRequestInsert(con, prod, false, ZeroOut: true, Ack: false));
 
                 using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 * FROM DataRequestsProduct WHERE Processed = 0", con))
                 using (SqlDataReader reader = cmd.ExecuteReader())

@@ -89,10 +89,34 @@ namespace WebSort.Model
 
         public static bool SaveData(GradeMatrix matrix, SqlConnection con, int RecipeID)
         {
+            bool ret = false;
             if (matrix?.EditsList.Count > 0)
             {
                 uint Stamps = Stamp.GetStampsBitMap(matrix.SelectedStamps);
-                return SavePLC(matrix, Stamps, con, RecipeID);
+                if (Recipe.GetOnlineRecipe().RecipeID == RecipeID && Global.OnlineSetup)
+                {
+                    ret = SavePLC(matrix, Stamps, con, RecipeID);
+                }
+
+                using (SqlCommand cmd = new SqlCommand(GradeMatrixUpdate, con))
+                {
+                    cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
+                    cmd.Parameters.AddWithValue("@Stamps", (long)Stamps);
+                    cmd.Parameters.AddWithValue("@WebSortGradeID", matrix.WebSortGradeID);
+                    cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        ret = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        return false;
+                    }
+                }
+                return ret;
             }
             else
             {
@@ -102,52 +126,31 @@ namespace WebSort.Model
 
         private static bool SavePLC(GradeMatrix matrix, uint Stamps, SqlConnection con, int RecipeID)
         {
-            if (Global.OnlineSetup)
-            {
-                using (SqlCommand cmd = new SqlCommand(ComSettingsSql, con))
-                    cmd.ExecuteNonQuery();
+            using (SqlCommand cmd = new SqlCommand(ComSettingsSql, con))
+                cmd.ExecuteNonQuery();
 
-                using (SqlCommand cmd = new SqlCommand(DataRequestsGradeSql, con))
-                {
-                    cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
-                    cmd.Parameters.AddWithValue("@Stamps", (long)Stamps);
-                    cmd.Parameters.AddWithValue("@GradeLabel", matrix.GradeLabel);
-
-                    using SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            bool succeeded = Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id"));
-                            if (!succeeded)
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-                using (SqlCommand cmd = new SqlCommand(ComSettingsAfterSql, con))
-                    cmd.ExecuteNonQuery();
-            }
-
-            using (SqlCommand cmd = new SqlCommand(GradeMatrixUpdate, con))
+            using (SqlCommand cmd = new SqlCommand(DataRequestsGradeSql, con))
             {
                 cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
                 cmd.Parameters.AddWithValue("@Stamps", (long)Stamps);
-                cmd.Parameters.AddWithValue("@WebSortGradeID", matrix.WebSortGradeID);
-                cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
+                cmd.Parameters.AddWithValue("@GradeLabel", matrix.GradeLabel);
 
-                try
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    Global.LogError(ex);
-                    return false;
+                    while (reader.Read())
+                    {
+                        bool succeeded = Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id"));
+                        if (!succeeded)
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
+
+            using (SqlCommand cmd = new SqlCommand(ComSettingsAfterSql, con))
+                cmd.ExecuteNonQuery();
 
             return true;
         }

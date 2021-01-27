@@ -289,6 +289,8 @@ const v = new Vue({
             { DataSource: 'BinSize', Header: 'Size' },
             { DataSource: 'BinCount', Header: 'Count' },
         ],
+        ProductGrades: [],
+
         Colours: [
             "#AA3939",
             "#FFD7D7",
@@ -329,9 +331,11 @@ const v = new Vue({
             { status: 'Virtual', colour: '#00796B' },
         ],
         ShowColours: false,
+
         StatusList: [
             'Spare', 'Active', 'Full', 'Disabled', 'Reject', 'Virtual'
         ],
+
         Previous: null,
         Filter: null,
         SortBy: 'Sort By...',
@@ -346,9 +350,13 @@ const v = new Vue({
                 EditedVal: null
             }]
         },
+
         IncDec: 1,
+
         Timer: null,
+
         Loading: false,
+
         Headers: {
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -360,6 +368,7 @@ const v = new Vue({
         this.SetAutoUpdate();
         this.GetColours();
         this.GetIncDec();
+        this.GetProductGrades();
     },
     computed: {
         FilterBays: function () {
@@ -546,6 +555,15 @@ const v = new Vue({
                 .catch(error => {
                     console.dir(error);
                 })
+        },
+        GetProductGrades: function () {
+            axios.post('WebSort.aspx/GetProductGrades', this.Headers)
+                .then(response => {
+                    this.ProductGrades = JSON.parse(response.data.d);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         },
 
         CancelAutoUpdate: function () {
