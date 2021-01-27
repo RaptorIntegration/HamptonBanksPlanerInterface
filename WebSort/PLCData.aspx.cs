@@ -2,6 +2,7 @@
 using System;
 using System.Web.UI.WebControls;
 using WebSort.Model;
+using System.Data.SqlClient;
 
 namespace WebSort
 {
@@ -34,27 +35,27 @@ namespace WebSort
                 ButtonWrite.Enabled = true;
             }
 
-            //Raptor cs1 = new Raptor();
-            //string connectionString = Global.ConnectionString;
-            //System.Data.SqlClient.SqlConnection connection;
-            //connection = new SqlConnection(connectionString);
-            //// Open the connection.
-            //connection.Open();
-            //SqlCommand cmd = new SqlCommand("select * from RaptorCommSettings", connection);
-            //SqlDataReader reader = cmd.ExecuteReader();
-            //reader.Read();
-            //if (reader.HasRows)
-            //{
-            //    Global.MyPLC.IPAddress = reader["PLCIPAddress"].ToString();
-            //    Global.MyPLC.Path = reader["PLCProcessorSlot"].ToString();
-            //    Global.MyPLC.Timeout = int.Parse(reader["PLCTimeout"].ToString());
-            //}
-            //reader.Close();
-            //connection.Close();
+            Raptor cs1 = new Raptor();
+            string connectionString = Global.ConnectionString;
+            System.Data.SqlClient.SqlConnection connection;
+            connection = new SqlConnection(connectionString);
+            // Open the connection.
+            connection.Open();
+            SqlCommand cmd = new SqlCommand("select * from RaptorCommSettings", connection);
+            SqlDataReader reader = cmd.ExecuteReader();
+            reader.Read();
+            if (reader.HasRows)
+            {
+                Global.MyPLC.IPAddress = reader["PLCIPAddress"].ToString();
+                Global.MyPLC.Path = reader["PLCProcessorSlot"].ToString();
+                Global.MyPLC.Timeout = int.Parse(reader["PLCTimeout"].ToString());
+            }
+            reader.Close();
+            connection.Close();
 
-            //string str = "openwindow('http://" + Global.MyPLC.IPAddress + "/index.html');";
-            //Button1.Attributes.Clear();
-            //Button1.Attributes.Add("onclick", str);
+            string str = "openwindow('http://" + Global.MyPLC.IPAddress + "/index.html');";
+            Button1.Attributes.Clear();
+            Button1.Attributes.Add("onclick", str);
         }
 
         protected void ButtonRead_Click(object sender, EventArgs e)

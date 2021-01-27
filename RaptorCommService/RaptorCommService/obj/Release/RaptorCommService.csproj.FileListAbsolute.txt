@@ -1,0 +1,60 @@
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\DeployLX.Licensing.v4.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\INGEAR.NET.Logix.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\ResolveAssemblyReference.cache
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - 2x4\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - 2x4\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - 2x4\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - 2x4\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - 2x4\RaptorCommService\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - standard\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - standard\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - standard\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - standard\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - standard\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\bin\Release\DeployLX.Licensing.v4.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Radium\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\bin\Release\DeployLX.Licensing.v4.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex SM\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\bin\Release\DeployLX.Licensing.v4.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Conifex PM\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\bin\Release\DeployLX.Licensing.v5.dll
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorCommService - Carrier\RaptorCommService\bin\Release\INGEAR.NET.Logix.dll
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.exe
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\bin\Release\RaptorCommService.pdb
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\bin\Release\DeployLX.Licensing.v5.dll
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\bin\Release\INGEAR.NET.Interfaces.dll
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\bin\Release\INGEAR.NET.Logix.dll
+C:\Users\Kevin Bushell\Documents\GitHub\HamptonBanksPlanerInterface\RaptorCommService\RaptorCommService\obj\Release\RaptorCommService.csprojResolveAssemblyReference.cache

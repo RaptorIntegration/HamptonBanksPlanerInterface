@@ -1,0 +1,8 @@
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Debug\RaptorCommService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Debug\RaptorCommService.pdb
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Debug\INGEAR.NET.Interfaces.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Debug\INGEAR.NET.Logix.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\bin\Debug\DeployLX.Licensing.v3.dll
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Debug\RaptorCommService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorCommService\RaptorCommService\obj\Debug\RaptorCommService.pdb
