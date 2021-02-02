@@ -63,7 +63,7 @@
                         <div class="col-3">
                             <div id="ContainerPie" class="chart">
                                 <canvas id="PieChart" style="height: 20rem; width: 300px"></canvas>
-                            </div>                               
+                            </div>
                         </div>
                     </div>
 
@@ -92,7 +92,7 @@
                                     <div v-if="Edited">
                                         <input class="btn-save" type="button" v-on:click="Save" value="Save" />
                                         <input class="btn-cancel" type="button" v-on:click="Cancel" value="Cancel" />
-                                    </div>                                    
+                                    </div>
                                 </transition>
                             </div>
                             <div class="col-2">
@@ -109,7 +109,7 @@
                                 </transition>
                             </div>
                             <div class="col-5 table-sm scroll1">
-                                <transition name="component-fade" mode="out-in">                                    
+                                <transition name="component-fade" mode="out-in">
                                     <table class="table table-edits" v-if="SaveResponse.ChangedList">
                                         <caption v-if="SaveResponse.ChangedList.length">{{ SaveResponse.ChangedList.length }} Changes Made</caption>
                                         <thead>
@@ -160,7 +160,7 @@
                                                         v-if="Editing==Row.BinID + '_BinLabel'" v-model="Row.BinLabel"
                                                         v-on:blur="Update('BinLabel', Row.BinLabel, Row);"
                                                         v-on:focus="Prev(Row, 'BinLabel')"
-                                                        type="text" 
+                                                        type="text"
                                                         spellcheck="false"
                                                         class="form-control">
                                                     <div v-else>
@@ -187,7 +187,7 @@
                                                         v-on:focus="Prev(Row, Col.DataSource)"
                                                         type="text"
                                                         spellcheck="false"
-                                                        class="form-control">                                                    
+                                                        class="form-control">
                                                     <div v-if="Editing != Row.BinID + '_' + Col.DataSource">
                                                         <label>{{Row[Col.DataSource]}}</label>
                                                     </div>
@@ -199,9 +199,9 @@
                                                     {{ Row.SortID }}
                                                 </td>
                                                 <td @click="EditingCell(Row, 'SecProdID')">
-                                                    <select class="form-control" 
-                                                        v-model.number="Row.SecProdID" 
-                                                        v-if="Editing == Row.BinID + '_SecProdID'" 
+                                                    <select class="form-control"
+                                                        v-model.number="Row.SecProdID"
+                                                        v-if="Editing == Row.BinID + '_SecProdID'"
                                                         v-on:blur="Editing = false"
                                                         v-on:change="Update('SecProdID', Row.SecProdID, Row)">
                                                         <option value="0">None</option>
@@ -226,7 +226,7 @@
                                                 </td>
                                                  <td @click="EditingCell(Row, 'BinStamps')">
                                                     <div class="stamp-container">
-                                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">                                            
+                                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">
                                                             <input
                                                                 v-bind:id="'stamp-' + Row.SortID + '-' + stamp.ID"
                                                                 v-on:change="Update('BinStamps', stamp.Selected, Row);"
@@ -287,31 +287,31 @@
                                     <option>BinSize</option>
                                     <option>BinCount</option>
                                     <option>BinPercent</option>
-                                </select> 
+                                </select>
                                 <button class="btn-clear" type="button" v-on:click="SortByAsc = !SortByAsc">
                                     <i class="gg-arrows-v-alt"></i>
-                                </button>  
-                            </div>     
+                                </button>
+                            </div>
                             <div class="incriment-container">
                                 <label>Incriment/Decriment By:</label>
                                 <input class="incriment-btn" type="button" value="-"  v-on:click="DecreaseInc" />
                                 <input class="incriment-amount" type="number" v-model.number="IncDec" />
                                 <input class="incriment-btn" type="button" value="+" v-on:click="IncreaseInc" />
                             </div>
-                            <auto-complete :data="DropDown" v-model="Filter"></auto-complete>                           
+                            <auto-complete :data="DropDown" v-model="Filter"></auto-complete>
                         </div>
                     </div>
                     <div class="sorts-container">
                         <div
                             class="sort card"
-                            v-for="(bay, index) in FilterBays"
+                            v-for="(bay, index) in FilteredSorter"
                             v-if="Bays.length > 0"
                             v-bind:style="{'border-color': StatusColours[bay.BinStatus].colour}">
                             <sorter inline-template
                                 v-on:editing="CancelAutoUpdate"
                                 v-on:resume="SetAutoUpdate"
-                                v-if="FilterBays[index]"
-                                v-model="FilterBays[index]"
+                                v-if="FilteredSorter[index]"
+                                v-model="FilteredSorter[index]"
                                 v-bind:header="Headers"
                                 v-bind:colours="StatusColours"
                                 v-bind:incdec="IncDec">
