@@ -293,7 +293,7 @@
                                 </button>  
                             </div>     
                             <div class="incriment-container">
-                                <label>Incriment/Decriment By:</label>
+                                <label>Increment/Decrement By:</label>
                                 <input class="incriment-btn" type="button" value="-"  v-on:click="DecreaseInc" />
                                 <input class="incriment-amount" type="number" v-model.number="IncDec" />
                                 <input class="incriment-btn" type="button" value="+" v-on:click="IncreaseInc" />

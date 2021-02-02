@@ -50,6 +50,7 @@ namespace WebSort.Model
         public static void SetProductMap(Map map, SqlDataReader ReaderProducts)
         {
             int ProdID = Global.GetValue<int>(ReaderProducts, "ProdID");
+
             map.ProductMap[ProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(ProdID.ToString()) - (32 * (ProdID / 32))));
         }
 

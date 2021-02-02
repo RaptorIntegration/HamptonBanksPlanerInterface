@@ -153,16 +153,12 @@ namespace RaptorComm
         static Logix.Tag Minutes = new Logix.Tag("WEBSortTimeTable[4]", Logix.Tag.ATOMIC.INT);
         static Logix.Tag Seconds = new Logix.Tag("WEBSortTimeTable[5]", Logix.Tag.ATOMIC.INT);
         static Logix.Tag EncoderPosition = new Logix.Tag("EncoderPositionS", Logix.Tag.ATOMIC.DINT);
-        static Logix.Tag EncoderActual = new Logix.Tag("EncoderActualPosition", Logix.Tag.ATOMIC.REAL);
+        static Logix.Tag EncoderActual = new Logix.Tag("SorterEncoder.ActualPosition", Logix.Tag.ATOMIC.REAL);
         static Logix.Tag SkipEncoderPosition = new Logix.Tag("SkipEncoderPosition", Logix.Tag.ATOMIC.DINT);
         static Logix.Tag SortEditTrigger = new Logix.Tag("Program:WEBSort.SortEditTrigger", Logix.Tag.ATOMIC.BOOL);
         static Logix.Tag BayEditTrigger = new Logix.Tag("Program:WEBSort.BayEditTrigger", Logix.Tag.ATOMIC.BOOL);
         static Logix.Tag PACSerialNumber = new Logix.Tag("Program:WEBSort.PAC", Logix.Tag.ATOMIC.DINT);
 
-        static Logix.Tag JM_NumberPacks = new Logix.Tag("Program:WEBSort.JM_NumberPacks", Logix.Tag.ATOMIC.DINT);
-        static Logix.Tag JM_WEBSortNewLength = new Logix.Tag("Program:WEBSort.JM_WEBSortNewLength", Logix.Tag.ATOMIC.DINT);
-        static Logix.Tag Discharge1 = new Logix.Tag("Program:TrayControl.DischargeTable[0]", Logix.Tag.ATOMIC.DINT);
-        static Logix.Tag Discharge2 = new Logix.Tag("Program:TrayControl.LinkedTable[0]", Logix.Tag.ATOMIC.DINT);
         
         public struct LUG
         {
@@ -175,6 +171,8 @@ namespace RaptorComm
             public Int16 LengthID;
             public Int16 PLCGradeIDx;
             public Int16 PLCSpeciesIDx;
+            public Int16 GradeId;
+            public Int16 SpeciedsD;
             public Single ThickActual;
             public Single WidthActual;
             public Single LengthIn;
@@ -226,8 +224,8 @@ namespace RaptorComm
         {
             public STRING_TYPE Name;
             
-            public Int16 PkgSize;
-            public Int16 Count;            
+            public int PkgSize;
+            public Single Count;            
             public PRODUCT ProductArray;            
             public uint LengthMap;
             public uint MoistureMap;
@@ -1752,7 +1750,7 @@ namespace RaptorComm
                             Int16 BinID = Int16.Parse(reader["BinID"].ToString());
                             String BinName = reader["BinLabel"].ToString();
                             Int16 BinPkgSize = Int16.Parse(reader["BinSize"].ToString());
-                            Int16 BinCount = Int16.Parse(reader["BinCount"].ToString());
+                            Single BinCount = Single.Parse(reader["BinCount"].ToString());
                             bool BinRdmWidthFlag = bool.Parse(reader["RW"].ToString());
                             Byte BinStatus = Byte.Parse(reader["BinStatus"].ToString());
                             int BinStamps = int.Parse(reader["BinStamps"].ToString());
@@ -4846,24 +4844,15 @@ namespace RaptorComm
                     if (MyPollPLC.IsConnected)
                     {
                         PollUDTGroup.Tags.Clear();
-                        PollUDTGroup1.Tags.Clear();
-                        PollUDTGroup2.Tags.Clear();
                         PollUDTGroup.Clear();
-                        PollUDTGroup1.Clear();
-                        PollUDTGroup2.Clear();
                         PollUDTGroup.AddTag(pollcount);
                         PollUDTGroup.AddTag(lugrate);
-                        PollUDTGroup1.AddTag(ProductLength);
-                        PollUDTGroup1.AddTag(PlanerSpeed);
-                        //PollUDTGroup.AddTag(EncoderPosition);
                         PollUDTGroup.AddTag(EncoderActual);
                         //PollUDTGroup.AddTag(SkipEncoderPosition);
-                        PollUDTGroup.AddTag(PACSerialNumber);
-                                       
+                        PollUDTGroup.AddTag(PACSerialNumber);                                       
        
 
                         MyPollPLC.GroupRead(PollUDTGroup);
-                        MyPollPLC.GroupRead(PollUDTGroup1);
                        
                         
                         
@@ -4896,9 +4885,9 @@ namespace RaptorComm
                         cmd.ExecuteNonQuery();
                         SqlCommand cmd1 = new SqlCommand("update RaptorCommSettings set PollCounter = " + pollcount.Value.ToString(), connection);
                         cmd1.ExecuteNonQuery();
-                        SqlCommand cmd1a = new SqlCommand("updateDriveCurrentState " + PlanerSpeed.Value.ToString() + "," + ProductLength.Value.ToString() + "," + JM_NumberPacks.Value.ToString() + "," + JM_WEBSortNewLength.Value.ToString(), connection);
-                        cmd1a.ExecuteNonQuery();
-                        SqlCommand cmd2 = new SqlCommand("update WEBSortSetup set WEBSortProductKeyCurrent = " + PACSerialNumber.Value.ToString() + ",Discharge1=" + Discharge1.Value.ToString() + ",Discharge2=" + Discharge2.Value.ToString(), connection);
+                        //SqlCommand cmd1a = new SqlCommand("updateDriveCurrentState " + PlanerSpeed.Value.ToString() + "," + ProductLength.Value.ToString() , connection);
+                        //cmd1a.ExecuteNonQuery();
+                        SqlCommand cmd2 = new SqlCommand("update WEBSortSetup set WEBSortProductKeyCurrent = " + PACSerialNumber.Value.ToString(), connection);
                         cmd2.ExecuteNonQuery();
 
                         if (Firstscan)

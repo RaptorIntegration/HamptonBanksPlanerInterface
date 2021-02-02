@@ -25,7 +25,7 @@
             },
 
             Settings: {
-                ItemsPerPage: 25,
+                ItemsPerPage: 50,
                 CurrentPage: 0,
                 List: [],
                 SortByAsc: false,

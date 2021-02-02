@@ -150,7 +150,7 @@ namespace WebSort
             {
                 con.Open();
 
-                using (SqlCommand cmd = new SqlCommand("SELECT BinID, BinStatus, BinPercent FROM Bins", con))
+                using (SqlCommand cmd = new SqlCommand("SELECT BinID, BinStatus, BinPercent FROM Bins where binstatus<5", con))
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.HasRows)
@@ -215,6 +215,28 @@ namespace WebSort
 
             const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
                                "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK)";
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+                using SqlCommand cmd = new SqlCommand(sql, con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    Sorts = Bin.PopulateBinList(reader);
+                }
+            }
+            return serializer.Serialize(Sorts);
+        }
+
+        [WebMethod]
+        public static string GetData1()
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            List<Bin> Sorts = new List<Bin>();
+
+            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
+                               "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK) where binstatus<5";
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
             {
@@ -347,7 +369,7 @@ namespace WebSort
                                     Item.BinStatus = 0;
                                 }
 
-                                string SqlCommandString = "EXECUTE UpdateBinData @FrameStart, @BayNum, @Name, @PkgSize, @Count, @RdmWidthFlag, @Status, @Stamps, @Sprays, @TrimFlag, @SortXRef";
+                                string SqlCommandString = "EXECUTE UpdateBinData @FrameStart, @BayNum, @Name, @PkgSize, @Count, @SecProdID, @SecSize, @SecCount, @RdmWidthFlag, @Status, @Stamps, @Sprays, @TrimFlag, @SortXRef";
                                 for (int j = 0; j < 6; j++)
                                 {
                                     SqlCommandString += ",0";
@@ -360,6 +382,9 @@ namespace WebSort
                                     cmd.Parameters.AddWithValue("@Name", Item.BinLabel);
                                     cmd.Parameters.AddWithValue("@PkgSize", Item.BinSize);
                                     cmd.Parameters.AddWithValue("@Count", Item.BinCount);
+                                    cmd.Parameters.AddWithValue("@SecProdID", Item.BinCount);
+                                    cmd.Parameters.AddWithValue("@SecSize", Item.BinCount);
+                                    cmd.Parameters.AddWithValue("@SecCount", Item.BinCount);
                                     cmd.Parameters.AddWithValue("@RdmWidthFlag", 0);
                                     cmd.Parameters.AddWithValue("@Status", Item.BinStatus);
                                     cmd.Parameters.AddWithValue("@Stamps", Item.BinStamps);
@@ -400,7 +425,7 @@ namespace WebSort
                                                     return SaveResponse.Serialize(response);
                                                 }
                                             }
-                                            Tag MyTag = new Tag("Program:SorterTrays.Tray[" + Item.BinID.ToString() + "].ResetActive");
+                                            Tag MyTag = new Tag("Program:SorterBays.Bay[" + Item.BinID.ToString() + "].ResetActive");
                                             MyTag.DataType = Tag.ATOMIC.BOOL;
                                             try
                                             {
@@ -451,12 +476,12 @@ namespace WebSort
                                 cmd.Parameters.AddWithValue("@BinID", Item.BinID);
                                 cmd.ExecuteNonQuery();
                             }
-
-                            if (!Bin.DataRequestInsert(con, Item, map, StatusOriginal))
-                            {
-                                response.Bad("PLC Timeout");
-                                return SaveResponse.Serialize(response);
-                            }
+                            if (Item.BinStatus != 0) //Don't write anything to the PLC, the reset active code above will trigger the PLC to clear everything out
+                                if (!Bin.DataRequestInsert(con, Item, map, StatusOriginal))
+                                {
+                                    response.Bad("PLC Timeout");
+                                    return SaveResponse.Serialize(response);
+                                }
 
                             if (Edit.EditedCol != "BinStatus" && Item.BinStatus != 0)
                             {

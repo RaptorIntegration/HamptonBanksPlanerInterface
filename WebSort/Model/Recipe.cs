@@ -1,5 +1,6 @@
 ﻿using Mighty;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WebSort.Model
 {
@@ -29,7 +30,7 @@ namespace WebSort.Model
         public static IEnumerable<Recipe> GetAllData()
         {
             MightyOrm<Recipe> db = new MightyOrm<Recipe>(Global.MightyConString, "Recipes", "RecipeID");
-            return db.All();
+            return db.All().OrderBy(r => r.RecipeLabel);
         }
 
         public static IEnumerable<Recipe> ChangeEditing(Recipe recipe)

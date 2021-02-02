@@ -632,7 +632,7 @@ namespace WebSort
             connection = new SqlConnection(connectionString);
             connection.Open();
 
-            SqlCommand command = new SqlCommand("Select distinct RecipeLabel,recipeid,online,editing From Recipes order by Recipeid", connection);
+            SqlCommand command = new SqlCommand("Select distinct RecipeLabel,recipeid,online,editing From Recipes order by Recipelabel", connection);
             SqlDataAdapter adapter = new SqlDataAdapter(command);
 
             DataSet Recipes = new DataSet();
@@ -700,7 +700,7 @@ namespace WebSort
 
         protected void GridView3_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
-            if ((int)Session["OnlineSetup"] == 1)
+            //if ((int)Session["OnlineSetup"] == 1)
             {
                 Tag MyTagX, MyTagY;
 
@@ -725,7 +725,7 @@ namespace WebSort
                 connection.Close();
                 if (MyPLC.Connect() != ResultCode.E_SUCCESS)
                 {
-                    //return;
+                    return;
                 }
                 //for (int i = 0; i < 10; i++)
                 {
@@ -736,9 +736,13 @@ namespace WebSort
 
                     try
                     {
-                        MyTagX.Value = (((TextBox)GridView2.Rows[e.RowIndex].Cells[3].Controls[0]).Text);
+                        int index = e.RowIndex;
+                        GridViewRow row = GridView3.Rows[index];
+
+                                          
+                        MyTagX.Value = (((TextBox)row.Cells[3].Controls[0]).Text);
                         MyPLC.WriteTag(MyTagX);
-                        MyTagY.Value = (((TextBox)GridView2.Rows[e.RowIndex].Cells[4].Controls[0]).Text);
+                        MyTagY.Value = (((TextBox)row.Cells[4].Controls[0]).Text);
                         MyPLC.WriteTag(MyTagY);
                     }
                     catch { }

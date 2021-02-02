@@ -543,6 +543,16 @@ const v = new Vue({
                     console.dir(error);
                 });
         },
+        GetData1: function () {
+            let v = this;
+            axios.post('WebSort.aspx/GetData1', v.Headers)
+                .then(response => {
+                    v.$set(v, 'Bays', JSON.parse(response.data.d))
+                })
+                .catch(error => {
+                    console.dir(error);
+                });
+        },
         GetProductList: function (Row) {
             let v = this;
             let data = { BinID: Row.BinID.toString() };
