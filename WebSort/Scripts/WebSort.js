@@ -387,6 +387,30 @@ const v = new Vue({
                 return v.Bays
             }
         },
+        Sorter: function() {
+            if(this.Bays.length){
+                return this.Bays.slice(0, 38)
+            } else {
+                return null
+            }
+        },
+        FilteredSorter: function() {
+            if (!this.Sorter) {return null}
+            let v = this
+            let SortDir = v.SortByAsc ? 'asc' : 'desc';
+
+            if (v.SortBy && !v.Edited) {
+                v.Sorter.sort(v.CompareValues(v.SortBy, SortDir));
+            }
+            if (v.Filter) {
+                return v.Sorter.filter(s => {
+                    return (s.BinLabel.toUpperCase().includes(v.Filter.toUpperCase())
+                        | s.BinStatusLabel.toUpperCase().includes(v.Filter.toUpperCase()))
+                });
+            } else {
+                return v.Sorter
+            }
+        },
         ChangedList: function () {
             return this.Bays.filter(s => {
                 return s.Changed
