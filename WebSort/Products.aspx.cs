@@ -436,7 +436,7 @@ namespace WebSort
                         return SaveResponse.Serialize(response);
                     }
 
-                    if (Global.OnlineSetup)
+                    /*if (Global.OnlineSetup)
                     {
                         try
                         {
@@ -456,7 +456,7 @@ namespace WebSort
                         if (!SendToPLC(response, con, product))
                             return SaveResponse.Serialize(response);
                     }
-                    else
+                    else*/
                     {
                         IEnumerable<Edit> LabelChanges = product.EditsList.Where(p => p.EditedCol == "ProductLabel");
                         Sort.UpdateLabels(LabelChanges, con);

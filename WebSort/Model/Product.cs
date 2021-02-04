@@ -187,7 +187,7 @@ namespace WebSort.Model
 
         public static bool DataRequestInsert(SqlConnection con, Product product, bool CommSettings = true, bool Ack = true, bool ZeroOut = false)
         {
-            if (CommSettings)
+            //if (CommSettings)
             {
                 using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4", con);
                 cmd.ExecuteNonQuery();
@@ -236,7 +236,7 @@ namespace WebSort.Model
                 }
             }
 
-            if (CommSettings)
+            //if (CommSettings)
             {
                 using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-4 where (datarequests & 4)=4", con);
                 cmd.ExecuteNonQuery();

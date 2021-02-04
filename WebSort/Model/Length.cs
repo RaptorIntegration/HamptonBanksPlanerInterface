@@ -58,7 +58,7 @@ namespace WebSort.Model
 
         public static bool DataRequestInsert(SqlConnection con, Length length, bool CommSettings = true, bool ZeroOut = false)
         {
-            if (CommSettings)
+            //if (CommSettings)
             {
                 using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con);
                 cmd.ExecuteNonQuery();
@@ -95,11 +95,11 @@ namespace WebSort.Model
                 }
             }
 
-            /*if (CommSettings)
+            //if (CommSettings)
             {
                 using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", con);
                 cmd.ExecuteNonQuery();
-            }*/
+            }
 
             return true;
         }
