@@ -229,7 +229,7 @@ namespace WebSort.Model
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (Ack && !Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
+                    if (!Raptor.MessageAckConfirm("DataRequestsProduct", Global.GetValue<int>(reader, "id")))
                     {
                         return false;
                     }

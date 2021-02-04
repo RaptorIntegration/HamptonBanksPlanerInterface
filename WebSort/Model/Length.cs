@@ -77,7 +77,7 @@ namespace WebSort.Model
                 }
                 else
                 {
-                    cmd.Parameters.AddWithValue("@ProductID", length.LengthID);
+                    cmd.Parameters.AddWithValue("@LengthID", length.LengthID);
                     cmd.Parameters.AddWithValue("@LengthMin", length.LengthMin);
                     cmd.Parameters.AddWithValue("@LengthMax", length.LengthMax);
                     cmd.Parameters.AddWithValue("@LengthNom", length.LengthNominal);
@@ -95,11 +95,11 @@ namespace WebSort.Model
                 }
             }
 
-            if (CommSettings)
+            /*if (CommSettings)
             {
                 using SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-64 where (datarequests & 64)=64", con);
                 cmd.ExecuteNonQuery();
-            }
+            }*/
 
             return true;
         }

@@ -346,11 +346,12 @@ namespace WebSort
             using SqlConnection con = new SqlConnection(Global.ConnectionString);
             con.Open();
 
-            using (SqlCommand cmd = new SqlCommand("SELECT NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts FROM WEBSortSetup"))
+            using (SqlCommand cmd = new SqlCommand("SELECT NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts FROM WEBSortSetup",con))
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
                 try
                 {
+                    reader.Read();
                     NumThicks = Global.GetValue<int>(reader, "NumThicks");
                     NumWidths = Global.GetValue<int>(reader, "NumWidths");
                     NumLengths = Global.GetValue<int>(reader, "NumLengths");
@@ -430,7 +431,7 @@ namespace WebSort
                 }
                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", con))
                     cmd.ExecuteNonQuery();
-
+                
                 // Lengths
                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con))
                     cmd.ExecuteNonQuery();

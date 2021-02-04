@@ -3262,7 +3262,7 @@ namespace RaptorComm
                     }
                     UpdateRaptorCommLog("Length Connection to PLC Re-established Successfully!");
                 }
-                                    
+
                 if ((DataRequests & 64) == 64)
                 {
                     //poll database for data requests from WEBSort, either writing data to PLC or reading data from PLC
@@ -3276,39 +3276,31 @@ namespace RaptorComm
                             //data request exists, process whether this a read or write request
                             Succeeded = 1;
                             bool Write = bool.Parse(reader["Write"].ToString());
-                            //string PLengthLabel = reader["LengthLabel"].ToString();
-                            int LengthIDOrdered = int.Parse(reader["LengthIDOrdered"].ToString());
-                            int PLengthIDCrossRef = int.Parse(reader["LengthIDCrossRef"].ToString());
-                            //int PPETLengthID = int.Parse(reader["PETLengthID"].ToString());
-                            double PLengthMin = double.Parse(reader["LengthMin"].ToString());
-                            double PLengthMax = double.Parse(reader["LengthMax"].ToString());
+                            int LengthID = int.Parse(reader["LengthID"].ToString());
+                            double PLengthMin = double.Parse(reader["LengthNom"].ToString());
+                            double PLengthMax = double.Parse(reader["LengthNom"].ToString());
                             double PLengthNomInches = double.Parse(reader["LengthNom"].ToString());
-                            double PLengthNomFeet = (PLengthNomInches/12);
-                            
+                            double PLengthNomFeet = (PLengthNomInches / 12);
+
 
                             if (Write == true) //writing data to the PLC
                             {
-                                Tag LengthMin = new Tag("WebSortLengthTable[0,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthMax = new Tag("WebSortLengthTable[0,1," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthNomFeet = new Tag("WebSortLengthTable[1,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthNomInches = new Tag("WebSortLengthTable[1,1," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthIDCrossReference = new Tag("WebSortLengthTable[2,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                
+                                Tag LengthMin = new Tag("WebSortLengthTable[0,0," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthMax = new Tag("WebSortLengthTable[0,1," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthNomFeet = new Tag("WebSortLengthTable[1,0," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthNomInches = new Tag("WebSortLengthTable[1,1," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+
                                 LengthSendUDTGroup.Tags.Clear();
                                 LengthSendUDTGroup.Clear();
                                 LengthSendUDTGroup.AddTag(LengthMin);
                                 LengthSendUDTGroup.AddTag(LengthMax);
                                 LengthSendUDTGroup.AddTag(LengthNomFeet);
                                 LengthSendUDTGroup.AddTag(LengthNomInches);
-                                LengthSendUDTGroup.AddTag(LengthIDCrossReference);
-                                
 
                                 LengthMin.Value = PLengthMin.ToString();
                                 LengthMax.Value = PLengthMax.ToString();
                                 LengthNomFeet.Value = PLengthNomFeet.ToString();
                                 LengthNomInches.Value = PLengthNomInches.ToString();
-                                LengthIDCrossReference.Value = PLengthIDCrossRef;
-                                
 
                                 try
                                 {
@@ -3316,7 +3308,7 @@ namespace RaptorComm
                                         MyPLCLength.GroupWrite(LengthSendUDTGroup);
 
                                 }
-                                catch 
+                                catch
                                 {
                                     UpdateRaptorCommLog("Error writing LengthSendUDTGroup: " + MyPLCLength.ErrorString);
                                 }
@@ -3330,28 +3322,24 @@ namespace RaptorComm
                             }
                             else //reading data from the PLC
                             {
-                                bool PETFlag = false;
-                                Tag LengthMin = new Tag("WebSortLengthTable[0,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthMax = new Tag("WebSortLengthTable[0,1," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthNomFeet = new Tag("WebSortLengthTable[1,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthNomInches = new Tag("WebSortLengthTable[1,1," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                Tag LengthIDCrossReference = new Tag("WebSortLengthTable[2,0," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                //Tag PETLengthID = new Tag("WebSortLengthTable[2,1," + LengthIDOrdered + "]", Logix.Tag.ATOMIC.REAL);
-                                
+                                Tag LengthMin = new Tag("WebSortLengthTable[0,0," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthMax = new Tag("WebSortLengthTable[0,1," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthNomFeet = new Tag("WebSortLengthTable[1,0," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+                                Tag LengthNomInches = new Tag("WebSortLengthTable[1,1," + LengthID + "]", Logix.Tag.ATOMIC.REAL);
+
                                 LengthSendUDTGroup.Tags.Clear();
                                 LengthSendUDTGroup.Clear();
                                 LengthSendUDTGroup.AddTag(LengthMin);
                                 LengthSendUDTGroup.AddTag(LengthMax);
                                 LengthSendUDTGroup.AddTag(LengthNomFeet);
                                 LengthSendUDTGroup.AddTag(LengthNomInches);
-                                LengthSendUDTGroup.AddTag(LengthIDCrossReference);
-                                
+
                                 try
                                 {
                                     if (MyPLCLength.IsConnected)
                                         MyPLCLength.GroupRead(LengthSendUDTGroup);
                                 }
-                                catch 
+                                catch
                                 {
                                     UpdateRaptorCommLog("Error reading LengthSendUDTGroup: " + MyPLCLength.ErrorString);
                                 }
@@ -3360,16 +3348,10 @@ namespace RaptorComm
                                     //write results into the database
                                     try
                                     {
-                                        SqlCommand cmd0 = new SqlCommand("update datarequestsLength set LengthMin=" + LengthMin.Value.ToString() + ",LengthMax=" + LengthMax.Value.ToString() + ",LengthNom=" + LengthNomInches.Value.ToString() + ",lengthidcrossref=" + LengthIDCrossReference.Value.ToString() + " where id=" + reader["id"].ToString(), connection);
+                                        SqlCommand cmd0 = new SqlCommand("update datarequestsLength set LengthMin=" + LengthMin.Value.ToString() + ",LengthMax=" + LengthMax.Value.ToString() + ",LengthNom=" + LengthNomInches.Value.ToString() + " where id=" + reader["id"].ToString(), connection);
                                         cmd0.ExecuteNonQuery();
-                                        PETFlag = false;
-                                        //if (PETLengthID.Value.ToString() != "0")
-                                          //  PETFlag = true;
-                                        //UpdateRaptorCommLog("4: ");
-                                        //SqlCommand cmd1 = new SqlCommand("delete from Lengths where id=" + LengthIDCrossReference.Value.ToString() + " insert into Lengths select '" + LengthLabel.Value.ToString().Replace("'", "''") + "'," + LengthIDCrossReference.Value.ToString() + ",'" + Convert.ToInt32(LengthNomFeet.Value).ToString() + "'''," + LengthNomInches.Value.ToString() + "," + LengthMin.Value.ToString() + "," + LengthMax.Value.ToString() + ",'" + PETFlag + "'," + PETLengthID.Value.ToString(), connection);
-                                        //SqlCommand cmd1 = new SqlCommand("delete from Lengths where id=" + LengthIDCrossReference.Value.ToString() + " insert into Lengths select '" + LengthLabel.Value.ToString().Replace("'", "''") + "'," + LengthIDCrossReference.Value.ToString() + ",'" + Convert.ToInt32(LengthNomFeet.Value).ToString() + "'''," + LengthNomInches.Value.ToString() + "," + LengthMin.Value.ToString() + "," + LengthMax.Value.ToString(), connection);
-                                        //UpdateRaptorCommLog("5: " );
-                                        //cmd1.ExecuteNonQuery();
+                                        SqlCommand cmd1 = new SqlCommand("delete from Lengths where id=" + LengthID + " insert into Lengths select " + LengthID + ",'" + Convert.ToInt32(LengthNomFeet.Value).ToString() + "'''," + LengthNomInches.Value.ToString() + "," + LengthMin.Value.ToString() + "," + LengthMax.Value.ToString(), connection);
+                                        cmd1.ExecuteNonQuery();
 
                                     }
                                     catch (Exception ex)
@@ -3400,7 +3382,7 @@ namespace RaptorComm
                     catch (Exception ex)
                     {
                         UpdateRaptorCommLog("Error reading DataRequestsLength table: " + ex.Message);
-                    }                    
+                    }
                 }
                 if ((DataRequests & 2048) == 2048)
                 {
