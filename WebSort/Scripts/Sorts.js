@@ -137,11 +137,11 @@ const v = new Vue({
         }
     },
     mounted: function () {
-        this.GetSecurity()
         this.SetAutoUpdate();
-        this.GetStamps();
-        this.GetRecipes();
-        this.GetProductGrades();
+        setTimeout(() => this.GetStamps(), 25);
+        setTimeout(() => this.GetProductGrades(), 50);
+        setTimeout(() => this.GetRecipes(), 150);
+        setTimeout(() => this.GetSecurity(), 300)
     },
     computed: {
         FilterSorts: function () {

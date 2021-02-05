@@ -52,7 +52,7 @@ namespace WebSort.Model
         public int BinSize { get; set; }
         public int BinCount { get; set; }
         public bool RW { get; set; }
-        public long BinStamps { get; set; }
+        public int BinStamps { get; set; }
         public string BinStampsLabel { get; set; }
         public int BinSprays { get; set; }
         public string BinSpraysLabel { get; set; }
@@ -87,6 +87,7 @@ namespace WebSort.Model
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
+                    BinStamps = Global.GetValue<int>(reader, "BinStamps"),
                     Changed = false
                 });
             }

@@ -367,9 +367,9 @@ const v = new Vue({
     mounted: function () {
         this.SetAutoUpdate();
         setTimeout(() => this.GetStamps(), 20);
-        setTimeout(() => this.GetColours(), 50);
+        setTimeout(() => this.GetProductGrades(), 50);
+        setTimeout(() => this.GetColours(), 100);
         setTimeout(() => this.GetIncDec(), 1000);
-        setTimeout(() => this.GetProductGrades(), 1000);
     },
     computed: {
         FilterBays: function () {
@@ -561,16 +561,6 @@ const v = new Vue({
         GetData: function () {
             let v = this;
             axios.post('WebSort.aspx/GetData', v.Headers)
-                .then(response => {
-                    v.$set(v, 'Bays', JSON.parse(response.data.d))
-                })
-                .catch(error => {
-                    console.dir(error);
-                });
-        },
-        GetData1: function () {
-            let v = this;
-            axios.post('WebSort.aspx/GetData1', v.Headers)
                 .then(response => {
                     v.$set(v, 'Bays', JSON.parse(response.data.d))
                 })
@@ -774,7 +764,7 @@ function InitializeCharts() {
     if (!BinInterval && !PieInterval) {
         BinInterval = setInterval(GetChartData, (5 * 1000));
         PieInterval = setInterval(GetPieData, (5 * 1000) + 500);
-    }    
+    }
 }
 
 window.addEventListener('keydown', function (e) { if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) { if (e.target.nodeName == 'INPUT' && e.target.type == 'text') { e.preventDefault(); return false; } } }, true);

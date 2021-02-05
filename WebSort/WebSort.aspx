@@ -136,7 +136,7 @@
                                 <auto-complete :data="DropDown" v-model="Filter"></auto-complete>
                             </div>
                             <div class="col-12 d-flex justify-content-center">
-                                <table class="table" v-if="Stamps.length && Bays.length">
+                                <table class="table" v-if="Stamps.length && Bays.length && ProductGrades.length">
                                     <thead>
                                         <tr>
                                             <th scope="col" style="width: 2%;" @click="Sort('BinID')">Bay</th>
@@ -229,7 +229,7 @@
                                                     <select 
 										                v-on:focus="Prev(Row, 'BinStamps')"
                                                         v-if="Editing == Row.BinID + '_BinStamps'"
-                                                        v-on:change="UpdateGradeMatrix('BinStamps', Row.BinStamps, Row)"
+                                                        v-on:change="Update('BinStamps', Row.BinStamps, Row)"
                                                         v-on:blur="Editing = false"
                                                         v-model="Row.BinStamps" 
                                                         class="form-control">

@@ -245,7 +245,7 @@ namespace WebSort
         public static string GetData()
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
-            List<Bin> Sorts = new List<Bin>();
+            List<Bin> Bins = new List<Bin>();
 
             const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
                                "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK)";
@@ -257,32 +257,10 @@ namespace WebSort
                 using SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
-                    Sorts = Bin.PopulateBinList(reader);
+                    Bins = Bin.PopulateBinList(reader);
                 }
             }
-            return serializer.Serialize(Sorts);
-        }
-
-        [WebMethod]
-        public static string GetData1()
-        {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            List<Bin> Sorts = new List<Bin>();
-
-            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
-                               "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK) where binstatus<5";
-
-            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
-            {
-                con.Open();
-                using SqlCommand cmd = new SqlCommand(sql, con);
-                using SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    Sorts = Bin.PopulateBinList(reader);
-                }
-            }
-            return serializer.Serialize(Sorts);
+            return serializer.Serialize(Bins);
         }
 
         [WebMethod]
@@ -352,7 +330,6 @@ namespace WebSort
         {
             SaveResponse response = new SaveResponse("Bins");
 
-            uint OldStamps = 0;
             int StatusOriginal = 0;
 
             string Update;
@@ -516,7 +493,7 @@ namespace WebSort
 
                             Edit.Key = Item.BinID;
                         } // end foreach edit
-                        response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "BinStamps").ToList());
+                        response.AddEdits(Item.EditsList);
                     } // end foreach item
                 }
             } // End connection
