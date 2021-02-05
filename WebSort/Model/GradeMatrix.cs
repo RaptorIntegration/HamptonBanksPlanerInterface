@@ -4,19 +4,17 @@ using System.Data.SqlClient;
 
 namespace WebSort.Model
 {
-    public partial class GradeMatrix
+    public class GradeMatrix
     {
         public int PLCGradeID { get; set; }
         public string GradeLabel { get; set; }
         public int WebSortGradeID { get; set; }
         public int Default { get; set; }
-        public uint GradeStamps { get; set; }
-        public List<Stamp> SelectedStamps { get; set; }
+        public int GradeStamps { get; set; }
         public List<Edit> EditsList { get; set; }
 
         public GradeMatrix()
         {
-            SelectedStamps = new List<Stamp>();
             EditsList = new List<Edit>();
         }
 
@@ -40,9 +38,7 @@ namespace WebSort.Model
         /// </summary>
         public const string DataRequestsGradeSql = @"
             insert into datarequestsgrade
-            select getdate(),@PLCGradeID,gradeid,@Stamps,1,0
-            from grades
-            where gradelabel=@GradeLabel;
+            select getdate(),@PLCGradeID,@GradeID,@Stamps,1,0;
             select id=(select max(id) from datarequestsgrade with(NOLOCK))";
 
         /// <summary>
@@ -57,7 +53,6 @@ namespace WebSort.Model
 
         public static List<GradeMatrix> GetData()
         {
-            List<Stamp> stamps = Stamp.GetStamps();
             List<GradeMatrix> grades = new List<GradeMatrix>();
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
@@ -78,8 +73,7 @@ namespace WebSort.Model
                             GradeLabel = Global.GetValue<string>(reader, "GradeLabel"),
                             WebSortGradeID = Global.GetValue<int>(reader, "WebSortGradeID"),
                             Default = Global.GetValue<int>(reader, "Default"),
-                            GradeStamps = Global.GetValue<uint>(reader, "GradeStamps"),
-                            SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "GradeStamps"), stamps)
+                            GradeStamps = Global.GetValue<int>(reader, "GradeStamps")
                         });
                     }
                 }
@@ -92,16 +86,24 @@ namespace WebSort.Model
             bool ret = false;
             if (matrix?.EditsList.Count > 0)
             {
-                uint Stamps = Stamp.GetStampsBitMap(matrix.SelectedStamps);
                 if (Recipe.GetOnlineRecipe().RecipeID == RecipeID && Global.OnlineSetup)
                 {
-                    ret = SavePLC(matrix, Stamps, con, RecipeID);
+                    try
+                    {
+                        if (!SavePLC(matrix, con))
+                            return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        throw;
+                    }
                 }
 
                 using (SqlCommand cmd = new SqlCommand(GradeMatrixUpdate, con))
                 {
                     cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
-                    cmd.Parameters.AddWithValue("@Stamps", (long)Stamps);
+                    cmd.Parameters.AddWithValue("@Stamps", matrix.GradeStamps);
                     cmd.Parameters.AddWithValue("@WebSortGradeID", matrix.WebSortGradeID);
                     cmd.Parameters.AddWithValue("@RecipeID", RecipeID);
 
@@ -113,7 +115,7 @@ namespace WebSort.Model
                     catch (Exception ex)
                     {
                         Global.LogError(ex);
-                        return false;
+                        throw;
                     }
                 }
                 return ret;
@@ -124,7 +126,7 @@ namespace WebSort.Model
             }
         }
 
-        private static bool SavePLC(GradeMatrix matrix, uint Stamps, SqlConnection con, int RecipeID)
+        private static bool SavePLC(GradeMatrix matrix, SqlConnection con)
         {
             using (SqlCommand cmd = new SqlCommand(ComSettingsSql, con))
                 cmd.ExecuteNonQuery();
@@ -132,16 +134,15 @@ namespace WebSort.Model
             using (SqlCommand cmd = new SqlCommand(DataRequestsGradeSql, con))
             {
                 cmd.Parameters.AddWithValue("@PLCGradeID", matrix.PLCGradeID);
-                cmd.Parameters.AddWithValue("@Stamps", (long)Stamps);
-                cmd.Parameters.AddWithValue("@GradeLabel", matrix.GradeLabel);
+                cmd.Parameters.AddWithValue("@Stamps", matrix.GradeStamps);
+                cmd.Parameters.AddWithValue("@GradeID", matrix.WebSortGradeID);
 
                 using SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
-                        bool succeeded = Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id"));
-                        if (!succeeded)
+                        if (!Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(reader, "id")))
                         {
                             return false;
                         }

@@ -52,8 +52,6 @@ function GetColours() {
                 Colours[i] = '#' + Parsed[i];
             }
             DistributeColours();
-            GetChartData();
-            GetPieData();
         })
         .catch(function (response) {
             console.dir(response);
@@ -78,8 +76,8 @@ function DistributeColours(colours) {
     document.getElementById('RejectLabel').childNodes[2].style.backgroundColor = colours[4].colour;
     document.getElementById('VirtualLabel').childNodes[2].style.backgroundColor = colours[5].colour;
 
-    GetChartData()
-    GetPieData();
+    setTimeout(() => GetChartData(), 500);
+    setTimeout(() => GetPieData(), 500);
 }
 function rgb2hex(rgb) {
     rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
@@ -101,10 +99,10 @@ function openView(evt, TabName) {
     document.getElementById(TabName).style.display = "block";
     evt.currentTarget.className += " active";
     if (TabName === 'Edit') {
-        GetChartData()
-        GetPieData()
-        BinInterval = setInterval(GetChartData, 5 * 1000);
-        PieInterval = setInterval(GetPieData, 5 * 1000 + 500);
+        if (!BinInterval && !PieInterval) {
+            BinInterval = setInterval(GetChartData, (5 * 1000));
+            PieInterval = setInterval(GetPieData, (5 * 1000) + 500);
+        }
     } else {
         clearInterval(BinInterval);
         clearInterval(PieInterval);
@@ -351,6 +349,8 @@ const v = new Vue({
             }]
         },
 
+        Stamps: [],
+
         IncDec: 1,
 
         Timer: null,
@@ -366,9 +366,10 @@ const v = new Vue({
     },
     mounted: function () {
         this.SetAutoUpdate();
-        this.GetColours();
-        this.GetIncDec();
-        this.GetProductGrades();
+        setTimeout(() => this.GetStamps(), 20);
+        setTimeout(() => this.GetProductGrades(), 50);
+        setTimeout(() => this.GetColours(), 100);
+        setTimeout(() => this.GetIncDec(), 1000);
     },
     computed: {
         FilterBays: function () {
@@ -387,15 +388,15 @@ const v = new Vue({
                 return v.Bays
             }
         },
-        Sorter: function() {
-            if(this.Bays.length){
+        Sorter: function () {
+            if (this.Bays.length) {
                 return this.Bays.slice(0, 38)
             } else {
                 return null
             }
         },
-        FilteredSorter: function() {
-            if (!this.Sorter) {return null}
+        FilteredSorter: function () {
+            if (!this.Sorter) { return null }
             let v = this
             let SortDir = v.SortByAsc ? 'asc' : 'desc';
 
@@ -567,16 +568,6 @@ const v = new Vue({
                     console.dir(error);
                 });
         },
-        GetData1: function () {
-            let v = this;
-            axios.post('WebSort.aspx/GetData1', v.Headers)
-                .then(response => {
-                    v.$set(v, 'Bays', JSON.parse(response.data.d))
-                })
-                .catch(error => {
-                    console.dir(error);
-                });
-        },
         GetProductList: function (Row) {
             let v = this;
             let data = { BinID: Row.BinID.toString() };
@@ -597,6 +588,15 @@ const v = new Vue({
                 })
                 .catch(error => {
                     console.error(error);
+                });
+        },
+        GetStamps: function () {
+            axios.post('WebSort.aspx/GetStamps', this.Headers)
+                .then(response => {
+                    this.$set(v, 'Stamps', JSON.parse(response.data.d))
+                })
+                .catch(error => {
+                    console.dir(error);
                 });
         },
 
@@ -761,8 +761,10 @@ function InitializeCharts() {
         }
     });
 
-    BinInterval = setInterval(GetChartData, (5 * 1000));
-    PieInterval = setInterval(GetPieData, (5 * 1000) + 500);
+    if (!BinInterval && !PieInterval) {
+        BinInterval = setInterval(GetChartData, (5 * 1000));
+        PieInterval = setInterval(GetPieData, (5 * 1000) + 500);
+    }
 }
 
 window.addEventListener('keydown', function (e) { if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) { if (e.target.nodeName == 'INPUT' && e.target.type == 'text') { e.preventDefault(); return false; } } }, true);

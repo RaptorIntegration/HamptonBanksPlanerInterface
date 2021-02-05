@@ -62,6 +62,40 @@ namespace WebSort
             }
         }
 
+        [WebMethod]
+        public static string GetStamps()
+        {
+            JavaScriptSerializer s = new JavaScriptSerializer();
+            List<object> ret = new List<object>();
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+                {
+                    con.Open();
+
+                    using SqlCommand cmd = new SqlCommand("SELECT * FROM Stamps", con);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            ret.Add(new {
+                                ID = Global.GetValue<int>(reader, "StampID"),
+                                Label = Global.GetValue<string>(reader, "StampDescription")
+                            });
+                        }
+                    }
+                }
+                return s.Serialize(ret);
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                return ex.ToString();
+            }
+        }
+
         #region Chart stuff
 
         [WebMethod]
@@ -211,7 +245,7 @@ namespace WebSort
         public static string GetData()
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
-            List<Bin> Sorts = new List<Bin>();
+            List<Bin> Bins = new List<Bin>();
 
             const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
                                "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK)";
@@ -223,32 +257,10 @@ namespace WebSort
                 using SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
-                    Sorts = Bin.PopulateBinList(reader);
+                    Bins = Bin.PopulateBinList(reader);
                 }
             }
-            return serializer.Serialize(Sorts);
-        }
-
-        [WebMethod]
-        public static string GetData1()
-        {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            List<Bin> Sorts = new List<Bin>();
-
-            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
-                               "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK) where binstatus<5";
-
-            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
-            {
-                con.Open();
-                using SqlCommand cmd = new SqlCommand(sql, con);
-                using SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    Sorts = Bin.PopulateBinList(reader);
-                }
-            }
-            return serializer.Serialize(Sorts);
+            return serializer.Serialize(Bins);
         }
 
         [WebMethod]
@@ -318,7 +330,6 @@ namespace WebSort
         {
             SaveResponse response = new SaveResponse("Bins");
 
-            uint OldStamps = 0;
             int StatusOriginal = 0;
 
             string Update;
@@ -338,8 +349,6 @@ namespace WebSort
                     foreach (Bin Item in Changed)
                     {
                         Map map = new Map();
-
-                        Item.BinStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
 
                         // Length and Product Map
                         if (Item.ProdLen != null)  // Products changed
@@ -448,7 +457,7 @@ namespace WebSort
                             } // End BinStatus
 
                             // General update statement
-                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus" && Edit.EditedCol != "BinStamps")
+                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus")
                             {
                                 Update = "UPDATE Bins SET " + Edit.EditedCol + "=@Value WHERE BinID=@BinID; UPDATE Bins SET BinPercent=(SELECT COALESCE(BinCount*100 / NULLIF(BinSize,0), 0) FROM Bins WHERE BinID=@BinID) WHERE BinID = @BinID";
                                 using (SqlCommand cmd = new SqlCommand(Update, con))
@@ -459,29 +468,14 @@ namespace WebSort
                                 }
                             }
 
-                            if (Edit.EditedCol == "BinStamps")
+                            if (Item.BinStatus != 0 && Global.OnlineSetup) //Don't write anything to the PLC, the reset active code above will trigger the PLC to clear everything out
                             {
-                                using (SqlCommand cmd2 = new SqlCommand("SELECT BinStamps FROM Bins WHERE BinID=@BinID", con))
-                                {
-                                    cmd2.Parameters.AddWithValue("@BinID", Item.BinID);
-                                    using SqlDataReader reader = cmd2.ExecuteReader();
-                                    while (reader.Read())
-                                    {
-                                        OldStamps = Global.GetValue<uint>(reader, "BinStamps");
-                                    }
-                                }
-
-                                using SqlCommand cmd = new SqlCommand("UPDATE Bins SET BinStamps=@BinStamps WHERE BinID=@BinID", con);
-                                cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
-                                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
-                                cmd.ExecuteNonQuery();
-                            }
-                            if (Item.BinStatus != 0) //Don't write anything to the PLC, the reset active code above will trigger the PLC to clear everything out
                                 if (!Bin.DataRequestInsert(con, Item, map, StatusOriginal))
                                 {
                                     response.Bad("PLC Timeout");
                                     return SaveResponse.Serialize(response);
                                 }
+                            }
 
                             if (Edit.EditedCol != "BinStatus" && Item.BinStatus != 0)
                             {
@@ -497,14 +491,9 @@ namespace WebSort
                                 }
                             }
 
-                            if (Edit.EditedCol == "BinStamps")
-                            {
-                                response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.BinStamps, OldStamps, Item.BinID));
-                            }
-
                             Edit.Key = Item.BinID;
                         } // end foreach edit
-                        response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "BinStamps").ToList());
+                        response.AddEdits(Item.EditsList);
                     } // end foreach item
                 }
             } // End connection

@@ -52,7 +52,7 @@ namespace WebSort.Model
         public int BinSize { get; set; }
         public int BinCount { get; set; }
         public bool RW { get; set; }
-        public long BinStamps { get; set; }
+        public int BinStamps { get; set; }
         public string BinStampsLabel { get; set; }
         public int BinSprays { get; set; }
         public string BinSpraysLabel { get; set; }
@@ -63,7 +63,6 @@ namespace WebSort.Model
         public short SecSize { get; set; }
         public short SecCount { get; set; }
         public string ProductsLabel { get; set; }
-        public List<Stamp> SelectedStamps { get; set; }
         public ProductLengths ProdLen { get; set; }
         public bool Changed { get; set; }
         public List<Edit> EditsList { get; set; }
@@ -73,7 +72,6 @@ namespace WebSort.Model
         public static List<Bin> PopulateBinList(SqlDataReader reader)
         {
             List<Bin> BinList = new List<Bin>();
-            List<Stamp> stamps = Stamp.GetStamps();
             while (reader.Read())
             {
                 BinList.Add(new Bin
@@ -89,8 +87,8 @@ namespace WebSort.Model
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
-                    Changed = false,
-                    SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "BinStamps"), stamps)
+                    BinStamps = Global.GetValue<int>(reader, "BinStamps"),
+                    Changed = false
                 });
             }
 
