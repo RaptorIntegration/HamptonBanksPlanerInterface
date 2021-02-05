@@ -230,6 +230,7 @@
                                 <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
                                 <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
                                 <th scope="col" style="width:5%;" @click="Sort('SortStamps')">Stamps</th>
+                                <th scope="col" style="width:5%;" @click="Sort('SortSprays')">Premium Stamp</th>
                                 <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                             </tr>
                         </thead>
@@ -297,17 +298,26 @@
                                     </div>
                                 </td>
                                 <td @click="EditingCell(Row, 'SortStamps')">
-                                    <div class="stamp-container">
-                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">                                            
-                                            <input
-                                                v-bind:id="'stamp-' + Row.SortID + '-' + stamp.ID"
-                                                v-on:change="Update('SortStamps', stamp.Selected, Row);"
-                                                v-model="stamp.Selected"
-                                                type="checkbox"
-                                                class="check">
-                                            <label v-bind:for="'stamp-' + Row.SortID + '-' + stamp.ID">{{stamp.Description}}</label>
-                                        </div>
-                                    </div>
+                                    <select 
+										v-on:focus="Prev(Row, 'SortStamps')"
+                                        v-if="Table.Editing == Row.SortID + '_SortStamps'"
+                                        v-on:change="UpdateGradeMatrix('SortStamps', Row.SortStamps, Row)"
+                                        v-on:blur="Table.Editing = false"
+                                        v-model="Row.SortStamps" 
+                                        class="form-control">
+                                        <option v-for="s in Stamps" v-bind:value="s.ID">{{ s.Label }}</option>
+                                    </select>
+                                    <div v-else>
+                                        <label>{{ Stamps.find(e => e.ID == Row.SortStamps)?.Label }}</label>
+                                    </div>                          
+                                </td>
+                                <td @click="EditingCell(Row, 'SortSprays')">
+                                    <input
+                                        v-model="Row.SortSprays"
+                                        v-on:blur="Table.Editing = false"
+                                        v-on:change="Update('SortSprays', Row.SortSprays, Row);"
+                                        type="checkbox"
+                                        class="check">
                                 </td>
                                 <td @click="EditingCell(Row, 'ProductsLabel'); ">
                                     <div>

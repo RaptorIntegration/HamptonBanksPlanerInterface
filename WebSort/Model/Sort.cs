@@ -61,7 +61,7 @@ namespace WebSort.Model
         public int OrderCount { get; set; }
         public int SortStamps { get; set; }
         public string SortStampsLabel { get; set; }
-        public int SortSprays { get; set; }
+        public bool SortSprays { get; set; }
         public string SortSpraysLabel { get; set; }
         public int BinID { get; set; }
         public int TrimFlag { get; set; }
@@ -107,7 +107,7 @@ namespace WebSort.Model
                     Changed = false,
                     SortStamps = Global.GetValue<int>(reader, "SortStamps"),
                     SortStampsLabel = Global.GetValue<string>(reader, "SortSpraysLabel"),
-                    SortSprays = Global.GetValue<int>(reader, "SortSprays")
+                    SortSprays = Global.GetValue<bool>(reader, "SortSprays")
                 });
             }
 
@@ -190,7 +190,7 @@ namespace WebSort.Model
                 cmdRequest.Parameters.AddWithValue("@SecSize", sort.SecSize);
                 cmdRequest.Parameters.AddWithValue("@LengthMap", ZeroOut ? 0 : Convert.ToInt64(map.LengthMap));
                 cmdRequest.Parameters.AddWithValue("@SortStamps", sort.SortStamps);
-                cmdRequest.Parameters.AddWithValue("@SortSprays", sort.SortSprays);
+                cmdRequest.Parameters.AddWithValue("@SortSprays", Convert.ToInt32(sort.SortSprays));
                 cmdRequest.Parameters.AddWithValue("@Zone1", (sort.Zone1Stop * 256) + sort.Zone1Start);
                 cmdRequest.Parameters.AddWithValue("@Zone2", (sort.Zone2Stop * 256) + sort.Zone2Start);
                 cmdRequest.Parameters.AddWithValue("@TrimFlag", sort.TrimFlag);

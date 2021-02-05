@@ -643,7 +643,7 @@ namespace WebSort
                             }
 
                             // General update statement
-                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "SortStamps")
+                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "SortSprays")
                             {
                                 Update = "UPDATE Sorts SET " + Edit.EditedCol + "=@Value WHERE RecipeID=" + EditingRecipe.RecipeID + " AND SortID=@ID";
                                 using SqlCommand cmd = new SqlCommand(Update, con);
@@ -651,24 +651,15 @@ namespace WebSort
                                 cmd.Parameters.AddWithValue("@ID", Item.SortID);
                                 cmd.ExecuteNonQuery();
                             }
-                            if (Edit.EditedCol == "SortStamps")
+                            if (Edit.EditedCol == "SortSprays")
                             {
-                                using (SqlCommand cmd2 = new SqlCommand("SELECT SortStamps FROM Sorts WHERE SortID=@SortID AND RecipeID=@RecipeID", con))
-                                {
-                                    cmd2.Parameters.AddWithValue("@SortID", Item.SortID);
-                                    cmd2.Parameters.AddWithValue("@RecipeID", EditingRecipe.RecipeID);
-                                    using SqlDataReader reader = cmd2.ExecuteReader();
-                                    while (reader.Read())
-                                    {
-                                        OldStamps = Global.GetValue<uint>(reader, "SortStamps");
-                                    }
-                                }
-
-                                using SqlCommand cmd = new SqlCommand("UPDATE Sorts SET SortStamps=@SortStamps WHERE RecipeID=@RecipeID AND SortID=@ID", con);
-                                cmd.Parameters.AddWithValue("@SortStamps", Item.SortStamps);
-                                cmd.Parameters.AddWithValue("@RecipeID", EditingRecipe.RecipeID);
+                                Update = "UPDATE Sorts SET SortSprays=@Value WHERE RecipeID=" + EditingRecipe.RecipeID + " AND SortID=@ID";
+                                using SqlCommand cmd = new SqlCommand(Update, con);
+                                cmd.Parameters.AddWithValue("@Value", Convert.ToInt32(Item.SortSprays));
                                 cmd.Parameters.AddWithValue("@ID", Item.SortID);
                                 cmd.ExecuteNonQuery();
+
+                                Edit.EditedCol = "Premium Stamp";
                             }
 
                             // Order Count -> 0
