@@ -193,7 +193,7 @@ namespace WebSort.Model
                 cmdRequest.Parameters.AddWithValue("@SortSprays", Convert.ToInt32(sort.SortSprays));
                 cmdRequest.Parameters.AddWithValue("@Zone1", (sort.Zone1Stop * 256) + sort.Zone1Start);
                 cmdRequest.Parameters.AddWithValue("@Zone2", (sort.Zone2Stop * 256) + sort.Zone2Start);
-                cmdRequest.Parameters.AddWithValue("@TrimFlag", sort.TrimFlag);
+                cmdRequest.Parameters.AddWithValue("@TrimFlag", 1);
                 cmdRequest.Parameters.AddWithValue("@RW", sort.RW);
                 cmdRequest.Parameters.AddWithValue("@Active", sort.Active);
                 cmdRequest.Parameters.AddWithValue("@ProductsOnly", ProductsOnlyZero ? 0 : ZeroOut ? 1 : 2);
