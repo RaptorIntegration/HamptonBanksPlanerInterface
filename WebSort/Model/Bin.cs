@@ -181,7 +181,7 @@ namespace WebSort.Model
                 cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
                 cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
                 cmd.Parameters.AddWithValue("@SecCount", Item.SecCount);
-                cmd.Parameters.AddWithValue("@TrimFlag", 0);
+                cmd.Parameters.AddWithValue("@TrimFlag", Item.TrimFlag);
                 cmd.Parameters.AddWithValue("@RW", 0);
                 cmd.Parameters.AddWithValue("@ProductsOnly", 2);
                 cmd.Parameters.AddWithValue("@Write", 1);

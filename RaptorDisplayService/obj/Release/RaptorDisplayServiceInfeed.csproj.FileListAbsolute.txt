@@ -1,0 +1,5 @@
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorDisplayServiceInfeed\RaptorDisplayService\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorDisplayServiceInfeed\RaptorDisplayService\bin\Release\RaptorDisplayServiceInfeed.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorDisplayServiceInfeed\RaptorDisplayService\bin\Release\RaptorDisplayServiceInfeed.pdb
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorDisplayServiceInfeed\RaptorDisplayService\obj\Release\RaptorDisplayServiceInfeed.exe
+C:\Users\Kevin Bushell\Documents\Visual Studio 2008\Projects\RaptorDisplayServiceInfeed\RaptorDisplayService\obj\Release\RaptorDisplayServiceInfeed.pdb

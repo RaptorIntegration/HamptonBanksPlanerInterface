@@ -1,0 +1,452 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Net.Sockets;
+
+namespace RaptorComm
+{
+    public static class RaptorCommService
+    {
+        public static System.Data.SqlClient.SqlConnection connection;
+        public static string connectionString;
+        static Socket m_socWorker;
+        public static int DisplayTime;
+        public static int BlankTime;
+        public static int DisplayType;
+        public static String szIPSelected;
+        public static String szPort;
+       
+        static Thread DisplayThread = null;
+        
+        public static int DisplayThreadScanRate = 50;
+        
+        public static System.IO.Ports.SerialPort serialPortDisplay = new System.IO.Ports.SerialPort();
+
+        public static string GetConnectionString()
+        {
+            return ("Server=(local)\\SQLEXPRESS;Initial Catalog=RaptorWebSort;Integrated Security=True;MultipleActiveResultSets=True;Connection Timeout=120");
+        }
+        public static void UpdateRaptorDisplayLog(string text)
+        {
+            try
+            {
+                SqlCommand cmd = new SqlCommand("insert into RaptorDisplayLog select getdate(),'" + text + "'", connection);
+                cmd.ExecuteNonQuery();
+                SqlCommand cmd1 = new SqlCommand("delete from RaptorDisplayLog where id< (select max(id)-100 from RaptorDisplayLog)", connection);
+                cmd1.ExecuteNonQuery();
+            }
+            catch (Exception ex) { }
+        }
+        public static void ReadDisplaySettings()
+        {
+            connectionString = GetConnectionString();
+            connection = new SqlConnection(connectionString);
+            // Open the connection.
+            connection.Open();
+            SqlCommand cmd = new SqlCommand("select * from AlarmGeneralSettings", connection);
+            SqlDataReader reader = cmd.ExecuteReader();
+            reader.Read();
+            if (reader.HasRows)
+            {
+                szIPSelected = reader["DisplayIPAddress"].ToString();
+                szPort = reader["DisplayPortNumber"].ToString();
+                //DisplayTime = Convert.ToInt16(Single.Parse(reader["DisplayTime"].ToString()) * 1000);
+                //BlankTime = Convert.ToInt16(Single.Parse(reader["BlankTime"].ToString()) * 1000);
+                DisplayType = int.Parse(reader["DisplayType"].ToString());
+
+                if (DisplayType == 1)  //Adaptive Display
+                {
+                    try
+                    {
+                        string header;
+                        Object objData;
+                        byte[] byData;
+                                                                        
+                        UpdateRaptorDisplayLog("Attempting to connect to Adaptive Display.");
+                        //create a new client socket ...
+                        m_socWorker = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+                        int alPort = System.Convert.ToInt16(szPort, 10);
+
+                        System.Net.IPAddress remoteIPAddress = System.Net.IPAddress.Parse(szIPSelected);
+                        System.Net.IPEndPoint remoteEndPoint = new System.Net.IPEndPoint(remoteIPAddress, alPort);
+                        m_socWorker.Connect(remoteEndPoint);
+
+                        //clear sign memory
+                        header = "";
+                        header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1 + "Z" + "00" + (char)2 + "E";
+                        header = header + "$";
+                        objData = header + (char)4;
+                        byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                        m_socWorker.Send(byData);
+                        Thread.Sleep(4000);
+                        //enable speaker
+                        header = "";
+                        header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                        header = header + "b" + "00";  //display type 4160C, all addresses
+                        header = header + (char)2;  //STX
+                        header = header + "E";  //command code (write text file)
+                        header = header + "!00";  //file label 0                                    
+                        objData = header + (char)4;  //EOT
+                        byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                        m_socWorker.Send(byData);
+                        
+                        //allocate memory to use string function, string file "1"
+                        /*header = "";
+                        header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1 + "Z" + "00" + (char)2 + "E";
+                        header = header + "$AAU0084FF001BL00640000";
+                        objData = header + (char)4;
+                        byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                        m_socWorker.Send(byData);
+                        
+                        header = "";
+                        header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                        header = header + "b" + "00";  //display type 4160C, all addresses
+                        header = header + (char)2;  //STX
+                        header = header + "A";  //command code (write text file)
+                        header = header + "0";  //file label 0
+                        header = header + (char)27;  //ESC to mark start of mode fields
+                        header = header + "0";  //middle line
+                        header = header + "b";  //Hold mode
+                        header = header + (char)16 + "1";  //Call String File 1
+                        objData = header + (char)4;  //EOT
+                        byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                        m_socWorker.Send(byData);*/
+
+                        //cancel priority message
+                        /*header = "";
+                        header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1 + "b" + "00" + (char)2 + "A";
+                        header = header + "0";
+                        objData = header + (char)4;
+                        byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                        m_socWorker.Send(byData);*/
+                    }
+                    catch (System.Net.Sockets.SocketException se)
+                    {
+                        UpdateRaptorDisplayLog(se.Message);
+                        Thread.Sleep(10000);
+                        ReadDisplaySettings();
+                    }
+                }
+                else if (DisplayType == 2)  //Infomaster Display
+                {
+                    try
+                    {
+                        UpdateRaptorDisplayLog("Attempting to connect to Infomster Display.");
+                        serialPortDisplay.BaudRate = 9600;
+                        serialPortDisplay.PortName = szPort;
+                        serialPortDisplay.Open();
+                        
+                    }
+                    catch (Exception ex)
+                    {
+                        UpdateRaptorDisplayLog(ex.Message);
+                        Thread.Sleep(10000);
+                        ReadDisplaySettings();
+                    }
+                }
+
+                UpdateRaptorDisplayLog("Connection to Display Established Successfully!");
+                //start the various threads necessary
+
+                if (null == DisplayThread)
+                {
+                    DisplayThread = new Thread(ReadMessages);
+                    DisplayThread.Start();
+                }
+            }
+            reader.Close();
+            connection.Close();    
+
+        } 
+                
+        public static void Init()
+        {
+            UpdateRaptorDisplayLog("RaptorDisplay Service Started.");     
+            ReadDisplaySettings();                   
+        }
+
+        public static void ReadMessages()
+        {
+            string previousalarmtext="";
+            bool sentblank = true;   
+            
+            while (true)
+            {
+                
+                if (DisplayType == 1)  //Adaptive Display 4160
+                {
+                    try
+                    {
+                        string header;
+                        Object objData;
+                        byte[] byData;
+                        string message;
+                        
+                        
+                        //send text to the display using text file function
+                        connectionString = GetConnectionString();
+                        connection = new SqlConnection(connectionString);
+                        // Open the connection.
+                        connection.Open();
+                        SqlCommand cmd = new SqlCommand("selectDisplayMessages", connection);
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            DisplayTime = Convert.ToInt16(Single.Parse(reader["DisplayTime"].ToString()) * 1000);
+                            BlankTime = Convert.ToInt16(Single.Parse(reader["BlankTime"].ToString()) * 1000);
+                            message = reader["DisplayText"].ToString().ToUpper();
+                            //if (int.Parse(reader["alarmid"].ToString()) < 1000)
+                            //{
+                                header = "";
+                                header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                                header = header + "b" + "00";  //display type 4160C, all addresses
+                                header = header + (char)2;  //STX
+                                header = header + "A";  //command code (write text file)
+                                header = header + "0";  //file label 0
+                                header = header + (char)27;  //ESC to mark start of mode fields
+                                if (message.Length >= 17 || message.Contains("\r"))
+                                {
+                                    header = header + "0";  //fill  
+                                    header = header + "b";  //Hold mode                                  
+                                    header = header + (char)26 + "3" + (char)18;  //Seven high font, wide                                    
+                                }
+                                else
+                                {
+                                    header = header + " ";  //middle line
+                                    header = header + "b";  //Hold mode                                    
+                                    header = header + (char)26 + "9";  //15 high font
+                                }                                
+                                if (reader["severity"].ToString() == "0")
+                                    header = header + (char)28 + "2";  //Green
+                                else if (reader["severity"].ToString() == "1")
+                                    header = header + (char)28 + "3";  //Amber
+                                else if (reader["severity"].ToString() == "2" || reader["severity"].ToString() == "3")
+                                    header = header + (char)28 + "1";  //Red
+                                objData = header + message + (char)4;  //EOT
+                            //}
+                            /*else
+                            {
+                                header = "";
+                                header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                                header = header + "b" + "00";  //display type 4160C, all addresses
+                                header = header + (char)2;  //STX
+                                header = header + "A";  //command code (write text file)
+                                header = header + "0";  //file label 0
+                                header = header + (char)27;  //ESC to mark start of mode fields
+                                header = header + "0";  //middle line
+                                header = header + "b";  //Hold mode
+                                if (message.Length >= 17)
+                                    header = header + (char)26 + "3" + (char)18;  //Seven high font, wide
+                                else
+                                    header = header + (char)26 + "9";  //15 high font
+                                if (reader["severity"].ToString() == "0")
+                                    header = header + (char)28 + "2";  //Green
+                                else if (reader["severity"].ToString() == "1")
+                                    header = header + (char)28 + "3";  //Amber
+                                else if (reader["severity"].ToString() == "2")
+                                    header = header + (char)28 + "1";  //Red
+                                objData = header + message + (char)4;  //EOT
+                                /*header = "";
+                                header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                                header = header + "b" + "00";  //display type 4160C, all addresses
+                                header = header + (char)2;  //STX
+                                header = header + "A";  //command code (write text file)
+                                header = header + "0";  //file label 0
+                                header = header + (char)27;  //ESC to mark start of mode fields
+                                header = header + " ";  //middle line
+                                header = header + "b";  //Hold mode
+                                header = header + (char)16 + "1";  //Call String File 1
+                                objData = header + (char)4;  //EOT
+                                byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                                m_socWorker.Send(byData);
+                                header = "";
+                                header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                                header = header + "b" + "00";  //display type 4160C, all addresses
+                                header = header + (char)2;  //STX
+                                header = header + "G";  //command code (write string file)
+                                header = header + "1";  //string file label 1
+                                if (reader["severity"].ToString() == "0")
+                                    header = header + (char)28 + "2";  //Green
+                                else if (reader["severity"].ToString() == "1")
+                                    header = header + (char)28 + "3";  //Amber
+                                else if (reader["severity"].ToString() == "2")
+                                    header = header + (char)28 + "1";  //Red
+                                objData = header + (char)18 + message + (char)4;  //EOT
+                            }*/
+                            byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                            if (reader["DisplayText"].ToString() != previousalarmtext || sentblank == true)  //don't blank the display if the same message is being displayed
+                            {
+                                m_socWorker.Send(byData);
+                                if (reader["severity"].ToString() == "3")
+                                {
+                                    header = "";
+                                    header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1;  //5 nulls and an SOH
+                                    header = header + "b" + "00";  //display type 4160C, all addresses
+                                    header = header + (char)2;  //STX
+                                    header = header + "E";  //command code (write text file)
+                                    header = header + "(1";  //file label 0                                    
+                                    objData = header + (char)4;  //EOT
+                                    byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                                    m_socWorker.Send(byData);
+                                }
+                                message = message.Replace("\r","  |  ");
+                                message = message.Replace("'","''");
+                                SqlCommand cmdupdate = new SqlCommand("update currentstate set currentmessage = '" + message + "'", connection);
+                                cmdupdate.ExecuteNonQuery();
+                                UpdateRaptorDisplayLog("Sent to the Display: ''" + message + "''");
+                            }
+                            // check for a higher priority message that may have come in
+                            SqlCommand cmd1 = new SqlCommand("selectDisplayMessagePriority " + reader["AlarmID"].ToString(), connection);
+                            SqlDataReader reader1 = cmd1.ExecuteReader();
+                            reader1.Read();
+                            if (reader1["Abort"].ToString() == "1")
+                            {
+                                UpdateRaptorDisplayLog("Higher Priority Message Detected.");
+                                previousalarmtext = reader1["HigherPriorityAlarmText"].ToString();
+                                reader1.Close();
+                                reader.Close();
+                                sentblank = true;                                
+                                break;
+                            }
+                            Thread.Sleep(DisplayTime);
+                            
+                            if (int.Parse(reader["alarmid"].ToString()) < 1000 && reader["DisplayText"].ToString() != previousalarmtext && reader["AlarmCount"].ToString() != "1") //don't blank the display if the same message is being displayed
+                            { 
+                                message=" ";
+                                header = "";
+                                header = header + (char)0 + (char)0 + (char)0 + (char)0 + (char)0 + (char)1 + "b" + "00" + (char)2 + "A";
+                                header = header + "0" + (char)27 + " " + "b" + (char)28 + "2";
+                                header = header + (char)26 + "9";
+                                objData = header + message + (char)4;
+                                byData = System.Text.Encoding.ASCII.GetBytes(objData.ToString());
+                                m_socWorker.Send(byData);
+                                sentblank = true;
+                                Thread.Sleep(BlankTime);
+                            }
+                            else
+                            {
+                                sentblank = false;
+                            }
+                            previousalarmtext = reader["DisplayText"].ToString();
+                        }               
+                    }
+                    catch (System.Net.Sockets.SocketException se)
+                    {
+                        UpdateRaptorDisplayLog(se.Message);
+                        Thread.Sleep(10000);
+                    }
+                }
+                else if (DisplayType == 2)   //Infomaster
+                {
+                    try
+                    {
+                        string tempChar = string.Empty;
+                        string tempText = string.Empty;
+                        string tempTextfinal = string.Empty;
+                        int strlength;                        
+                        
+                        connectionString = GetConnectionString();
+                        connection = new SqlConnection(connectionString);
+                        // Open the connection.
+                        connection.Open();
+                        SqlCommand cmd = new SqlCommand("selectDisplayMessages", connection);
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            DisplayTime = Convert.ToInt16(Single.Parse(reader["DisplayTime"].ToString()) * 1000);
+                            BlankTime = Convert.ToInt16(Single.Parse(reader["BlankTime"].ToString()) * 1000);
+                            
+                            if (int.Parse(reader["AlarmID"].ToString()) < 1000) //normal alarm, scroll the text
+                            {
+                                tempText = "       " + reader["DisplayText"].ToString() + "        ";  // adds leading and trailing spaces to the text to make the text appear scrolling
+                                strlength = tempText.Length - 8;
+                                serialPortDisplay.Write(tempText + (char)13);
+                                Thread.Sleep(DisplayTime/20);
+                                int i = 0;
+                                while (i < strlength)
+                                {
+                                    i++;
+                                    tempText = tempText.Remove(0, 1);
+                                    tempTextfinal = tempText.Substring(0, 8);
+                                    if (serialPortDisplay.IsOpen)
+                                        serialPortDisplay.Write(tempTextfinal + (char)13);
+                                    
+                                    Thread.Sleep(DisplayTime/20);  //lowering this value with make the marquee scroll faster
+                                }
+                                SqlCommand cmdupdate = new SqlCommand("update currentstate set currentmessage = '" + reader["DisplayText"].ToString().Replace("'", "''") + "'", connection);
+                                cmdupdate.ExecuteNonQuery();
+                                UpdateRaptorDisplayLog("Sent to the Display: ''" + reader["DisplayText"].ToString().Replace("'","''") + "''.");
+                                // check for a higher priority message that may have come in
+                                SqlCommand cmd1 = new SqlCommand("selectDisplayMessagePriority " + reader["AlarmID"].ToString(), connection);
+                                SqlDataReader reader1 = cmd1.ExecuteReader();
+                                reader1.Read();
+                                if (reader1["Abort"].ToString() == "1")
+                                {
+                                    UpdateRaptorDisplayLog("Higher Priority Message Detected.");
+                                    reader1.Close();
+                                    reader.Close();
+                                    break;
+                                }
+                                Thread.Sleep(BlankTime);     
+                            }
+                            else //default messages
+                            {
+                                tempText = reader["DisplayText"].ToString().PadLeft(8);
+                                serialPortDisplay.Write(tempText + (char)13);
+
+                                // check for a higher priority message that may have come in
+                                SqlCommand cmd1 = new SqlCommand("selectDisplayMessagePriority " + reader["AlarmID"].ToString(), connection);
+                                SqlDataReader reader1 = cmd1.ExecuteReader();
+                                reader1.Read();
+                                if (reader1["Abort"].ToString() == "1")
+                                {
+                                    UpdateRaptorDisplayLog("Higher Priority Message Detected.");
+                                    reader1.Close();
+                                    reader.Close();
+                                    break;
+                                }
+                                SqlCommand cmdupdate = new SqlCommand("update currentstate set currentmessage = '" + reader["DisplayText"].ToString().Replace("'", "''") + "'", connection);
+                                cmdupdate.ExecuteNonQuery();
+                                UpdateRaptorDisplayLog("Sent Message Text '" + reader["DisplayText"].ToString() + "' to the Display.");
+                                Thread.Sleep(DisplayTime);
+                            }                            
+                        }                                      
+                    }                         
+                    catch (Exception ex)
+                    {
+                        UpdateRaptorDisplayLog(ex.Message);
+                        Thread.Sleep(10000);
+                    }                    
+                }
+                
+                Thread.Sleep(DisplayThreadScanRate);
+            }
+        }
+        
+        
+        public static void Close()
+        {
+            UpdateRaptorDisplayLog("RaptorDisplay Service Stopped.");
+            if (null != DisplayThread)
+            {
+                DisplayThread.Abort();
+                DisplayThread = null;
+            }
+
+            serialPortDisplay.Close();
+            connection.Close();
+            
+            
+            
+        }
+
+
+   }
+}

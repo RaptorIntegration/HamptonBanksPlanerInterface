@@ -1866,7 +1866,12 @@ namespace RaptorComm
                                     else if (BinStatus == 4)
                                         binreadwrite.BinFlags += 128;   //Reject
                                     if (BinStatus == 5)
+                                    {
                                         binreadwrite.BinFlags += 256;   //Virtual
+                                        if (BinPkgSize > 0)
+                                            binreadwrite.BinFlags += 1;  //don't lose the active status on the virtual if it has been allocated
+
+                                    }
 
                                     if (BinTrimFlag == true)
                                         binreadwrite.BinFlags += 32;

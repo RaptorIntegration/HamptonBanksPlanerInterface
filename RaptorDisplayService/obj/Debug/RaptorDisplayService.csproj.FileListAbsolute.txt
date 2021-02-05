@@ -1,0 +1,5 @@
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorDisplayService\RaptorDisplayService\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorDisplayService\RaptorDisplayService\bin\Debug\RaptorDisplayService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorDisplayService\RaptorDisplayService\bin\Debug\RaptorDisplayService.pdb
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorDisplayService\RaptorDisplayService\obj\Debug\RaptorDisplayService.exe
+C:\Documents and Settings\BUSHELL\My Documents\Visual Studio 2008\Projects\RaptorDisplayService\RaptorDisplayService\obj\Debug\RaptorDisplayService.pdb

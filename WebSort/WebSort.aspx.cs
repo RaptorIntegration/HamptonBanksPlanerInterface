@@ -382,14 +382,14 @@ namespace WebSort
                                     cmd.Parameters.AddWithValue("@Name", Item.BinLabel);
                                     cmd.Parameters.AddWithValue("@PkgSize", Item.BinSize);
                                     cmd.Parameters.AddWithValue("@Count", Item.BinCount);
-                                    cmd.Parameters.AddWithValue("@SecProdID", Item.BinCount);
-                                    cmd.Parameters.AddWithValue("@SecSize", Item.BinCount);
-                                    cmd.Parameters.AddWithValue("@SecCount", Item.BinCount);
+                                    cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
+                                    cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
+                                    cmd.Parameters.AddWithValue("@SecCount", Item.SecCount);
                                     cmd.Parameters.AddWithValue("@RdmWidthFlag", 0);
                                     cmd.Parameters.AddWithValue("@Status", Item.BinStatus);
                                     cmd.Parameters.AddWithValue("@Stamps", Item.BinStamps);
                                     cmd.Parameters.AddWithValue("@Sprays", 0);
-                                    cmd.Parameters.AddWithValue("@TrimFlag", 1);
+                                    cmd.Parameters.AddWithValue("@TrimFlag", Item.TrimFlag);
                                     cmd.Parameters.AddWithValue("@SortXRef", Item.SortID);
                                     try
                                     {
