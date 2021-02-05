@@ -148,6 +148,40 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string GetStamps()
+        {
+            JavaScriptSerializer s = new JavaScriptSerializer();
+            List<object> ret = new List<object>();
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+                {
+                    con.Open();
+
+                    using SqlCommand cmd = new SqlCommand("SELECT * FROM Stamps", con);
+                    using SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            ret.Add(new {
+                                ID = Global.GetValue<int>(reader, "StampID"),
+                                Label = Global.GetValue<string>(reader, "StampDescription")
+                            });
+                        }
+                    }
+                }
+                return s.Serialize(ret);
+            }
+            catch (Exception ex)
+            {
+                Global.LogError(ex);
+                return ex.ToString();
+            }
+        }
+
+        [WebMethod]
         public static string GetRecipes()
         {
             JavaScriptSerializer s = new JavaScriptSerializer();
@@ -599,8 +633,6 @@ namespace WebSort
                             Map.GetDBProductMapSort(con, Item, map, EditingRecipe.RecipeID);
                         }
 
-                        Item.SortStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
-
                         foreach (Edit Edit in Item.EditsList)
                         {
                             // Invalid package size
@@ -710,11 +742,6 @@ namespace WebSort
                             UpdateSortProductsGUI(con, Item, EditingRecipe.RecipeID);
 
                             Edit.Key = Item.SortID;
-
-                            if (Edit.EditedCol == "SortStamps")
-                            {
-                                response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.SortStamps, OldStamps, Item.SortID));
-                            }
                         } // end foreach edit
 
                         response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "SortStamps").ToList());

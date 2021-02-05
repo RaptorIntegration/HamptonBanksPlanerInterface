@@ -339,8 +339,6 @@ namespace WebSort
                     {
                         Map map = new Map();
 
-                        Item.BinStamps = Stamp.GetStampsBitMap(Item.SelectedStamps);
-
                         // Length and Product Map
                         if (Item.ProdLen != null)  // Products changed
                         {
@@ -495,11 +493,6 @@ namespace WebSort
                                     response.Bad("Error saving");
                                     return SaveResponse.Serialize(response);
                                 }
-                            }
-
-                            if (Edit.EditedCol == "BinStamps")
-                            {
-                                response.AddEdits(Stamp.GetChangesFromBitmap((uint)Item.BinStamps, OldStamps, Item.BinID));
                             }
 
                             Edit.Key = Item.BinID;

@@ -108,9 +108,10 @@ const v = new Vue({
         GradeMatrix: {
             Visible: false,
             List: [],
-            Stamps: [],
             Grades: []
         },
+
+        Stamps: [],
 
         Toast: {
             Timeout: null,
@@ -138,6 +139,7 @@ const v = new Vue({
     mounted: function () {
         this.GetSecurity()
         this.SetAutoUpdate();
+        this.GetStamps();
         this.GetRecipes();
         this.GetProductGrades();
     },
@@ -256,6 +258,15 @@ const v = new Vue({
                 .then(response => {
                     this.GradeMatrix.List = JSON.parse(response.data.d);
                     this.GetGrades();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        GetStamps: function () {
+            axios.post('Sorts.aspx/GetStamps', this.Headers)
+                .then(response => {
+                    this.Stamps = JSON.parse(response.data.d);
                 })
                 .catch(error => {
                     console.error(error);
@@ -462,7 +473,7 @@ const v = new Vue({
             }
         },
         EditingGradeMatrixCell: function (Grade, Col) {
-            this.Editing = (Grade.PLCGradeID + '_' + Col);
+            this.Table.Editing = (Grade.PLCGradeID + '_' + Col);
         },
         ProductsChange: function (Product, Row) {
             let v = this
@@ -489,7 +500,7 @@ const v = new Vue({
                     v.Table.Previous = !EditedVal;
                 }
                 ChangedRow.EditsList.push({
-                    'Key': ChangedRow.SortID,
+                    'Key': ChangedRow.PLCGradeID,
                     'EditedCol': EditedCol,
                     'EditedVal': EditedVal,
                     'Previous': v.Table.Previous

@@ -692,7 +692,7 @@ namespace WebSort
                     {
                         con.Open();
 
-                        Length.DataRequestInsert(con, length, false);
+                        Length.DataRequestInsert(con, length);
                     }
                 }
                 response.AddEdits(length.EditsList);
@@ -725,7 +725,7 @@ namespace WebSort
                         {
                             con.Open();
 
-                            Length.DataRequestInsert(con, length, false);
+                            Length.DataRequestInsert(con, length);
                         }
                     }
                 }
@@ -763,8 +763,8 @@ namespace WebSort
                     {
                         con.Open();
 
-                        PETLength.DataRequestInsert(con, PETLength, false);
-                        Length.DataRequestInsert(con, NewLength, false);
+                        PETLength.DataRequestInsert(con, PETLength);
+                        Length.DataRequestInsert(con, NewLength);
                     }
                 }
                 response.AddEdits(PETLength.EditsList);

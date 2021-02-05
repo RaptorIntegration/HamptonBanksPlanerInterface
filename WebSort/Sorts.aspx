@@ -136,44 +136,46 @@
             <div class="row" v-if="GradeMatrix.Visible">
                 <div class="col-12">
                     <input type="button" class="btn-raptor mb-3" value="Save" v-on:click="SaveGradeMatrix" />
-                    <table class="table" v-if="GradeMatrix.List.length > 0" style="max-width:1600px;">
+                    <table class="table" v-if="GradeMatrix.List.length > 0" style="max-width:1200px; margin:auto;">
                         <thead>
                             <tr>
-                                <th style="width:5%;" scope="col">Input Grade ID</th>
-                                <th style="width:15%;" scope="col">Sorted Grade</th>
-                                <th style="width:5%;" scope="col">WEBSort Grade ID</th>
-                                <th scope="col">Stamps</th>
+                                <th style="width:10%;" scope="col">Input Grade ID</th>
+                                <th style="width:40%;" scope="col">Sorted Grade</th>
+                                <th style="width:10%;" scope="col">WEBSort Grade ID</th>
+                                <th style="width:40%;" scope="col">Stamps</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="grade in GradeMatrix.List">
                                 <td scope="row">{{grade.PLCGradeID}}</td>
-                                <td @click="EditingGradeMatrixCell(grade, 'GradeLabel')">
+                                <td @click="EditingGradeMatrixCell(grade, 'WebSortGradeID')">
                                     <select 
-										v-on:focus="Prev(grade, 'GradeLabel')"
-                                        v-if="Table.Editing == grade.PLCGradeID + '_GradeLabel'"
-                                        v-on:change="UpdateGradeMatrix('GradeLabel', grade.GradeLabel, grade)"
-                                        v-model="grade.GradeLabel" 
+										v-on:focus="Prev(grade, 'WebSortGradeID')"
+                                        v-if="Table.Editing == grade.PLCGradeID + '_WebSortGradeID'"
+                                        v-on:change="UpdateGradeMatrix('WebSortGradeID', grade.WebSortGradeID, grade)"
+                                        v-on:blur="Table.Editing = false"
+                                        v-model="grade.WebSortGradeID" 
                                         class="form-control">
-                                        <option v-for="grade in GradeMatrix.Grades">{{grade.GradeLabel}}</option>
+                                        <option v-for="g in GradeMatrix.Grades" v-bind:value="g.GradeID">{{g.GradeLabel}}</option>
                                     </select>
                                     <div v-else>
-                                        <label>{{ grade.GradeLabel }}</label>
+                                        <label>{{ GradeMatrix.Grades.find(e => e.GradeID == grade.WebSortGradeID)?.GradeLabel }}</label>
                                     </div>
                                 </td>
                                 <td>{{grade.WebSortGradeID}}</td>
-                                <td>
-                                    <div class="stamp-container">
-                                        <div v-for="stamp in grade.SelectedStamps" class="stamp-inner-container">                                            
-                                            <input
-                                                v-bind:id="'stamp-' + grade.PLCGradeID + '-' + stamp.ID"
-                                                v-on:change="Update('Stamp', stamp.Selected, grade);"
-                                                v-model="stamp.Selected"
-                                                type="checkbox"
-                                                class="check">
-                                            <label v-bind:for="'stamp-' + grade.PLCGradeID + '-' + stamp.ID">{{stamp.Description}}</label>
-                                        </div>
-                                    </div>                                    
+                                <td @click="EditingGradeMatrixCell(grade, 'GradeStamps')">
+                                    <select 
+										v-on:focus="Prev(grade, 'GradeStamps')"
+                                        v-if="Table.Editing == grade.PLCGradeID + '_GradeStamps'"
+                                        v-on:change="UpdateGradeMatrix('GradeStamps', grade.GradeStamps, grade)"
+                                        v-on:blur="Table.Editing = false"
+                                        v-model="grade.GradeStamps" 
+                                        class="form-control">
+                                        <option v-for="s in Stamps" v-bind:value="s.ID">{{ s.Label }}</option>
+                                    </select>
+                                    <div v-else>
+                                        <label>{{ Stamps.find(e => e.ID == grade.GradeStamps)?.Label }}</label>
+                                    </div>                          
                                 </td>
                             </tr>
                         </tbody>

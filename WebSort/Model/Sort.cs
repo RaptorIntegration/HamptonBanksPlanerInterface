@@ -59,7 +59,7 @@ namespace WebSort.Model
         public int PkgsPerSort { get; set; }
         public bool RW { get; set; }
         public int OrderCount { get; set; }
-        public long SortStamps { get; set; }
+        public int SortStamps { get; set; }
         public string SortStampsLabel { get; set; }
         public int SortSprays { get; set; }
         public string SortSpraysLabel { get; set; }
@@ -68,7 +68,6 @@ namespace WebSort.Model
         public int SecProdID { get; set; }
         public short SecSize { get; set; }
         public string ProductsLabel { get; set; }
-        public List<Stamp> SelectedStamps { get; set; }
         public bool Changed { get; set; }
         public ProductLengths ProdLen { get; set; }
         public List<Edit> EditsList { get; set; }
@@ -87,7 +86,6 @@ namespace WebSort.Model
         public static List<Sort> PopulateSortList(SqlDataReader reader)
         {
             List<Sort> SortList = new List<Sort>();
-            List<Stamp> stamps = Stamp.GetStamps();
             while (reader.Read())
             {
                 SortList.Add(new Sort
@@ -107,7 +105,9 @@ namespace WebSort.Model
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
                     Changed = false,
-                    SelectedStamps = Stamp.GetSelectedStamps(Global.GetValue<uint>(reader, "SortStamps"), stamps)
+                    SortStamps = Global.GetValue<int>(reader, "SortStamps"),
+                    SortStampsLabel = Global.GetValue<string>(reader, "SortSpraysLabel"),
+                    SortSprays = Global.GetValue<int>(reader, "SortSprays")
                 });
             }
 
