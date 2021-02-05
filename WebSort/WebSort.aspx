@@ -148,6 +148,7 @@
                                             <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
                                             <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
                                             <th scope="col" style="width: 10%" @click="Sort('BinStamps')">Stamps</th>
+                                            <th scope="col" style="width: 5%" @click="Sort('BinSprays')">Premium Stamp</th>
                                             <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                                         </tr>
                                     </thead>
@@ -238,6 +239,14 @@
                                                     <div v-else>
                                                         <label>{{ Stamps.find(e => e.ID == Row.BinStamps)?.Label }}</label>
                                                     </div>  
+                                                </td>
+                                                <td @click="EditingCell(Row, 'BinSprays')">
+                                                    <input
+                                                        v-model="Row.BinSprays"
+                                                        v-on:blur="Editing = false"
+                                                        v-on:change="Update('BinSprays', Row.BinSprays, Row);"
+                                                        type="checkbox"
+                                                        class="check">
                                                 </td>
                                                 <td @click="EditingCell(Row, 'ProductsLabel'); ">
                                                     <div>

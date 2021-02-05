@@ -61,7 +61,12 @@ namespace WebSort.Model
         public int OrderCount { get; set; }
         public int SortStamps { get; set; }
         public string SortStampsLabel { get; set; }
+
+        /// <summary>
+        /// Premium Stamp (0 - 1)
+        /// </summary>
         public bool SortSprays { get; set; }
+
         public string SortSpraysLabel { get; set; }
         public int BinID { get; set; }
         public int TrimFlag { get; set; }

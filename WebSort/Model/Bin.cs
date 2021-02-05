@@ -54,7 +54,12 @@ namespace WebSort.Model
         public bool RW { get; set; }
         public int BinStamps { get; set; }
         public string BinStampsLabel { get; set; }
-        public int BinSprays { get; set; }
+
+        /// <summary>
+        /// Premium Stamp (0 - 1)
+        /// </summary>
+        public bool BinSprays { get; set; }
+
         public string BinSpraysLabel { get; set; }
         public int BinPercent { get; set; }
         public int SortID { get; set; }
@@ -88,6 +93,7 @@ namespace WebSort.Model
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
                     BinStamps = Global.GetValue<int>(reader, "BinStamps"),
+                    BinSprays = Global.GetValue<bool>(reader, "BinSprays"),
                     Changed = false
                 });
             }
@@ -174,7 +180,7 @@ namespace WebSort.Model
                 }
                 cmd.Parameters.AddWithValue("@LengthMap", (long)map.LengthMap);
                 cmd.Parameters.AddWithValue("@BinStamps", Item.BinStamps);
-                cmd.Parameters.AddWithValue("@BinSprays", Item.BinSprays);
+                cmd.Parameters.AddWithValue("@BinSprays", Convert.ToInt32(Item.BinSprays));
                 cmd.Parameters.AddWithValue("@SortID", Item.SortID);
                 cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
                 cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);

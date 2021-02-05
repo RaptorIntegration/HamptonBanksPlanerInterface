@@ -247,7 +247,7 @@ namespace WebSort
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             List<Bin> Bins = new List<Bin>();
 
-            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinPercent, " +
+            const string sql = "SELECT [BinID], [BinLabel], [BinStatus], [BinStatusLabel], [BinSize], [BinCount], BinStamps, BinSprays, BinPercent, " +
                                "[SortID], SecProdID, SecSize, SecCount, [ProductsLabel] FROM [Bins] with(NOLOCK)";
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
@@ -457,7 +457,7 @@ namespace WebSort
                             } // End BinStatus
 
                             // General update statement
-                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus")
+                            if (Edit.EditedCol != "Products" && Edit.EditedCol != "BinStatus" && Edit.EditedCol != "BinSprays")
                             {
                                 Update = "UPDATE Bins SET " + Edit.EditedCol + "=@Value WHERE BinID=@BinID; UPDATE Bins SET BinPercent=(SELECT COALESCE(BinCount*100 / NULLIF(BinSize,0), 0) FROM Bins WHERE BinID=@BinID) WHERE BinID = @BinID";
                                 using (SqlCommand cmd = new SqlCommand(Update, con))
@@ -466,6 +466,16 @@ namespace WebSort
                                     cmd.Parameters.AddWithValue("@BinID", Item.BinID);
                                     cmd.ExecuteNonQuery();
                                 }
+                            }
+
+                            if (Edit.EditedCol == "BinSprays")
+                            {
+                                using SqlCommand cmd = new SqlCommand("UPDATE Bins SET BinSprays=@Value WHERE BinID=@BinID;", con);
+                                cmd.Parameters.AddWithValue("@Value", Convert.ToInt32(Item.BinSprays));
+                                cmd.Parameters.AddWithValue("@BinID", Item.BinID);
+                                cmd.ExecuteNonQuery();
+
+                                Edit.EditedCol = "Premium Stamp";
                             }
 
                             if (Item.BinStatus != 0 && Global.OnlineSetup) //Don't write anything to the PLC, the reset active code above will trigger the PLC to clear everything out
