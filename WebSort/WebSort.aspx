@@ -136,7 +136,7 @@
                                 <auto-complete :data="DropDown" v-model="Filter"></auto-complete>
                             </div>
                             <div class="col-12 d-flex justify-content-center">
-                                <table class="table">
+                                <table class="table" v-if="Stamps.length && Bays.length">
                                     <thead>
                                         <tr>
                                             <th scope="col" style="width: 2%;" @click="Sort('BinID')">Bay</th>
@@ -147,7 +147,7 @@
                                             <th scope="col" style="width: 2%;" @click="Sort('SortID')">Sort ID</th>
                                             <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
                                             <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
-                                            <th scope="col" style="width: 20%" @click="Sort('BinStamps')">Stamps</th>
+                                            <th scope="col" style="width: 10%" @click="Sort('BinStamps')">Stamps</th>
                                             <th scope="col" @click="Sort('ProductsLabel')">Products</th>
                                         </tr>
                                     </thead>
@@ -172,6 +172,7 @@
                                                         v-if="Editing == Row.BinID + '_BinStatus'"
                                                         v-model.number="Row.BinStatus"
                                                         v-on:change="Update('BinStatus', Row.BinStatus, Row);"
+                                                        v-on:blur="Editing = false"
                                                         v-on:focus="Prev(Row, 'BinStatus')">
                                                         <option v-for="(status, index) in StatusList" v-bind:value="index">{{ status }}</option>
                                                     </select>
@@ -225,17 +226,18 @@
                                                     </div>
                                                 </td>
                                                  <td @click="EditingCell(Row, 'BinStamps')">
-                                                    <div class="stamp-container">
-                                                        <div v-for="stamp in Row.SelectedStamps" class="stamp-inner-container">
-                                                            <input
-                                                                v-bind:id="'stamp-' + Row.SortID + '-' + stamp.ID"
-                                                                v-on:change="Update('BinStamps', stamp.Selected, Row);"
-                                                                v-model="stamp.Selected"
-                                                                type="checkbox"
-                                                                class="check">
-                                                            <label v-bind:for="'stamp-' + Row.SortID + '-' + stamp.ID">{{stamp.Description}}</label>
-                                                        </div>
-                                                    </div>
+                                                    <select 
+										                v-on:focus="Prev(Row, 'BinStamps')"
+                                                        v-if="Editing == Row.BinID + '_BinStamps'"
+                                                        v-on:change="UpdateGradeMatrix('BinStamps', Row.BinStamps, Row)"
+                                                        v-on:blur="Editing = false"
+                                                        v-model="Row.BinStamps" 
+                                                        class="form-control">
+                                                        <option v-for="s in Stamps" v-bind:value="s.ID">{{ s.Label }}</option>
+                                                    </select>
+                                                    <div v-else>
+                                                        <label>{{ Stamps.find(e => e.ID == Row.BinStamps)?.Label }}</label>
+                                                    </div>  
                                                 </td>
                                                 <td @click="EditingCell(Row, 'ProductsLabel'); ">
                                                     <div>
