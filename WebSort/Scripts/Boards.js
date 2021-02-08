@@ -67,12 +67,12 @@ const v = new Vue({
     mounted() {
         this.GetBoards()
         this.GetRejects()
-        this.GetProdStats()
-        this.InitCharts()
-        this.GetCharts()
+        setTimeout(() => this.GetProdStats(), 50)
+        setTimeout(() => this.InitCharts(), 500)
+        setTimeout(() => this.GetCharts(), 500)
 
         this.SetBoardsInterval()
-        this.SetProdInterval()
+        setTimeout(() => this.SetProdInterval(), 500)
         this.ChartInterval = setInterval(this.GetCharts, (60 * 1000));
     },
     computed: {
@@ -322,7 +322,7 @@ const v = new Vue({
         },
 
         SetBoardsInterval() {
-            this.BoardsInterval = setInterval(this.GetBoards, (2 * 1000));
+            this.BoardsInterval = setInterval(this.GetBoards, (1000));
         },
         SetProdInterval() {
             this.ProdInterval = setInterval(this.GetProdStats, (2 * 1000));

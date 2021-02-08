@@ -410,26 +410,22 @@ namespace WebSort
                     {
                         while (reader.Read())
                         {
-                            using (SqlCommand cmdInner = new SqlCommand(Grade.DataRequestsGradeSql, con))
-                            {
-                                cmdInner.Parameters.AddWithValue("@GradeID", Global.GetValue<int>(reader, "plcgradeID"));
-                                cmdInner.Parameters.AddWithValue("@GradeIDX", Global.GetValue<int>(reader, "websortgradeID"));
-                                cmdInner.Parameters.AddWithValue("@GradeStamps", 0);
-                                cmdInner.Parameters.AddWithValue("@Write", 1);
-                                cmdInner.Parameters.AddWithValue("@Processed", 0);
+                            using SqlCommand cmdInner = new SqlCommand(Grade.DataRequestsGradeSql, con);
+                            cmdInner.Parameters.AddWithValue("@GradeID", Global.GetValue<int>(reader, "plcgradeID"));
+                            cmdInner.Parameters.AddWithValue("@GradeIDX", Global.GetValue<int>(reader, "websortgradeID"));
+                            cmdInner.Parameters.AddWithValue("@GradeStamps", Global.GetValue<int>(reader, "GradeStamps"));
+                            cmdInner.Parameters.AddWithValue("@Write", 1);
+                            cmdInner.Parameters.AddWithValue("@Processed", 0);
 
-                                using (SqlDataReader readerInner = cmdInner.ExecuteReader())
+                            using SqlDataReader readerInner = cmdInner.ExecuteReader();
+                            if (readerInner.HasRows)
+                            {
+                                while (readerInner.Read())
                                 {
-                                    if (readerInner.HasRows)
+                                    if (!Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(readerInner, "id")))
                                     {
-                                        while (readerInner.Read())
-                                        {
-                                            if (!Raptor.MessageAckConfirm("datarequestsgrade", Global.GetValue<int>(readerInner, "id")))
-                                            {
-                                                response.Bad("PLC Timeout");
-                                                return SaveResponse.Serialize(response);
-                                            }
-                                        }
+                                        response.Bad("PLC Timeout");
+                                        return SaveResponse.Serialize(response);
                                     }
                                 }
                             }

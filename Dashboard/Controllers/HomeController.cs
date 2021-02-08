@@ -1,11 +1,13 @@
-﻿using DashboardCore.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
+
+using DashboardCore.Models;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DashboardCore.Controllers
 {
@@ -267,7 +269,17 @@ namespace DashboardCore.Controllers
                         }
                     }
 
-                    using (SqlCommand cmd = new SqlCommand("SELECT distinct Products.ProdLabel, Total FROM (SELECT ProdID, SUM(BoardCount) as Total FROM ProductionBoards WHERE Sorted = 1 GROUP BY ProdID) a, Products WITH(NOLOCK) WHERE Products.ProdID = a.ProdID ORDER BY Total DESC", con))
+                    const string sql = @"
+                        SELECT distinct Products.ProdLabel + ' ' + Grades.GradeLabel, Total
+                        FROM (SELECT ProdID, SUM(BoardCount) as Total
+                            FROM ProductionBoards
+                            WHERE Sorted = 1
+                            GROUP BY ProdID) a, Products, Grades WITH(NOLOCK)
+                        WHERE Products.ProdID = a.ProdID
+                        and Grades.GradeID = Products.GradeID
+                        ORDER BY Total DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, con))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
