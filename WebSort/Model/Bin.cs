@@ -170,7 +170,7 @@ namespace WebSort.Model
             {
                 cmd.Parameters.AddWithValue("@BinID", Item.BinID);
                 cmd.Parameters.AddWithValue("@BinLabel", Item.BinLabel);
-                cmd.Parameters.AddWithValue("@BinStatus", Item.BinStatus);
+                cmd.Parameters.AddWithValue("@BinStatus", 2);
                 cmd.Parameters.AddWithValue("@BinSize", Item.BinSize);
                 cmd.Parameters.AddWithValue("@BinCount", Item.BinCount);
                 for (int i = 0; i < ProductMapCount; i++)
