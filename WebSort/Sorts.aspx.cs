@@ -339,7 +339,11 @@ namespace WebSort
                             {
                                 while (ReaderBins.Read())
                                 {
-                                    Bin bin = new Bin(ReaderBins);
+                                    Bin bin = new Bin(ReaderBins)
+                                    {
+                                        BinStatus = 2,
+                                        BinStampsLabel = "Full"
+                                    };
 
                                     Map map = new Map();
                                     try
