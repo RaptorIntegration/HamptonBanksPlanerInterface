@@ -348,7 +348,7 @@ namespace WebSort
                                     Map map = new Map();
                                     try
                                     {
-                                        Map.GetProductLengthMapDBBin(con, map, bin.BinID);
+                                        Map.GetProductLengthMapDBBin(con, map, bin);
                                     }
                                     catch (Exception ex)
                                     {
@@ -387,8 +387,7 @@ namespace WebSort
 
                             try
                             {
-                                Map.GetProductLengthMapDBSort(con, map, sort.SortID, recipe.RecipeID);
-                                Map.SetSecProdID(sort, map);
+                                Map.GetProductLengthMapDBSort(con, map, sort, recipe.RecipeID);
                             }
                             catch (Exception ex)
                             {
@@ -625,7 +624,6 @@ namespace WebSort
                         {
                             // Only Selected Products and Lengths
                             Map.GetSelectedProductMapSort(Item, map);
-                            Map.SetSecProdID(Item, map);
 
                             // Product Map Old
                             Map.GetProductMapOldSort(con, Item, map, EditingRecipe.RecipeID);
@@ -633,7 +631,6 @@ namespace WebSort
                         else // No products changed, ProductMap = ProductMapOld
                         {
                             Map.GetDBProductMapSort(con, Item, map, EditingRecipe.RecipeID);
-                            Map.SetSecProdID(Item, map);
                         }
 
                         foreach (Edit Edit in Item.EditsList)
