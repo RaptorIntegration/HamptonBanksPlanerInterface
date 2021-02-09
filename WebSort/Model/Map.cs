@@ -47,9 +47,9 @@ namespace WebSort.Model
             return map;
         }
 
-        public static void SetProductMap(Map map, SqlDataReader ReaderProducts)
+        public static void SetProductMap(Map map, SqlDataReader ReaderProducts, string Col)
         {
-            int ProdID = Global.GetValue<int>(ReaderProducts, "ProdID");
+            int ProdID = Global.GetValue<int>(ReaderProducts, Col);
 
             map.ProductMap[ProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(ProdID.ToString()) - (32 * (ProdID / 32))));
         }
@@ -78,7 +78,7 @@ namespace WebSort.Model
                     {
                         try
                         {
-                            Map.SetProductMap(map, ReaderBinProducts);
+                            Map.SetProductMap(map, ReaderBinProducts, "ProdID");
                         }
                         catch (Exception ex)
                         {
@@ -236,7 +236,7 @@ namespace WebSort.Model
                     {
                         try
                         {
-                            SetProductMap(map, readerSortProducts);
+                            SetProductMap(map, readerSortProducts, "ProdID");
                         }
                         catch (Exception ex)
                         {
@@ -382,6 +382,7 @@ namespace WebSort.Model
                     {
                         map.ProductMapOld[P.ID / 32] |= CalcMap(P.ID);
                     }
+                    SetSecProdIDDataBase(con, Item.SortID, map, RecipeID);
                 }
                 catch (Exception ex)
                 {
@@ -389,6 +390,32 @@ namespace WebSort.Model
                     throw;
                 }
             }
+        }
+
+        public static void SetSecProdIDDataBase(SqlConnection con, int SortID, Map map, int RecipeID)
+        {
+            using SqlCommand cmd = new SqlCommand($"select SecProdID from Sorts where sortID = {SortID} and recipeid= {RecipeID}", con);
+            using SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    try
+                    {
+                        SetProductMap(map, reader, "SecProdID");
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public static void SetSecProdID(Sort Item, Map map)
+        {
+            map.ProductMap[Item.SecProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(Item.SecProdID.ToString()) - (32 * (Item.SecProdID / 32))));
         }
 
         #endregion Sort

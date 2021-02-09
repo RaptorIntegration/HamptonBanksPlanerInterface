@@ -270,7 +270,7 @@ namespace DashboardCore.Controllers
                     }
 
                     const string sql = @"
-                        SELECT distinct Products.ProdLabel + ' ' + Grades.GradeLabel, Total
+                        SELECT distinct Products.ProdLabel + ' ' + Grades.GradeLabel As 'Label', Total
                         FROM (SELECT ProdID, SUM(BoardCount) as Total
                             FROM ProductionBoards
                             WHERE Sorted = 1
@@ -290,7 +290,7 @@ namespace DashboardCore.Controllers
                                 float percent = (total == 0 || PieceCount == 0) ? (float)0 : ((float)total / (float)PieceCount);
                                 mix.Add(new ProductMix
                                 {
-                                    Label = GetValue<string>(reader, "ProdLabel"),
+                                    Label = GetValue<string>(reader, "Label"),
                                     Percent = percent
                                 });
                             }
