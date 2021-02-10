@@ -520,6 +520,17 @@ const v = new Vue({
         Update: function (EditedCol, EditedVal, ChangedRow) {
             let v = this;
 
+            if (EditedCol.includes('Zone')) {
+                if (!window.confirm(`Do you really want to change the zoning for ${ChangedRow.SortLabel}?`)) {
+                    this.Table.Editing = false
+                    ChangedRow[EditedCol] = this.Table.Previous
+                    if (!this.Table.Edited) {
+                        this.SetAutoUpdate();
+                    }
+                    return
+                }
+            }
+
             ChangedRow.Changed = true;
             if (ChangedRow.Changed && ChangedRow.EditsList.some(e => e.EditedCol === EditedCol)) {
                 ChangedRow.EditsList.find(e => e.EditedCol === EditedCol).EditedVal = EditedVal;

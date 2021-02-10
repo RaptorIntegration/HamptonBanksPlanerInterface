@@ -7,7 +7,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     <div id="vue-wrapper">
-        <div id="vue-content" class="content" @keyup.enter="Editing=false" tabindex="0">
+        <div id="vue-content" class="content" @keyup.enter="Table.Editing=false" tabindex="0">
             <transition name="fade">
                 <div class="toast" v-bind:class="ToastClass" v-if="Toast.Message">{{ Toast.Message }}</div>
             </transition>
