@@ -88,6 +88,7 @@
                         <span class="link-text">Audit</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a href="devicediagnostics.aspx" class="nav-link">
                         <span class="link-text">Diagnostic Tests</span>
@@ -96,6 +97,11 @@
                 <li class="nav-item">
                     <a href="devicemodes.aspx" class="nav-link">
                         <span class="link-text">Diagnostic Modes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="GraderBoardTest.aspx" class="nav-link">
+                        <span class="link-text">Grader Test</span>
                     </a>
                 </li>
                 <li class="nav-item">

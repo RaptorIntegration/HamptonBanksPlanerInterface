@@ -1,49 +1,47 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
 {
-    public partial class GraderBoardTest : BasePage
+    public partial class GraderBoardTest : System.Web.UI.Page
     {
         private static User CurrentUser;
 
+        protected void Page_PreLoad(object sender, EventArgs e)
+        {
+            if (IsPostBack) { return; }
+            try
+            {
+                CurrentUser = Global.GetSecurity("Grader Board Test", User.Identity.Name);
+
+                Label LabelScreenStatus = (Label)Master.FindControl("LabelScreenStatus");
+                if (CurrentUser.Access == 0)
+                    LabelScreenStatus.Text = "READ ONLY";
+                else if (CurrentUser.Access == 1)
+                    LabelScreenStatus.Text = "";
+                else if (CurrentUser.Access == 2)
+                {
+                    LabelScreenStatus.Text = "ACCESS DENIED";
+                    Response.Redirect("websort.aspx");
+                }
+                ButtonTest.Enabled = CurrentUser.Access == 1;
+                ButtonTest.Enabled = Global.OnlineSetup;
+            }
+            catch { Response.Redirect("boards.aspx"); }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            CurrentUser = Global.GetSecurity("Grader Board Test", User.Identity.Name);
-            
-            Label LabelScreenStatus = (Label)Master.FindControl("LabelScreenStatus");
-            if (CurrentUser.Access == 0)
-                LabelScreenStatus.Text = "READ ONLY";
-            else if (CurrentUser.Access == 1)
-                LabelScreenStatus.Text = "";
-            else if (CurrentUser.Access == 2)
-            {
-                LabelScreenStatus.Text = "ACCESS DENIED";
-                Response.Redirect("websort.aspx");
-            }
-            if (CurrentUser.Access != 1)
-            {
-                ButtonTest.Enabled = false;
-            }
-            else
-            {
-                ButtonTest.Enabled = true;
-            }
-            if ((int)Session["OnlineSetup"] != 1)
-                ButtonTest.Enabled = false;
-
             if (IsPostBack)
                 return;
 
             TextBoxSampleSize.Attributes.Add("onkeydown", "if(event.keyCode==13)return false;");
             TextBoxInterval.Attributes.Add("onkeydown", "if(event.keyCode==13)return false;");
 
-            Raptor cs1 = new Raptor();
-            string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(connectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
             SqlCommand cmd = new SqlCommand("select * from gradertest", connection);
@@ -78,21 +76,41 @@ namespace WebSort
             //decode Grader, Grade and Length Maps
             CheckBoxList1.DataBind();
             CheckBoxList2.DataBind();
-            int GraderMap, GradeMap;
-            //int LengthMap=0;
+            CheckBoxList3.DataBind();
+            CheckBoxListWidth.DataBind();
+            RadioButtonListThickness.DataBind();
+            int GraderMap, GradeMap, ThicknessMap, WidthMap;
+            int LengthMap = 0;
             GraderMap = int.Parse(reader["Graders"].ToString());
-            foreach (ListItem oItem in CheckBoxList1.Items)
+            LengthMap = int.Parse(reader["Lengths"].ToString());
+            ThicknessMap = int.Parse(reader["Thickness"].ToString());
+            WidthMap = int.Parse(reader["Width"].ToString());
+            foreach (ListItem oItem in RadioButtonListThickness.Items)
             {
-                if (oItem.Value != "0")
-                    if ((GraderMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (ThicknessMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
+            }
+            foreach (ListItem oItem in CheckBoxListWidth.Items)
+            {
+                if (oItem.Value != "0" && (WidthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             bool All = true;
+            foreach (ListItem oItem in CheckBoxListWidth.Items)
+            {
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
+            }
             foreach (ListItem oItem in CheckBoxList1.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && (GraderMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
+            }
+            All = true;
+            foreach (ListItem oItem in CheckBoxList1.Items)
+            {
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             if (All)
             {
@@ -104,16 +122,14 @@ namespace WebSort
             GradeMap = int.Parse(reader["Grades"].ToString());
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
-                if (oItem.Value != "0")
-                    if ((GradeMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (GradeMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             All = true;
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             if (All)
             {
@@ -121,9 +137,30 @@ namespace WebSort
                     oItem.Selected = false;
                 CheckBoxList2.Items[0].Selected = true;
             }
+            LengthMap = int.Parse(reader["Lengths"].ToString());
+            foreach (ListItem oItem in CheckBoxList3.Items)
+            {
+                if (oItem.Value != "0" && (LengthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
+            }
+            All = true;
+            foreach (ListItem oItem in CheckBoxList3.Items)
+            {
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
+            }
+            if (All)
+            {
+                foreach (ListItem oItem in CheckBoxList3.Items)
+                    oItem.Selected = false;
+                CheckBoxList3.Items[0].Selected = true;
+            }
+            if (ButtonTest.Text == "Cancel Test")
+                Timer3.Enabled = true;
 
             UpdatePanel3.Update();
             UpdatePanel4.Update();
+            UpdatePanel5.Update();
             reader.Close();
 
             connection.Close();
@@ -139,29 +176,45 @@ namespace WebSort
 
         protected void ButtonTest_Click(object sender, EventArgs e)
         {
-            int GraderMap = 0, GradeMap = 0, LengthMap = 0;
+            int GraderMap = 0, GradeMap = 0, LengthMap = 0, ThicknessMap = 0, WidthMap = 0, GraderMaptemp = 0;
 
             Timer3.Enabled = false;
-            Raptor cs1 = new Raptor();
-            string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(connectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
 
-            foreach (ListItem oItem in CheckBoxList1.Items)
+            foreach (ListItem oItem in RadioButtonListThickness.Items)
+            {
+                if (oItem.Selected)
+                    ThicknessMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
+            }
+            foreach (ListItem oItem in CheckBoxListWidth.Items)
             {
                 if (oItem.Value == "0" && oItem.Selected)  //ALL
                 {
-                    GraderMap = -1;  //bits 1-31 turned on
+                    WidthMap = -1;  //bits 1-31 turned on
                     break;
                 }
                 else
                 {
                     if (oItem.Selected)
-                        GraderMap = GraderMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        WidthMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
+            foreach (ListItem oItem in CheckBoxList1.Items)
+            {
+                if (oItem.Value == "0" && oItem.Selected)  //ALL
+                {
+                    GraderMap = 2147483647;  //bits 1-30 turned on
+                    break;
+                }
+                else
+                {
+                    if (oItem.Selected)
+                        GraderMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
+                }
+            }
+            GraderMaptemp = GraderMap;
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
                 if (oItem.Value == "0" && oItem.Selected)  //ALL
@@ -172,23 +225,37 @@ namespace WebSort
                 else
                 {
                     if (oItem.Selected)
-                        GradeMap = GradeMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        GradeMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
-            LengthMap = -1;
+            foreach (ListItem oItem in CheckBoxList3.Items)
+            {
+                if (oItem.Value == "0" && oItem.Selected)  //ALL
+                {
+                    LengthMap = -1;  //bits 0-31 turned on
+                    break;
+                }
+                else
+                {
+                    if (oItem.Selected)
+                        LengthMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
+                }
+            }
 
-            SqlCommand cmdgt = new SqlCommand("update gradertest set Graders=" + GraderMap + ",grades=" + GradeMap + ",lengths=" + LengthMap + ",SampleSize=" + TextBoxSampleSize.Text + ",SamplesRemaining=" + TextBoxSampleSize.Text + ",Bayid=" + DropDownListBay.Text + ",interval=" + TextBoxInterval.Text + ",stamp='" + CheckBoxStamp.Checked.ToString() + "',trim='" + CheckBoxTrim.Checked.ToString() + "'", connection);
+            SqlCommand cmdgt = new SqlCommand("update gradertest set Width=" + WidthMap + ",Thickness=" + ThicknessMap + ",Graders=" + GraderMaptemp + ",grades=" + GradeMap + ",lengths=" + LengthMap + ",SampleSize=" + TextBoxSampleSize.Text + ",SamplesRemaining=" + TextBoxSampleSize.Text + ",Bayid=" + DropDownListBay.Text + ",interval=" + TextBoxInterval.Text + ",stamp='" + CheckBoxStamp.Checked.ToString() + "',trim='" + CheckBoxTrim.Checked.ToString() + "'", connection);
             cmdgt.ExecuteNonQuery();
+            SqlCommand cmd00 = new SqlCommand("update BoardsSavedDetails set folder=(select 'TEST BOARDS ' + DATEname(yy,GETDATE()) + '.' + convert(varchar,DATEpart(mm,GETDATE())) + '.' + DATEname(dd,GETDATE()) + ' ' + DATEname(hh,GETDATE()) + '.' + DATEname(mi,GETDATE()) + '.' + DATEname(ss,GETDATE()) + ' (' + CONVERT(varchar,samplesize) + ' boards)' from GraderTest)", connection);
+            cmd00.ExecuteNonQuery();
 
             //send to PLC
-            if ((int)Session["OnlineSetup"] == 1)
+            if (Global.OnlineSetup)
             {
                 bool TestActive = false;
 
                 if (ButtonTest.Text == "Begin Test")
                     TestActive = true;
 
-                if (TestActive == true)
+                if (TestActive)
                 {
                     //check to see if bin is spare
                     if (DropDownListBay.Text == "0")
@@ -198,10 +265,12 @@ namespace WebSort
                         Timer3.Enabled = true;
                         return;
                     }
+                    SqlCommand cmdaa = new SqlCommand("update websortsetup set gradertestnumber=gradertestnumber+1", connection);
+                    cmdaa.ExecuteNonQuery();
                     SqlCommand cmdt = new SqlCommand("select binstatus from bins where binid=" + DropDownListBay.Text, connection);
                     SqlDataReader readert = cmdt.ExecuteReader();
                     readert.Read();
-                    if (readert["binstatus"].ToString() != "0")
+                    if (readert["binstatus"].ToString() != "5" && readert["binstatus"].ToString() != "0")
                     {
                         LabelBayError.Visible = true;
                         LabelBayError0.Visible = false;
@@ -214,7 +283,7 @@ namespace WebSort
                     SqlCommand cmd110 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 1", connection);
                     cmd110.ExecuteNonQuery();
                     //disable the bin and send details to PLC
-                    string sqltext = "insert into datarequestsbin select getdate()," + DropDownListBay.Text + ",'Grader Test',3," + TextBoxSampleSize.Text + ",0,0,0,0,0,0,0,0,0,0,0,'" + CheckBoxTrim.Checked.ToString() + "',0,0,1,0 select id=(select max(id) from datarequestsbin with(NOLOCK))";
+                    string sqltext = "insert into datarequestsbin select getdate()," + DropDownListBay.Text + ",'Grader Test',3," + TextBoxSampleSize.Text + ",0,   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   ,0,0,0,'" + CheckBoxTrim.Checked.ToString() + "',0,0,1,0 select id=(select max(id) from datarequestsbin with(NOLOCK))";
                     SqlCommand cmd = new SqlCommand(sqltext, connection);
                     SqlDataReader reader = cmd.ExecuteReader();
                     reader.Read();
@@ -238,7 +307,7 @@ namespace WebSort
 
                 SqlCommand cmd0 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4096", connection);
                 cmd0.ExecuteNonQuery();
-                SqlCommand cmd111 = new SqlCommand("insert into datarequestsgradertest select getdate()," + GraderMap + "," + GradeMap + "," + LengthMap + "," + TextBoxSampleSize.Text + "," + TextBoxSampleSize.Text + "," + DropDownListBay.Text + "," + TextBoxInterval.Text + ",'" + TestActive.ToString() + "','" + CheckBoxStamp.Checked.ToString() + "','" + CheckBoxTrim.Checked.ToString() + "',1,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
+                SqlCommand cmd111 = new SqlCommand("insert into datarequestsgradertest select getdate()," + GraderMap + "," + GradeMap + "," + LengthMap + "," + ThicknessMap + "," + WidthMap + "," + TextBoxSampleSize.Text + "," + TextBoxSampleSize.Text + "," + DropDownListBay.Text + "," + TextBoxInterval.Text + ",'" + TestActive.ToString() + "','" + CheckBoxStamp.Checked.ToString() + "','" + CheckBoxTrim.Checked.ToString() + "',1,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
                 SqlDataReader reader111 = cmd111.ExecuteReader();
                 reader111.Read();
                 //make sure message is processed
@@ -252,7 +321,7 @@ namespace WebSort
                     Timer3.Enabled = true;
                     return;
                 }
-                SqlCommand cmd1 = new SqlCommand("insert into datarequestsgradertest select getdate(),0,0,0,0,0,0,0,0,0,0,0,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
+                SqlCommand cmd1 = new SqlCommand("insert into datarequestsgradertest select getdate(),0,0,0,0,0,0,0,0,0,0,0,0,0,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
                 SqlDataReader reader1 = cmd1.ExecuteReader();
                 reader1.Read();
                 //make sure message is processed
@@ -288,10 +357,7 @@ namespace WebSort
         {
             //if (LabelStatus.Text == "Begin Test")
             // return;
-            Raptor cs1 = new Raptor();
-            string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(connectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
             SqlCommand cmd = new SqlCommand("select * from gradertest", connection);
@@ -321,20 +387,17 @@ namespace WebSort
 
         protected void Timer2_Tick(object sender, EventArgs e)
         {
-            if (LabelStatus.Visible == false)
+            if (!LabelStatus.Visible)
                 return;
-            if ((int)Session["OnlineSetup"] == 1)
+            if (Global.OnlineSetup)
             {
-                Raptor cs1 = new Raptor();
-                string connectionString = Global.ConnectionString;
-                System.Data.SqlClient.SqlConnection connection;
-                connection = new SqlConnection(connectionString);
+                SqlConnection connection = new SqlConnection(Global.ConnectionString);
                 // Open the connection.
                 connection.Open();
                 LabelPLCTimeout.Visible = false;
                 SqlCommand cmd0 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4096", connection);
                 cmd0.ExecuteNonQuery();
-                SqlCommand cmd = new SqlCommand("insert into datarequestsgradertest select getdate(),0,0,0,0,0,0,0,0,0,0,0,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
+                SqlCommand cmd = new SqlCommand("insert into datarequestsgradertest select getdate(),0,0,0,0,0,0,0,0,0,0,0,0,0,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
                 SqlDataReader reader = cmd.ExecuteReader();
                 reader.Read();
                 //make sure message is processed

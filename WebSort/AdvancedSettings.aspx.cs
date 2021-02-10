@@ -57,7 +57,7 @@ namespace WebSort
             }
 
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             // Open the connection.
             connection.Open();
@@ -104,12 +104,10 @@ namespace WebSort
 
         protected void RadioButtonOnline_CheckedChanged(object sender, EventArgs e)
         {
-            Raptor cs1 = new Raptor();
-            string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(connectionString);
+            Global.OnlineSetup = RadioButtonOnline.Checked;
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             connection.Open();
-            if (RadioButtonOnline.Checked == true)
+            if (RadioButtonOnline.Checked)
             {
                 Session["OnlineSetup"] = 1;
             }
@@ -119,11 +117,12 @@ namespace WebSort
             }
             SqlCommand cmd = new SqlCommand("update WEBSortSetup set OnlineSetup=" + Session["OnlineSetup"].ToString(), connection);
             cmd.ExecuteNonQuery();
-            connection.Close(); ;
+            connection.Close();
         }
 
         protected void RadioButtonOffline_CheckedChanged(object sender, EventArgs e)
         {
+            Global.OnlineSetup = !RadioButtonOffline.Checked;
             if (RadioButtonOffline.Checked == true)
             {
                 Session["OnlineSetup"] = 0;
@@ -134,7 +133,7 @@ namespace WebSort
             }
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             SqlCommand cmd = new SqlCommand("update WEBSortSetup set OnlineSetup=" + Session["OnlineSetup"].ToString(), connection);
@@ -148,7 +147,7 @@ namespace WebSort
             int StampsPLC, SpraysPLC;
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             LabelTimeout.Visible = false;
@@ -346,7 +345,7 @@ namespace WebSort
             using SqlConnection con = new SqlConnection(Global.ConnectionString);
             con.Open();
 
-            using (SqlCommand cmd = new SqlCommand("SELECT NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts FROM WEBSortSetup",con))
+            using (SqlCommand cmd = new SqlCommand("SELECT NumThicks, NumWidths, NumLengths, NumPETLengths, NumProducts FROM WEBSortSetup", con))
             using (SqlDataReader reader = cmd.ExecuteReader())
             {
                 try
@@ -431,7 +430,7 @@ namespace WebSort
                 }
                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-32 where (datarequests & 32)=32", con))
                     cmd.ExecuteNonQuery();
-                
+
                 // Lengths
                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 64", con))
                     cmd.ExecuteNonQuery();
@@ -538,7 +537,7 @@ namespace WebSort
         {
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             LabelTimeout.Visible = false;
@@ -614,7 +613,7 @@ namespace WebSort
             //filename = "c:\\raptorwebsort\\RaptorWebSortBackup " + System.DateTime.Now.Year + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Day + " " + System.DateTime.Now..Hour + "-" + System.DateTime.Now.Minute + "-" + System.DateTime.Now.Second + ".bak";
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             try
@@ -657,7 +656,7 @@ namespace WebSort
 
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             LabelTimeout.Visible = false;
@@ -731,7 +730,7 @@ namespace WebSort
         {
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             // Open the connection.
             connection.Open();
@@ -776,7 +775,7 @@ namespace WebSort
             string sqltext;
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             LabelTimeout1.Visible = false;
@@ -859,7 +858,7 @@ namespace WebSort
             LabelTimeout1.Visible = false;
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             SqlCommand cmd0 = new SqlCommand("select * from WEBSortSetup", connection);
@@ -1027,7 +1026,7 @@ namespace WebSort
         {
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             connection.Open();
             LabelTimeout1.Visible = false;
@@ -1061,7 +1060,7 @@ namespace WebSort
         {
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             // Open the connection.
             connection.Open();
@@ -1095,7 +1094,7 @@ namespace WebSort
         {
             Raptor cs1 = new Raptor();
             string connectionString = Global.ConnectionString;
-            System.Data.SqlClient.SqlConnection connection;
+            SqlConnection connection;
             connection = new SqlConnection(connectionString);
             // Open the connection.
             connection.Open();

@@ -218,6 +218,13 @@ const v = new Vue({
                 'toast-success': this.Toast.Success,
                 'toast-error': !this.Toast.Success
             }
+        },
+        CN2: function () {
+            if (this.Table.Sorts.length) {
+                return [...Array(this.Table.Sorts.length).keys()]
+            } else {
+                return [0]
+            }
         }
     },
     methods: {
@@ -512,6 +519,17 @@ const v = new Vue({
         },
         Update: function (EditedCol, EditedVal, ChangedRow) {
             let v = this;
+
+            if (EditedCol.includes('Zone')) {
+                if (!window.confirm(`Do you really want to change the zoning for ${ChangedRow.SortLabel}?`)) {
+                    this.Table.Editing = false
+                    ChangedRow[EditedCol] = this.Table.Previous
+                    if (!this.Table.Edited) {
+                        this.SetAutoUpdate();
+                    }
+                    return
+                }
+            }
 
             ChangedRow.Changed = true;
             if (ChangedRow.Changed && ChangedRow.EditsList.some(e => e.EditedCol === EditedCol)) {

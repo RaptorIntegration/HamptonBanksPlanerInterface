@@ -92,6 +92,7 @@ namespace WebSort.Model
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
+                    SecCount = Global.GetValue<short>(reader, "SecCount"),
                     BinStamps = Global.GetValue<int>(reader, "BinStamps"),
                     BinSprays = Global.GetValue<bool>(reader, "BinSprays"),
                     Changed = false
@@ -170,7 +171,7 @@ namespace WebSort.Model
             {
                 cmd.Parameters.AddWithValue("@BinID", Item.BinID);
                 cmd.Parameters.AddWithValue("@BinLabel", Item.BinLabel);
-                cmd.Parameters.AddWithValue("@BinStatus", 2);
+                cmd.Parameters.AddWithValue("@BinStatus", Item.BinStatus);
                 cmd.Parameters.AddWithValue("@BinSize", Item.BinSize);
                 cmd.Parameters.AddWithValue("@BinCount", Item.BinCount);
                 for (int i = 0; i < ProductMapCount; i++)
@@ -183,7 +184,7 @@ namespace WebSort.Model
                 cmd.Parameters.AddWithValue("@BinSprays", Convert.ToInt32(Item.BinSprays));
                 cmd.Parameters.AddWithValue("@SortID", Item.SortID);
                 cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
-                cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
+                cmd.Parameters.AddWithValue("@SecSize", (Item.SecSize * Item.BinSize) / 100);
                 cmd.Parameters.AddWithValue("@SecCount", Item.SecCount);
                 cmd.Parameters.AddWithValue("@TrimFlag", Item.TrimFlag);
                 cmd.Parameters.AddWithValue("@RW", 0);

@@ -68,7 +68,12 @@ namespace WebSort.Model
         public bool SortSprays { get; set; }
 
         public string SortSpraysLabel { get; set; }
+
+        /// <summary>
+        /// CN2 Override
+        /// </summary>
         public int BinID { get; set; }
+
         public int TrimFlag { get; set; }
         public int SecProdID { get; set; }
         public short SecSize { get; set; }
@@ -106,6 +111,7 @@ namespace WebSort.Model
                     PkgsPerSort = Global.GetValue<int>(reader, "PkgsPerSort"),
                     RW = Global.GetValue<bool>(reader, "RW"),
                     OrderCount = Global.GetValue<int>(reader, "OrderCount"),
+                    BinID = Global.GetValue<int>(reader, "BinID"),
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),

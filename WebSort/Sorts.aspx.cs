@@ -339,12 +339,16 @@ namespace WebSort
                             {
                                 while (ReaderBins.Read())
                                 {
-                                    Bin bin = new Bin(ReaderBins);
+                                    Bin bin = new Bin(ReaderBins)
+                                    {
+                                        BinStatus = 2,
+                                        BinStampsLabel = "Full"
+                                    };
 
                                     Map map = new Map();
                                     try
                                     {
-                                        Map.GetProductLengthMapDBBin(con, map, bin.BinID);
+                                        Map.GetProductLengthMapDBBin(con, map, bin);
                                     }
                                     catch (Exception ex)
                                     {
@@ -383,7 +387,7 @@ namespace WebSort
 
                             try
                             {
-                                Map.GetProductLengthMapDBSort(con, map, sort.SortID, recipe.RecipeID);
+                                Map.GetProductLengthMapDBSort(con, map, sort, recipe.RecipeID);
                             }
                             catch (Exception ex)
                             {
@@ -600,7 +604,6 @@ namespace WebSort
                 return SaveResponse.Serialize(response);
             }
 
-            uint OldStamps = 0;
             string Update;
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
@@ -725,6 +728,15 @@ namespace WebSort
 
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
+
+                            if (Edit.EditedCol == "BinID")
+                            {
+                                //send Cut In Two Overrides to PLC
+                                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
+                                    cmd.ExecuteNonQuery();
+
+                                Edit.EditedCol = "CN2 Override";
+                            }
 
                             UpdateSortProductsGUI(con, Item, EditingRecipe.RecipeID);
 

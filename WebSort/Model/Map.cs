@@ -47,9 +47,9 @@ namespace WebSort.Model
             return map;
         }
 
-        public static void SetProductMap(Map map, SqlDataReader ReaderProducts)
+        public static void SetProductMap(Map map, SqlDataReader ReaderProducts, string Col)
         {
-            int ProdID = Global.GetValue<int>(ReaderProducts, "ProdID");
+            int ProdID = Global.GetValue<int>(ReaderProducts, Col);
 
             map.ProductMap[ProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(ProdID.ToString()) - (32 * (ProdID / 32))));
         }
@@ -67,9 +67,9 @@ namespace WebSort.Model
 
         #region Bin
 
-        public static void GetProductLengthMapDBBin(SqlConnection con, Map map, int BinID)
+        public static void GetProductLengthMapDBBin(SqlConnection con, Map map, Bin bin)
         {
-            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binproducts where binID = {BinID}", con))
+            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from binproducts where binID = {bin.BinID}", con))
             using (SqlDataReader ReaderBinProducts = cmdInner.ExecuteReader())
             {
                 if (ReaderBinProducts.HasRows)
@@ -78,7 +78,7 @@ namespace WebSort.Model
                     {
                         try
                         {
-                            Map.SetProductMap(map, ReaderBinProducts);
+                            SetProductMap(map, ReaderBinProducts, "ProdID");
                         }
                         catch (Exception ex)
                         {
@@ -89,7 +89,7 @@ namespace WebSort.Model
                 }
             }
 
-            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from binlengths where binID = {BinID}", con))
+            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from binlengths where binID = {bin.BinID}", con))
             using (SqlDataReader ReaderBinLengths = cmdInner.ExecuteReader())
             {
                 if (ReaderBinLengths.HasRows)
@@ -98,7 +98,7 @@ namespace WebSort.Model
                     {
                         try
                         {
-                            Map.SetLengthMap(map, ReaderBinLengths);
+                            SetLengthMap(map, ReaderBinLengths);
                         }
                         catch (Exception ex)
                         {
@@ -108,6 +108,8 @@ namespace WebSort.Model
                     }
                 }
             }
+
+            SetSecProdID(bin, map);
         }
 
         public static void GetDBProductMapBin(SqlConnection con, Bin Item, Map map)
@@ -163,6 +165,8 @@ namespace WebSort.Model
                     }
                 }
             }
+
+            SetSecProdID(Item, map);
         }
 
         public static void GetSelectedProductMapBin(Bin Item, Map map)
@@ -186,6 +190,8 @@ namespace WebSort.Model
                 {
                     map.LengthMap |= Convert.ToUInt32(Math.Pow(2, Convert.ToDouble(L.ID)));
                 }
+
+                SetSecProdID(Item, map);
             }
             catch (Exception ex)
             {
@@ -212,6 +218,7 @@ namespace WebSort.Model
                     {
                         map.ProductMapOld[P.ID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(P.ID.ToString()) - (32 * (P.ID / 32))));
                     }
+                    SetSecProdIDDataBase(con, "Bins", Item.SortID, map);
                 }
                 catch (Exception ex)
                 {
@@ -221,13 +228,18 @@ namespace WebSort.Model
             }
         }
 
+        public static void SetSecProdID(Bin Item, Map map)
+        {
+            map.ProductMap[Item.SecProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(Item.SecProdID.ToString()) - (32 * (Item.SecProdID / 32))));
+        }
+
         #endregion Bin
 
         #region Sort
 
-        public static void GetProductLengthMapDBSort(SqlConnection con, Map map, int SortID, int RecipeID)
+        public static void GetProductLengthMapDBSort(SqlConnection con, Map map, Sort sort, int RecipeID)
         {
-            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from sortproducts where sortID = {SortID} and recipeid= {RecipeID}", con))
+            using (SqlCommand cmdInner = new SqlCommand($"select ProdID from sortproducts where sortID = {sort.SortID} and recipeid= {RecipeID}", con))
             using (SqlDataReader readerSortProducts = cmdInner.ExecuteReader())
             {
                 if (readerSortProducts.HasRows)
@@ -236,7 +248,7 @@ namespace WebSort.Model
                     {
                         try
                         {
-                            SetProductMap(map, readerSortProducts);
+                            SetProductMap(map, readerSortProducts, "ProdID");
                         }
                         catch (Exception ex)
                         {
@@ -247,7 +259,7 @@ namespace WebSort.Model
                 }
             }
 
-            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from sortlengths where sortID = {SortID} and recipeid= {RecipeID}", con))
+            using (SqlCommand cmdInner = new SqlCommand($"select LengthID from sortlengths where sortID = {sort.SortID} and recipeid= {RecipeID}", con))
             using (SqlDataReader readerSortLengths = cmdInner.ExecuteReader())
             {
                 if (readerSortLengths.HasRows)
@@ -266,6 +278,8 @@ namespace WebSort.Model
                     }
                 }
             }
+
+            SetSecProdID(sort, map);
         }
 
         public static void GetDBProductMapSort(SqlConnection con, Sort Item, Map map, int RecipeID)
@@ -323,6 +337,8 @@ namespace WebSort.Model
                     }
                 }
             }
+
+            SetSecProdID(Item, map);
         }
 
         public static void GetSelectedProductMapSort(Sort Item, Map map)
@@ -340,6 +356,7 @@ namespace WebSort.Model
                 {
                     map.ProductMap[P.ID / 32] |= CalcMap(P.ID);
                 }
+                SetSecProdID(Item, map);
             }
             catch (Exception ex)
             {
@@ -382,6 +399,7 @@ namespace WebSort.Model
                     {
                         map.ProductMapOld[P.ID / 32] |= CalcMap(P.ID);
                     }
+                    SetSecProdIDDataBase(con, "Sorts", Item.SortID, map, RecipeID);
                 }
                 catch (Exception ex)
                 {
@@ -391,6 +409,38 @@ namespace WebSort.Model
             }
         }
 
+        public static void SetSecProdID(Sort Item, Map map)
+        {
+            map.ProductMap[Item.SecProdID / 32] |= Convert.ToUInt32(Math.Pow(2, double.Parse(Item.SecProdID.ToString()) - (32 * (Item.SecProdID / 32))));
+        }
+
         #endregion Sort
+
+        public static void SetSecProdIDDataBase(SqlConnection con, string Table, int ID, Map map, int? RecipeID = null)
+        {
+            string sql = $"select SecProdID from {Table} where sortID = {ID}";
+            if (RecipeID != null)
+            {
+                sql += $" and recipeid= {RecipeID}";
+            }
+
+            using SqlCommand cmd = new SqlCommand(sql, con);
+            using SqlDataReader reader = cmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    try
+                    {
+                        SetProductMap(map, reader, "SecProdID");
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        throw;
+                    }
+                }
+            }
+        }
     }
 }

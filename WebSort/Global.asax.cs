@@ -55,7 +55,7 @@ namespace WebSort
             string Sql = "SELECT Users.UserID, SecurityAccess AS Access FROM Users, SecurityScreenAccess " +
                 $"WHERE ScreenName LIKE '%{ScreenName}%' AND Users.UserName LIKE '%{UserName}%' " +
                 "AND Users.UserID = SecurityScreenAccess.UserID";
-            return mighty.Query(Sql).First();
+            return mighty.Query(Sql).FirstOrDefault();
         }
 
         /// <summary>
