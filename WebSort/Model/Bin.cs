@@ -184,8 +184,8 @@ namespace WebSort.Model
                 cmd.Parameters.AddWithValue("@BinSprays", Convert.ToInt32(Item.BinSprays));
                 cmd.Parameters.AddWithValue("@SortID", Item.SortID);
                 cmd.Parameters.AddWithValue("@SecProdID", Item.SecProdID);
-                cmd.Parameters.AddWithValue("@SecSize", Item.SecSize);
-                cmd.Parameters.AddWithValue("@SecCount", (Item.SecSize * Item.BinSize) / 100);
+                cmd.Parameters.AddWithValue("@SecSize", (Item.SecSize * Item.BinSize) / 100);
+                cmd.Parameters.AddWithValue("@SecCount", Item.SecCount);
                 cmd.Parameters.AddWithValue("@TrimFlag", Item.TrimFlag);
                 cmd.Parameters.AddWithValue("@RW", 0);
                 cmd.Parameters.AddWithValue("@ProductsOnly", 2);

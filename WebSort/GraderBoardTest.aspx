@@ -193,9 +193,6 @@
                         <asp:TextBox ID="TextBoxInterval" runat="server" Width="70px">1</asp:TextBox>
                     </td>
                     <td class="auto-style3">&nbsp;</td>
-                    <td class="auto-style20">
-                        <asp:CheckBox ID="CheckBoxIdentifierMark" runat="server" Font-Size="Small" Text="Test Using Identifier Mark" Width="200px" />
-                    </td>
                     <td class="auto-style4">&nbsp;</td>
                     <td class="auto-style18">&nbsp;</td>
                     <td class="auto-style5">&nbsp;</td>

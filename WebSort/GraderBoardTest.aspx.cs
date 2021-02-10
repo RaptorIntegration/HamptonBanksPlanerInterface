@@ -28,8 +28,7 @@ namespace WebSort
                     Response.Redirect("websort.aspx");
                 }
                 ButtonTest.Enabled = CurrentUser.Access == 1;
-                if (Global.OnlineSetup)
-                    ButtonTest.Enabled = false;
+                ButtonTest.Enabled = Global.OnlineSetup;
             }
             catch { Response.Redirect("boards.aspx"); }
         }
@@ -42,8 +41,7 @@ namespace WebSort
             TextBoxSampleSize.Attributes.Add("onkeydown", "if(event.keyCode==13)return false;");
             TextBoxInterval.Attributes.Add("onkeydown", "if(event.keyCode==13)return false;");
 
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(Global.ConnectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
             SqlCommand cmd = new SqlCommand("select * from gradertest", connection);
@@ -89,37 +87,30 @@ namespace WebSort
             WidthMap = int.Parse(reader["Width"].ToString());
             foreach (ListItem oItem in RadioButtonListThickness.Items)
             {
-                if (oItem.Value != "0")
-                    if ((ThicknessMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (ThicknessMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             foreach (ListItem oItem in CheckBoxListWidth.Items)
             {
-                if (oItem.Value != "0")
-                    if ((WidthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (WidthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             bool All = true;
             foreach (ListItem oItem in CheckBoxListWidth.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             foreach (ListItem oItem in CheckBoxList1.Items)
             {
-                if (oItem.Value != "0")
-                    if ((GraderMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (GraderMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
-            if ((GraderMap & (int)Math.Pow(2, 31)) == (int)Math.Pow(2, 31))
-                CheckBoxIdentifierMark.Checked = true;
             All = true;
             foreach (ListItem oItem in CheckBoxList1.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             if (All)
             {
@@ -131,16 +122,14 @@ namespace WebSort
             GradeMap = int.Parse(reader["Grades"].ToString());
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
-                if (oItem.Value != "0")
-                    if ((GradeMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (GradeMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             All = true;
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             if (All)
             {
@@ -151,16 +140,14 @@ namespace WebSort
             LengthMap = int.Parse(reader["Lengths"].ToString());
             foreach (ListItem oItem in CheckBoxList3.Items)
             {
-                if (oItem.Value != "0")
-                    if ((LengthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
-                        oItem.Selected = true;
+                if (oItem.Value != "0" && (LengthMap & (int)Math.Pow(2, int.Parse(oItem.Value))) == (int)Math.Pow(2, int.Parse(oItem.Value)))
+                    oItem.Selected = true;
             }
             All = true;
             foreach (ListItem oItem in CheckBoxList3.Items)
             {
-                if (oItem.Value != "0")
-                    if (oItem.Selected == false)
-                        All = false;
+                if (oItem.Value != "0" && !oItem.Selected)
+                    All = false;
             }
             if (All)
             {
@@ -192,15 +179,14 @@ namespace WebSort
             int GraderMap = 0, GradeMap = 0, LengthMap = 0, ThicknessMap = 0, WidthMap = 0, GraderMaptemp = 0;
 
             Timer3.Enabled = false;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(Global.ConnectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
 
             foreach (ListItem oItem in RadioButtonListThickness.Items)
             {
                 if (oItem.Selected)
-                    ThicknessMap = ThicknessMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                    ThicknessMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
             }
             foreach (ListItem oItem in CheckBoxListWidth.Items)
             {
@@ -212,7 +198,7 @@ namespace WebSort
                 else
                 {
                     if (oItem.Selected)
-                        WidthMap = WidthMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        WidthMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
             foreach (ListItem oItem in CheckBoxList1.Items)
@@ -225,15 +211,10 @@ namespace WebSort
                 else
                 {
                     if (oItem.Selected)
-                        GraderMap = GraderMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        GraderMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
             GraderMaptemp = GraderMap;
-            if (CheckBoxIdentifierMark.Checked)
-            {
-                GraderMap = (int)Math.Pow(2, 31);
-                GraderMaptemp = GraderMaptemp | GraderMap;
-            }
             foreach (ListItem oItem in CheckBoxList2.Items)
             {
                 if (oItem.Value == "0" && oItem.Selected)  //ALL
@@ -244,7 +225,7 @@ namespace WebSort
                 else
                 {
                     if (oItem.Selected)
-                        GradeMap = GradeMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        GradeMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
             foreach (ListItem oItem in CheckBoxList3.Items)
@@ -257,7 +238,7 @@ namespace WebSort
                 else
                 {
                     if (oItem.Selected)
-                        LengthMap = LengthMap | (int)Math.Pow(2, int.Parse(oItem.Value));
+                        LengthMap |= (int)Math.Pow(2, int.Parse(oItem.Value));
                 }
             }
 
@@ -274,7 +255,7 @@ namespace WebSort
                 if (ButtonTest.Text == "Begin Test")
                     TestActive = true;
 
-                if (TestActive == true)
+                if (TestActive)
                 {
                     //check to see if bin is spare
                     if (DropDownListBay.Text == "0")
@@ -289,15 +270,14 @@ namespace WebSort
                     SqlCommand cmdt = new SqlCommand("select binstatus from bins where binid=" + DropDownListBay.Text, connection);
                     SqlDataReader readert = cmdt.ExecuteReader();
                     readert.Read();
-                    if (readert["binstatus"].ToString() != "5")
-                        if (readert["binstatus"].ToString() != "0")
-                        {
-                            LabelBayError.Visible = true;
-                            LabelBayError0.Visible = false;
-                            readert.Close();
-                            Timer3.Enabled = true;
-                            return;
-                        }
+                    if (readert["binstatus"].ToString() != "5" && readert["binstatus"].ToString() != "0")
+                    {
+                        LabelBayError.Visible = true;
+                        LabelBayError0.Visible = false;
+                        readert.Close();
+                        Timer3.Enabled = true;
+                        return;
+                    }
                     readert.Close();
 
                     SqlCommand cmd110 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 1", connection);
@@ -377,8 +357,7 @@ namespace WebSort
         {
             //if (LabelStatus.Text == "Begin Test")
             // return;
-            System.Data.SqlClient.SqlConnection connection;
-            connection = new SqlConnection(Global.ConnectionString);
+            SqlConnection connection = new SqlConnection(Global.ConnectionString);
             // Open the connection.
             connection.Open();
             SqlCommand cmd = new SqlCommand("select * from gradertest", connection);
@@ -408,12 +387,11 @@ namespace WebSort
 
         protected void Timer2_Tick(object sender, EventArgs e)
         {
-            if (LabelStatus.Visible == false)
+            if (!LabelStatus.Visible)
                 return;
             if (Global.OnlineSetup)
             {
-                System.Data.SqlClient.SqlConnection connection;
-                connection = new SqlConnection(Global.ConnectionString);
+                SqlConnection connection = new SqlConnection(Global.ConnectionString);
                 // Open the connection.
                 connection.Open();
                 LabelPLCTimeout.Visible = false;
