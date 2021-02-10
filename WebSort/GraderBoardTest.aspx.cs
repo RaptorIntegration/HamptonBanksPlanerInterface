@@ -17,6 +17,8 @@ namespace WebSort
             {
                 CurrentUser = Global.GetSecurity("Grader Board Test", User.Identity.Name);
 
+                Global.GetOnlineSetup();
+
                 Label LabelScreenStatus = (Label)Master.FindControl("LabelScreenStatus");
                 if (CurrentUser.Access == 0)
                     LabelScreenStatus.Text = "READ ONLY";
@@ -244,9 +246,7 @@ namespace WebSort
 
             SqlCommand cmdgt = new SqlCommand("update gradertest set Width=" + WidthMap + ",Thickness=" + ThicknessMap + ",Graders=" + GraderMaptemp + ",grades=" + GradeMap + ",lengths=" + LengthMap + ",SampleSize=" + TextBoxSampleSize.Text + ",SamplesRemaining=" + TextBoxSampleSize.Text + ",Bayid=" + DropDownListBay.Text + ",interval=" + TextBoxInterval.Text + ",stamp='" + CheckBoxStamp.Checked.ToString() + "',trim='" + CheckBoxTrim.Checked.ToString() + "'", connection);
             cmdgt.ExecuteNonQuery();
-            SqlCommand cmd00 = new SqlCommand("update BoardsSavedDetails set folder=(select 'TEST BOARDS ' + DATEname(yy,GETDATE()) + '.' + convert(varchar,DATEpart(mm,GETDATE())) + '.' + DATEname(dd,GETDATE()) + ' ' + DATEname(hh,GETDATE()) + '.' + DATEname(mi,GETDATE()) + '.' + DATEname(ss,GETDATE()) + ' (' + CONVERT(varchar,samplesize) + ' boards)' from GraderTest)", connection);
-            cmd00.ExecuteNonQuery();
-
+            
             //send to PLC
             if (Global.OnlineSetup)
             {
@@ -265,8 +265,7 @@ namespace WebSort
                         Timer3.Enabled = true;
                         return;
                     }
-                    SqlCommand cmdaa = new SqlCommand("update websortsetup set gradertestnumber=gradertestnumber+1", connection);
-                    cmdaa.ExecuteNonQuery();
+                    
                     SqlCommand cmdt = new SqlCommand("select binstatus from bins where binid=" + DropDownListBay.Text, connection);
                     SqlDataReader readert = cmdt.ExecuteReader();
                     readert.Read();
@@ -283,7 +282,7 @@ namespace WebSort
                     SqlCommand cmd110 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 1", connection);
                     cmd110.ExecuteNonQuery();
                     //disable the bin and send details to PLC
-                    string sqltext = "insert into datarequestsbin select getdate()," + DropDownListBay.Text + ",'Grader Test',3," + TextBoxSampleSize.Text + ",0,   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   ,0,0,0,'" + CheckBoxTrim.Checked.ToString() + "',0,0,1,0 select id=(select max(id) from datarequestsbin with(NOLOCK))";
+                    string sqltext = "insert into datarequestsbin select getdate()," + DropDownListBay.Text + ",'Grader Test',3," + TextBoxSampleSize.Text + ",0,0,0,0,   0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,'" + CheckBoxTrim.Checked.ToString() + "',0,0,1,0 select id=(select max(id) from datarequestsbin with(NOLOCK))";
                     SqlCommand cmd = new SqlCommand(sqltext, connection);
                     SqlDataReader reader = cmd.ExecuteReader();
                     reader.Read();
@@ -296,7 +295,7 @@ namespace WebSort
                         LabelBayError.Visible = false;
                         LabelBayError0.Visible = false;
                         Timer3.Enabled = true;
-                        return;
+                        //return;
                     }
 
                     SqlCommand cmdt1 = new SqlCommand("update bins set binlabel='Grader Test',binstatuslabel='Disabled',binsize=" + TextBoxSampleSize.Text + ",binstatus=3 where binid=" + DropDownListBay.Text, connection);
