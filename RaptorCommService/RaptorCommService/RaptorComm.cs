@@ -86,6 +86,7 @@ namespace RaptorComm
         ///////////////////////////////////////
         // initialize TagGroup class
         static Logix.TagGroup LugUDTGroup = new Logix.TagGroup();
+        static Logix.TagGroup MiscUDTGroup = new Logix.TagGroup();
         public static int LugIndex = 0;
         public static int LugIndexPLC = 0, oldLugIndexPLC = 0;
         public static int LastFrameStart = 0;
@@ -739,6 +740,7 @@ namespace RaptorComm
             //262144 = Bay Edit Trigger
             //524288 = Read Shift Piece Production from PLC
             //1048576 = Parameters
+            //2097152 = Cut in Two Override
             //33554432 = Jag Priority bay list
             while (true)
             {
@@ -1018,6 +1020,49 @@ namespace RaptorComm
                                 }
                         }
                         SqlCommand cmd1 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-524288 where (datarequests & 524288)=524288", connection);
+                        cmd1.ExecuteNonQuery();
+                    }
+                    if ((DataRequests & 2097152) == 2097152)  //cut in two overrides
+                    {
+                        int i = 0;
+                        Tag myTag, myTag1, myTag2, myTag3, myTag4;
+                        if (MyPLCMisc.IsConnected)
+                        {
+                            SqlCommand cmdre = new SqlCommand("selectCutInTwoOverrides", connection);
+                            SqlDataReader readerre = cmdre.ExecuteReader();
+
+                            while (readerre.Read())
+                            {
+                                myTag = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Parent", Logix.Tag.ATOMIC.DINT);
+                                myTag.Value = readerre["parent"].ToString();
+                                myTag1 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Child", Logix.Tag.ATOMIC.DINT);
+                                myTag1.Value = readerre["child"].ToString();
+                                myTag2 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Length", Logix.Tag.ATOMIC.DINT);
+                                myTag2.Value = readerre["lengthnominal"].ToString();
+                                myTag3 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].CN2", Logix.Tag.ATOMIC.DINT);
+                                myTag3.Value = readerre["CN2"].ToString();
+                                myTag4 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Order", Logix.Tag.ATOMIC.DINT);
+                                myTag4.Value = readerre["Orders"].ToString();
+
+                                MiscUDTGroup.Tags.Clear();
+                                MiscUDTGroup.Clear();
+                                MiscUDTGroup.AddTag(myTag);
+                                MiscUDTGroup.AddTag(myTag1);
+                                MiscUDTGroup.AddTag(myTag2);
+                                MiscUDTGroup.AddTag(myTag3);
+                                MiscUDTGroup.AddTag(myTag4);
+                                if (MyPLCMisc.GroupWrite(MiscUDTGroup) != Logix.ResultCode.E_SUCCESS)
+                                {
+                                    UpdateRaptorCommLog("Cut In Two Overrides: " + MyPLCMisc.ErrorString);
+                                    Thread.Sleep(1000);
+                                    break;
+                                }
+                                i++;
+                            }
+                            readerre.Close();
+
+                        }
+                        SqlCommand cmd1 = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2097152 where (datarequests & 2097152)=2097152", connection);
                         cmd1.ExecuteNonQuery();
                     }
                     if ((DataRequests & 33554432) == 33554432)  //jag priority list
