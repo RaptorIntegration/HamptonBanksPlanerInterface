@@ -89,6 +89,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="GraderBoardTest.aspx" class="nav-link">
+                        <span class="link-text">Grader Board Test</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="devicediagnostics.aspx" class="nav-link">
                         <span class="link-text">Diagnostic Tests</span>
                     </a>
