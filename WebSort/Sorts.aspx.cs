@@ -604,7 +604,6 @@ namespace WebSort
                 return SaveResponse.Serialize(response);
             }
 
-            uint OldStamps = 0;
             string Update;
 
             using (SqlConnection con = new SqlConnection(Global.ConnectionString))
@@ -729,6 +728,15 @@ namespace WebSort
 
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
+
+                            if (Edit.EditedCol == "BinID")
+                            {
+                                //send Cut In Two Overrides to PLC
+                                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
+                                    cmd.ExecuteNonQuery();
+
+                                Edit.EditedCol = "CN2 Override";
+                            }
 
                             UpdateSortProductsGUI(con, Item, EditingRecipe.RecipeID);
 

@@ -227,6 +227,7 @@
                                 <th scope="col" style="width: 2%;" @click="Sort('SortID')">ID</th>
                                 <th scope="col" @click="Sort('SortLabel')">Label</th>
                                 <th scope="col" v-for="Col in Table.Columns" style="width: 2%;" @click="Sort(Col.DataSource)">{{ Col.Header }}</th>
+                                <th scope="col" @click="Sort('BinID')">CN2 Override</th>
                                 <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
                                 <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
                                 <th scope="col" style="width:5%;" @click="Sort('SortStamps')">Stamps</th>
@@ -269,6 +270,19 @@
                                         class="check">
                                     <div v-if="Table.Editing != Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'">
                                         <label>{{ Row[Col.DataSource] }}</label>
+                                    </div>
+                                </td>
+                                <td @click="EditingCell(Row, 'BinID')">
+                                    <select class="form-control" 
+                                        v-model.number="Row.BinID" 
+                                        v-if="Table.Editing == Row.SortID + '_BinID'" 
+                                        v-on:focus="Prev(Row, 'BinID')"
+                                        v-on:blur="Table.Editing = false"
+                                        v-on:change="Update('BinID', Row.BinID, Row);">
+                                        <option v-for="val in CN2">{{val}}</option>
+                                    </select>
+                                    <div v-else>
+                                        <label>{{ Row.BinID }}</label>
                                     </div>
                                 </td>
                                 <td @click="EditingCell(Row, 'SecProdID')">

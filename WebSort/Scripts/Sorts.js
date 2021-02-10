@@ -218,6 +218,13 @@ const v = new Vue({
                 'toast-success': this.Toast.Success,
                 'toast-error': !this.Toast.Success
             }
+        },
+        CN2: function () {
+            if (this.Table.Sorts.length) {
+                return [...Array(this.Table.Sorts.length).keys()]
+            } else {
+                return [0]
+            }
         }
     },
     methods: {
