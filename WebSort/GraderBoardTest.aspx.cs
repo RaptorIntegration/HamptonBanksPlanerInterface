@@ -306,7 +306,7 @@ namespace WebSort
 
                 SqlCommand cmd0 = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 4096", connection);
                 cmd0.ExecuteNonQuery();
-                SqlCommand cmd111 = new SqlCommand("insert into datarequestsgradertest select getdate()," + GraderMap + "," + GradeMap + "," + LengthMap + "," + ThicknessMap + "," + WidthMap + "," + TextBoxSampleSize.Text + "," + TextBoxSampleSize.Text + "," + DropDownListBay.Text + "," + TextBoxInterval.Text + ",'" + TestActive.ToString() + "','" + CheckBoxStamp.Checked.ToString() + "','" + CheckBoxTrim.Checked.ToString() + "',1,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
+                SqlCommand cmd111 = new SqlCommand("insert into datarequestsgradertest select getdate()," + GraderMap + "," + GradeMap + "," + LengthMap + "," + ThicknessMap + "," + WidthMap + "," + TextBoxSampleSize.Text + "," + TextBoxSampleSize.Text + "," + DropDownListBay.SelectedItem.Text + "," + TextBoxInterval.Text + ",'" + TestActive.ToString() + "','" + CheckBoxStamp.Checked.ToString() + "','" + CheckBoxTrim.Checked.ToString() + "',1,0 select id=(select max(id) from datarequestsgradertest with(NOLOCK))", connection);
                 SqlDataReader reader111 = cmd111.ExecuteReader();
                 reader111.Read();
                 //make sure message is processed

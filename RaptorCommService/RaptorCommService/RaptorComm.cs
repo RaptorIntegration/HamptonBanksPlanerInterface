@@ -3841,7 +3841,7 @@ namespace RaptorComm
                                 Tag ThicknessMap = new Tag("GradeCheck.ThicknessMap", Logix.Tag.ATOMIC.DINT);
                                 Tag WidthMap = new Tag("GradeCheck.WidthMap", Logix.Tag.ATOMIC.DINT);
                                 Tag LengthMap = new Tag("GradeCheck.LengthMap", Logix.Tag.ATOMIC.DINT);
-                                Tag BayID = new Tag("GradeCheck.BayID", Logix.Tag.ATOMIC.INT);
+                                Tag BayID = new Tag("GradeCheck.BayID", Logix.Tag.ATOMIC.SINT);
                                 Tag SampleSize = new Tag("GradeCheck.SampleSize", Logix.Tag.ATOMIC.INT);
                                 Tag Interval = new Tag("GradeCheck.Interval", Logix.Tag.ATOMIC.SINT);
                                 Tag SamplesRemaining = new Tag("GradeCheck.SamplesRemaining", Logix.Tag.ATOMIC.INT);
