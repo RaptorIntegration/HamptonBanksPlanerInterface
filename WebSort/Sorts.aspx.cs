@@ -635,9 +635,36 @@ namespace WebSort
                         foreach (Edit Edit in Item.EditsList)
                         {
                             // Invalid package size
-                            if (Edit.EditedCol == "Active" && Item.SortSize <= 0 && Item.Active)
+                            if (Edit.EditedCol == "Active" && (Item.SortSize <= 0 || Item.SortSize > 255) && Item.Active)
                             {
-                                response.Bad($"Invalid package size entered for Sort: {Item.SortID}");
+                                response.Bad($"Invalid package size entered for Sort: {Item.SortID} (cannot be zero and must be 255 or less)");
+                                return SaveResponse.Serialize(response);
+                            }
+                            // Invalid orders size
+                            if (Edit.EditedCol == "OrderCount" && Item.OrderCount > 255)
+                            {
+                                response.Bad($"Invalid order size entered for Sort: {Item.SortID} (must be 255 or less)" );
+                                return SaveResponse.Serialize(response);
+                            }
+                            // Invalid zone sizes
+                            if (Edit.EditedCol == "Zone1Start" && Item.Zone1Start > 255)
+                            {
+                                response.Bad($"Invalid zone 1 start entered for Sort: {Item.SortID} (must be 255 or less)");
+                                return SaveResponse.Serialize(response);
+                            }
+                            if (Edit.EditedCol == "Zone1Stop" && Item.Zone1Start > 255)
+                            {
+                                response.Bad($"Invalid zone 1 stop entered for Sort: {Item.SortID} (must be 255 or less)");
+                                return SaveResponse.Serialize(response);
+                            }
+                            if (Edit.EditedCol == "Zone2Start" && Item.Zone1Start > 255)
+                            {
+                                response.Bad($"Invalid zone 2 start entered for Sort: {Item.SortID} (must be 255 or less)");
+                                return SaveResponse.Serialize(response);
+                            }
+                            if (Edit.EditedCol == "Zone2Stop" && Item.Zone1Start > 255)
+                            {
+                                response.Bad($"Invalid zone 2 stop entered for Sort: {Item.SortID} (must be 255 or less)");
                                 return SaveResponse.Serialize(response);
                             }
 
@@ -729,7 +756,7 @@ namespace WebSort
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
 
-                            if (Edit.EditedCol == "BinID")
+                            //if (Edit.EditedCol == "BinID")
                             {
                                 //send Cut In Two Overrides to PLC
                                 using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
