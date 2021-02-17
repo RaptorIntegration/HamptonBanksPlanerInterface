@@ -18,7 +18,5 @@ CREATE TABLE [dbo].[ProductionBoardsPrevious] (
    ,CONSTRAINT [PK_ProductionBoardsPrevious] PRIMARY KEY CLUSTERED ([ShiftIndex], [RunIndex], [ProdID], [LengthID], [ThickActual], [WidthActual], [LengthIn], [LengthInID], [NET], [FET], [CN2], [Fence], [Sorted], [SortCode])
 )
 
-CREATE NONCLUSTERED INDEX [<Name of Missing Index, sysname,>] ON [dbo].[ProductionBoardsPrevious] ([SortCode], [ShiftIndex]) INCLUDE ([BoardCount])
-CREATE NONCLUSTERED INDEX [ProductionBoardsPreviousIndex] ON [dbo].[ProductionBoardsPrevious] ([Sorted]) INCLUDE ([ProdID], [LengthID], [BoardCount])
 
 GO

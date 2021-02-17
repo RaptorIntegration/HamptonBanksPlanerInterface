@@ -11,6 +11,8 @@ CREATE PROCEDURE [dbo].[updateSortData]
 @sortid int,
 @Name varchar(100),
 @PkgSize int,
+@SecProdID int,
+@SecSize int,
 @RdmWidthFlag bit,
 @PkgPerSort smallint,
 @OrderCount smallint,
@@ -48,12 +50,13 @@ BEGIN
 	
 	if (select count(*) from sorts where sortid=@sortid and recipeid=@recipeid) = 0
 		insert into sorts select @recipeid, @sortid,@Name,@active,@PkgSize,@zone1start,@zone1stop,@zone2start,@zone2stop,@pkgpersort,@RdmWidthFlag,
-		@ordercount,@Stamps,'',@Sprays,'',0,@TrimFlag,''
+		@ordercount,@Stamps,'',@Sprays,'',0,@TrimFlag,0,0,''
 	else
 	begin
 		update sorts set sortLabel=@Name,active=@active,SortSize=@PkgSize,zone1start=@zone1start,zone1stop=@zone1stop,zone2start=@zone2start,zone2stop=@zone2stop,
 		pkgspersort=@Pkgpersort,RW=@RdmWidthFlag,ordercount=@ordercount,sortStamps=@Stamps,sortstampslabel='',
 		sortSprays=@Sprays,sortsprayslabel='',binid=0,TrimFlag=@TrimFlag
+		,secprodid=@secprodid,secsize=@secsize
 		where sortid=@sortid  and recipeid=@recipeid				
 		
 	end

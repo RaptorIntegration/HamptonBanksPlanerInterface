@@ -32,7 +32,7 @@ BEGIN
 	delete from drives where recipeid=@newrecipeid
 
 	insert into sorts select @newrecipeid,sortid,sortlabel,active,sortsize,zone1start,zone1stop,zone2start,zone2stop,
-	pkgspersort,rw,ordercount,sortstamps,sortstampslabel,sortsprays,sortsprayslabel,binid,trimflag,productslabel
+	pkgspersort,rw,ordercount,sortstamps,sortstampslabel,sortsprays,sortsprayslabel,binid,trimflag,productslabel,SecProdID,SecSize
 	from sorts where recipeid=@recipeid
 	insert into sortproducts select @newrecipeid,sortid,prodid 
 	from sortproducts where recipeid=@recipeid

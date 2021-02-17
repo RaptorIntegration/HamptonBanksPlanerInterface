@@ -14,6 +14,7 @@ CREATE PROCEDURE [dbo].[updateLugData]
 @BayNum int,
 @ProductID int,
 @LengthID int,
+@PLCGradeIDX int,
 @ThickActual real,
 @WidthActual real,
 @LengthIn real,
@@ -325,6 +326,10 @@ BEGIN
 			insert into BinProductLengths select @BayNum,@ProductID,@LengthID,1
 		else
 			update BinProductLengths set BoardCount=BoardCount+1 where BinID=@BayNum and ProdID=@ProductID and LengthID=@LengthID
+		if (select count(*) from BinGraders where BinID = @BayNum and ProdID=@ProductID and GraderID=@GraderID) = 0
+			insert into BinGraders select @BayNum,@ProductID,@GraderID,1
+		else
+			update BinGraders set BoardCount=BoardCount+1 where BinID=@BayNum and ProdID=@ProductID and GraderID=@GraderID
 		if (select count(*) from BinProducts where BinID = @BayNum and ProdID=@ProductID) = 0
 			insert into BinProducts select @BayNum, @Productid
 		if (select count(*) from BinLengths where BinID = @BayNum and Lengthid=@Lengthid) = 0

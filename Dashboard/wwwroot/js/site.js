@@ -17,12 +17,12 @@
         this.GetPie()
         this.GetSmallCardData()
         this.GetRatesData()
-        this.GetProductMix()
+        //this.GetProductMix()
 
         setInterval(this.GetPie, 5000)
         setInterval(this.GetSmallCardData, 1000)
         setInterval(this.GetRatesData, 5000)
-        setInterval(this.GetProductMix, 5000)
+        //setInterval(this.GetProductMix, 5000)
     },
     computed: {
         Targets: function () {
