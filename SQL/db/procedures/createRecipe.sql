@@ -24,7 +24,7 @@ BEGIN
 	while @i<=@sortcount
 	begin
 		delete from sorts where recipeid=@recipeid and sortid=@i
-		insert into sorts select @recipeid,@i,'Sort ' + convert(varchar,@i),1,0,1,50,1,50,1,0,0,0,'',0,'',0,1,''
+		insert into sorts select @recipeid,@i,'Sort ' + convert(varchar,@i),1,0,1,37,1,37,1,0,0,0,'',0,'',0,1,'',NULL,0
 		
 		select @i=@i+1
 	end

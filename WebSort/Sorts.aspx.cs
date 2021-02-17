@@ -643,7 +643,7 @@ namespace WebSort
                             // Invalid orders size
                             if (Edit.EditedCol == "OrderCount" && Item.OrderCount > 255)
                             {
-                                response.Bad($"Invalid order size entered for Sort: {Item.SortID} (must be 255 or less)" );
+                                response.Bad($"Invalid order size entered for Sort: {Item.SortID} (must be 255 or less)");
                                 return SaveResponse.Serialize(response);
                             }
                             // Invalid zone sizes
@@ -756,12 +756,12 @@ namespace WebSort
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
 
-                            //if (Edit.EditedCol == "BinID")
-                            {
-                                //send Cut In Two Overrides to PLC
-                                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
-                                    cmd.ExecuteNonQuery();
+                            //send Cut In Two Overrides to PLC
+                            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
+                                cmd.ExecuteNonQuery();
 
+                            if (Edit.EditedCol == "BinID")
+                            {
                                 Edit.EditedCol = "CN2 Override";
                             }
 

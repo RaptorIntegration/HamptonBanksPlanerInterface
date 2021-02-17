@@ -13,6 +13,9 @@ CREATE PROCEDURE [dbo].[updateBinData]
 @Name varchar(100),
 @PkgSize int,
 @Count int,
+@SecProdID int,
+@SecSize int,
+@SecCount int,
 @RdmWidthFlag bit,
 @Status int,
 @Stamps bigint,
@@ -59,12 +62,14 @@ BEGIN
 			delete from BinProductLengths where binid=@BayNum
 			delete from BinProducts where binid=@BayNum
 			delete from BinLengths where binid=@BayNum
+			delete from BinGraders where BinID=@BayNum
 			exec updateBinProducts @BayNum
 		end
 		else if @Status=1 --bin is active
 		begin
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
-			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null,
+			secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum
 			delete from binproducts where binid=@BayNum
 			delete from binlengths where binid=@BayNum
@@ -75,19 +80,22 @@ BEGIN
 		else if @Status=2 --bin is full
 		begin
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
-			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=getdate()
+			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=getdate(),
+			secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum
 		end
 		else if @Status=3 --bin is disabled
 		begin
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
-			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null,
+			secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum
 		end
 		else
 		begin
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
-			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null,
+			secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum
 		end
 		
@@ -279,6 +287,8 @@ BEGIN
 				BinLabel,ProductsLabel,0,convert(varchar,sortid),'','' from bins where binid=@BayNum and binsize>0
 				insert into ProductionPackagesProducts select @packagenumber,prodid,lengthid,convert(smallint,(convert(real,boardcount)/convert(real,@PkgsPerSort))) from BinProductLengths where binid=@BayNum and boardcount>0
 				
+				insert into ProductionPackagesGraders select @packagenumber,binid,prodid,graderid,boardcount from BinGraders where BinID=@BayNum
+				delete from ProductionPackagesGraders where packagenumber<=(select MAX(packagenumber-10000) from ProductionPackagesGraders)
 				--account for odd numbers when splitting the packaage
 				if @PkgsPerSort>1
 				begin
@@ -332,29 +342,36 @@ BEGIN
 				Select @Loop = @Loop + 1
 			end
 			
+			exec selectTicket @PackageNumber
+			
 			/* update DGS data */
 			--stacked loads
 			update DGSData set StackedLoads = (select count(*) from ProductionPackages where TimeStampReset is not null and PackageCount>0) where ShiftIndex = @maxshiftindex		
 			update Bins set BinLabel='',BinStatus=@Status,BinSize=0,BinCount=0,RW=0,BinStamps=0,
-			BinSprays=0,BinPercent=0,sortid=0,TrimFlag=0,productslabel ='',timestampfull=null where binid=@BayNum
+			BinSprays=0,BinPercent=0,sortid=0,TrimFlag=0,productslabel ='',timestampfull=null,
+			secprodid=0,secsize=0,seccount=0 where binid=@BayNum
 			delete from BinProductLengths where binid=@BayNum
 			delete from BinProducts where binid=@BayNum
 			delete from BinLengths where binid=@BayNum
+			delete from BinGraders where BinID=@BayNum
 			exec updateBinProducts @BayNum
 		end
 		else if @Status=0  --bin reset from WEBSort on a bin that was already Spare
 		begin				
 			update Bins set BinLabel='',BinStatus=@Status,BinSize=0,BinCount=0,RW=0,BinStamps=0,
-			BinSprays=0,BinPercent=0,sortid=0,TrimFlag=0,productslabel ='',timestampfull=null where binid=@BayNum
+			BinSprays=0,BinPercent=0,sortid=0,TrimFlag=0,productslabel ='',timestampfull=null,
+			secprodid=0,secsize=0,seccount=0 where binid=@BayNum
 			delete from BinProductLengths where binid=@BayNum
 			delete from BinProducts where binid=@BayNum
 			delete from BinLengths where binid=@BayNum
+			delete from BinGraders where BinID=@BayNum
 			exec updateBinProducts @BayNum
 		end
 		else if @Status=1 and @statuscurrent = 3 --bin turned active from disabled state
 		begin
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
 			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum				
 		end
 		else if @Status=1 and @statuscurrent <> 1 --bin active 
@@ -365,7 +382,8 @@ BEGIN
 			
 				update Bins set BinLabel=sortlabel,BinStatus=@Status,BinSize=sortSize*PkgsPerSort,RW=sorts.rw,BinStamps=SortStamps,
 				BinSprays=SortSprays,BinPercent=ceiling(convert(real,@Count)/convert(real,sortSize)*100),sortid=@SortXRef,
-				TrimFlag=sorts.TrimFlag,timestampfull=null
+				TrimFlag=sorts.TrimFlag,timestampfull=GETDATE()
+				,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 				from sorts,bins  where sorts.sortid=@sortxref and recipeid=(select recipeid from recipes where online=1)
 				and bins.binid=@BayNum
 				
@@ -379,7 +397,8 @@ BEGIN
 			end
 			else
 				update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
-				BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+				secprodid=@secprodid,secsize=@secsize,seccount=@seccount,
+				BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=GETDATE()
 				where binid=@BayNum				
 		end
 		else if @Status=2 and @statuscurrent <> 2 --bin full
@@ -388,8 +407,10 @@ BEGIN
 			if (select bincount from bins where binid=@BayNum) > @Count
 				select @Count = (select bincount from bins where binid=@BayNum)
 			update Bins set BinStatus=@Status,BinCount=@Count,RW=@RdmWidthFlag,sortid=@SortXRef,
-			TrimFlag=@TrimFlag,timestampfull=getdate(),BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100)
-			where binid=@BayNum
+			TrimFlag=@TrimFlag,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100)
+			,secprodid=sorts.secprodid,secsize=sorts.secsize,seccount=@seccount
+			from sorts  where sorts.sortid=@sortxref and recipeid=(select recipeid from recipes where online=1)
+			and bins.binid=@BayNum
 			
 			if (select ordercount from Sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)) > 0
 			begin
@@ -410,11 +431,13 @@ BEGIN
 				select @Count = (select bincount from bins where binid=@BayNum)
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
 			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum			
 		end
 		else
 			update Bins set BinLabel=@Name,BinStatus=@Status,BinSize=@PackageSize,BinCount=@Count,RW=@RdmWidthFlag,BinStamps=@Stamps,
 			BinSprays=@Sprays,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100),sortid=@SortXRef,TrimFlag=@TrimFlag,timestampfull=null
+			,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
 			where binid=@BayNum	
 			
 		

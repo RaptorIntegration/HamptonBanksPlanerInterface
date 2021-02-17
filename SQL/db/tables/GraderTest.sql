@@ -10,7 +10,9 @@ CREATE TABLE [dbo].[GraderTest] (
    [Interval] [smallint] NULL,
    [Active] [bit] NOT NULL,
    [stamp] [bit] NOT NULL,
-   [Trim] [bit] NOT NULL
+   [Trim] [bit] NOT NULL,
+   [Thickness] [int] NULL,
+   [Width] [int] NULL
 
    ,CONSTRAINT [PK_GraderTest] PRIMARY KEY CLUSTERED ([ID])
 )

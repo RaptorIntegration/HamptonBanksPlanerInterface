@@ -74,6 +74,8 @@ namespace WebSort.Model
         /// </summary>
         public int BinID { get; set; }
 
+        public int CN2Frequency { get; set; }
+
         public int TrimFlag { get; set; }
         public int SecProdID { get; set; }
         public short SecSize { get; set; }
@@ -112,6 +114,7 @@ namespace WebSort.Model
                     RW = Global.GetValue<bool>(reader, "RW"),
                     OrderCount = Global.GetValue<int>(reader, "OrderCount"),
                     BinID = Global.GetValue<int>(reader, "BinID"),
+                    CN2Frequency = Global.GetValue<int>(reader, "CN2Frequency"),
                     SecProdID = Global.GetValue<int>(reader, "SecProdID"),
                     SecSize = Global.GetValue<short>(reader, "SecSize"),
                     ProductsLabel = Global.GetValue<string>(reader, "ProductsLabel"),

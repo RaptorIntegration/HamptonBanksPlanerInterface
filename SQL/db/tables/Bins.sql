@@ -14,9 +14,9 @@ CREATE TABLE [dbo].[Bins] (
    [SortID] [int] NULL,
    [SecProdID] [int] NOT NULL
       CONSTRAINT [DF_Bins_SecProdID] DEFAULT ((0)),
-   [SecSize] [smallint] NOT NULL
+   [SecSize] [int] NOT NULL
       CONSTRAINT [DF_Bins_SecSize] DEFAULT ((0)),
-   [SecCount] [smallint] NOT NULL
+   [SecCount] [int] NOT NULL
       CONSTRAINT [DF_Bins_SecCount] DEFAULT ((0)),
    [TrimFlag] [bit] NULL,
    [ProductsLabel] [varchar](1000) NULL,
