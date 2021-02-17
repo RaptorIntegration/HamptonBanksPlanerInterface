@@ -74,7 +74,6 @@ const v = new Vue({
                 { DataSource: 'PkgsPerSort', Header: 'Pkgs /Sort' },
                 //{ DataSource: 'RW', Header: 'RW' },
                 { DataSource: 'OrderCount', Header: 'Order Count' },
-                { DataSource: 'CN2Frequency', Header: 'CN2 Frequency %' },
             ],
             Products: [],
 

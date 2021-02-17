@@ -227,7 +227,8 @@
                                 <th scope="col" style="width: 2%;" @click="Sort('SortID')">ID</th>
                                 <th scope="col" @click="Sort('SortLabel')">Label</th>
                                 <th scope="col" v-for="Col in Table.Columns" style="width: 2%;" @click="Sort(Col.DataSource)">{{ Col.Header }}</th>
-                                <th scope="col" @click="Sort('BinID')">CN2 Override</th>
+                                <th scope="col" @click="Sort('BinID')" style="width: 2%;">CN2 Override</th>
+                                <th scope="col" @click="Sort('CN2Frequency')" style="width: 2%;">CN2 Frequency %</th>
                                 <th scope="col" @click="Sort('SecProd')">Secondary Product</th>
                                 <th scope="col" style="width:2%;" @click="Sort('SecSize')">Secondary Size %</th>
                                 <th scope="col" style="width:5%;" @click="Sort('SortStamps')">Stamps</th>
@@ -271,7 +272,7 @@
                                     <div v-if="Table.Editing != Row.SortID + '_' + Col.DataSource && typeof(Row[Col.DataSource]) != 'boolean'">
                                         <label>{{ Row[Col.DataSource] }}</label>
                                     </div>
-                                </td>
+                                </td>                                
                                 <td @click="EditingCell(Row, 'BinID')">
                                     <select class="form-control" 
                                         v-model.number="Row.BinID" 
@@ -283,6 +284,19 @@
                                     </select>
                                     <div v-else>
                                         <label>{{ Row.BinID }}</label>
+                                    </div>
+                                </td>
+                                <td @click="EditingCell(Row, 'CN2Frequency')">
+                                     <input
+                                        v-if="Table.Editing == Row.SortID + '_CN2Frequency'"
+                                        v-model="Row.CN2Frequency"
+                                        v-on:blur="Update('CN2Frequency', Row.CN2Frequency, Row);"
+                                        v-on:focus="Prev(Row, 'CN2Frequency')"
+                                        type="text"
+                                        spellcheck="false"
+                                        class="form-control">
+                                    <div v-else>
+                                        <label>{{ Row.CN2Frequency }}</label>
                                     </div>
                                 </td>
                                 <td @click="EditingCell(Row, 'SecProdID')">
