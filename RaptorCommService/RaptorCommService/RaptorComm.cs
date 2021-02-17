@@ -1033,16 +1033,16 @@ namespace RaptorComm
 
                             while (readerre.Read())
                             {
-                                myTag = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Parent", Logix.Tag.ATOMIC.DINT);
+                                myTag = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "," + readerre["lengthid"].ToString() + "].Parent", Logix.Tag.ATOMIC.DINT);
                                 myTag.Value = readerre["parent"].ToString();
-                                myTag1 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Child", Logix.Tag.ATOMIC.DINT);
+                                myTag1 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "," + readerre["lengthid"].ToString() + "].Child", Logix.Tag.ATOMIC.DINT);
                                 myTag1.Value = readerre["child"].ToString();
-                                myTag2 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Length", Logix.Tag.ATOMIC.DINT);
-                                myTag2.Value = readerre["lengthnominal"].ToString();
-                                myTag3 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].CN2", Logix.Tag.ATOMIC.DINT);
-                                myTag3.Value = readerre["CN2"].ToString();
-                                myTag4 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "].Order", Logix.Tag.ATOMIC.DINT);
-                                myTag4.Value = readerre["Orders"].ToString();
+                                myTag2 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "," + readerre["lengthid"].ToString() + "].CN2", Logix.Tag.ATOMIC.DINT);
+                                myTag2.Value = readerre["CN2"].ToString();
+                                myTag3 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "," + readerre["lengthid"].ToString() + "].Order", Logix.Tag.ATOMIC.DINT);
+                                myTag3.Value = readerre["Orders"].ToString();
+                                myTag4 = new Tag("websortCN2Override[" + readerre["gradeid"].ToString() + "," + readerre["lengthid"].ToString() + "].Frequency", Logix.Tag.ATOMIC.DINT);
+                                myTag4.Value = readerre["Frequency"].ToString();
 
                                 MiscUDTGroup.Tags.Clear();
                                 MiscUDTGroup.Clear();
@@ -1051,6 +1051,7 @@ namespace RaptorComm
                                 MiscUDTGroup.AddTag(myTag2);
                                 MiscUDTGroup.AddTag(myTag3);
                                 MiscUDTGroup.AddTag(myTag4);
+
                                 if (MyPLCMisc.GroupWrite(MiscUDTGroup) != Logix.ResultCode.E_SUCCESS)
                                 {
                                     UpdateRaptorCommLog("Cut In Two Overrides: " + MyPLCMisc.ErrorString);

@@ -456,6 +456,9 @@ namespace WebSort
                     response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
                     return SaveResponse.Serialize(response);
                 }
+                //send Cut In Two Overrides to PLC
+                using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
+                    cmd.ExecuteNonQuery();
 
                 response.Good($"Activated recipe \"{recipe.RecipeLabel}\"");
                 return SaveResponse.Serialize(response);
@@ -489,7 +492,7 @@ namespace WebSort
                     response.Bad($"Failed to activate recipe \"{recipe.RecipeLabel}\"");
                     return SaveResponse.Serialize(response);
                 }
-
+               
                 List<Edit> edits = new List<Edit>
                 {
                     new Edit { EditedCol = "Active", EditedVal = "True", Key = recipe.RecipeID, Previous = "False" }

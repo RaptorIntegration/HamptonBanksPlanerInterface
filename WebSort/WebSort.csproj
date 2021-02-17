@@ -513,9 +513,6 @@
     <Content Include="App_Data\Reports\Package Summary.rpt" />
     <Content Include="App_Data\Reports\Product Listing.rpt" />
     <Content Include="App_Data\Reports\Production Detail.rpt" />
-    <Content Include="App_Data\Reports\Production Summary No Pith.rpt" />
-    <Content Include="App_Data\Reports\Production Summary Pith.rpt" />
-    <Content Include="App_Data\Reports\Production Summary with Moisture.rpt" />
     <Content Include="App_Data\Reports\Production Summary.rpt" />
     <Content Include="App_Data\Reports\recipe.rpt" />
     <Content Include="App_Data\Reports\Target Summary.rpt" />
