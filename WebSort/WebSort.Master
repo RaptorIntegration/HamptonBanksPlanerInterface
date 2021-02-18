@@ -50,6 +50,11 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="TicketQueue.aspx" class="nav-link">
+                        <span class="link-text">Ticket Listing</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="Products.aspx" class="nav-link">
                         <span class="link-text">Product Setup</span>
                     </a>

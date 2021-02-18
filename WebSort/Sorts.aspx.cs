@@ -692,17 +692,18 @@ namespace WebSort
                             }
 
                             // Order Count -> 0
-                            if (Edit.EditedCol == "OrderCount" && Edit.EditedVal == "0")
+                            /*if (Edit.EditedCol == "OrderCount" && Edit.EditedVal == "0")
                             {
                                 using (SqlCommand cmd = new SqlCommand("DELETE FROM OrderManagementAnticipation where sortid=@ID", con))
                                 {
                                     cmd.Parameters.AddWithValue("@ID", Item.SortID);
                                     cmd.ExecuteNonQuery();
                                 }
-                            }
+                            }*/
 
                             if (Global.OnlineSetup && ActiveRecipe)
                             {
+                                
                                 if (Item.Active)
                                 {
                                     try
@@ -754,14 +755,13 @@ namespace WebSort
                                         return SaveResponse.Serialize(response);
                                     }
                                 }
+                                
                             }
 
                             using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set datarequests = datarequests-2 where (datarequests & 2)=2", con))
                                 cmd.ExecuteNonQuery();
 
-                            //send Cut In Two Overrides to PLC
-                            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
-                                cmd.ExecuteNonQuery();
+                            
 
                             if (Edit.EditedCol == "BinID")
                             {
@@ -774,6 +774,13 @@ namespace WebSort
                         } // end foreach edit
 
                         response.AddEdits(Item.EditsList.Where(e => e.EditedCol != "SortStamps").ToList());
+
+                        if (Global.OnlineSetup && ActiveRecipe)
+                        {
+                            //send Cut In Two Overrides to PLC
+                            using (SqlCommand cmd = new SqlCommand("update RaptorCommSettings set DataRequests = DataRequests | 2097152", con))
+                                cmd.ExecuteNonQuery();
+                        }
                     } // end foreach item
                 }
             } // End connection

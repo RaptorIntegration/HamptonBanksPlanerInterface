@@ -252,6 +252,7 @@
     <Content Include="Scripts\vue\vue.js" />
     <Content Include="Scripts\vue\vue.min.js" />
     <Content Include="Targets.aspx" />
+    <Content Include="TicketQueue.aspx" />
     <Content Include="Timing.aspx" />
     <Content Include="Web.config" />
     <Content Include="ErrorLogs.aspx" />
@@ -440,6 +441,13 @@
     </Compile>
     <Compile Include="Targets.aspx.designer.cs">
       <DependentUpon>Targets.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TicketQueue.aspx.cs">
+      <DependentUpon>TicketQueue.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TicketQueue.aspx.designer.cs">
+      <DependentUpon>TicketQueue.aspx</DependentUpon>
     </Compile>
     <Compile Include="Timing.aspx.cs">
       <DependentUpon>Timing.aspx</DependentUpon>
