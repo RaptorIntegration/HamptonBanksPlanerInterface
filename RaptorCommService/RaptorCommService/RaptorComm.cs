@@ -154,7 +154,7 @@ namespace RaptorComm
         static Logix.Tag Minutes = new Logix.Tag("WEBSortTimeTable[4]", Logix.Tag.ATOMIC.INT);
         static Logix.Tag Seconds = new Logix.Tag("WEBSortTimeTable[5]", Logix.Tag.ATOMIC.INT);
         static Logix.Tag EncoderPosition = new Logix.Tag("EncoderPositionS", Logix.Tag.ATOMIC.DINT);
-        static Logix.Tag EncoderActual = new Logix.Tag("SorterEncoder.ActualPosition", Logix.Tag.ATOMIC.REAL);
+        static Logix.Tag EncoderActual = new Logix.Tag("Encoder_srt.ActualPosition", Logix.Tag.ATOMIC.REAL);
         static Logix.Tag SkipEncoderPosition = new Logix.Tag("SkipEncoderPosition", Logix.Tag.ATOMIC.DINT);
         static Logix.Tag SortEditTrigger = new Logix.Tag("Program:WEBSort.SortEditTrigger", Logix.Tag.ATOMIC.BOOL);
         static Logix.Tag BayEditTrigger = new Logix.Tag("Program:WEBSort.BayEditTrigger", Logix.Tag.ATOMIC.BOOL);
