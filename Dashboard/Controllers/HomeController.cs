@@ -33,7 +33,7 @@ namespace Dashboard.Controllers
             WHERE BinID > 38
                 AND (BinLabel NOT LIKE '%4%'
                 AND BinLabel NOT LIKE '%6%'
-                AND BinLabel NOT LIKE '%8%')";
+                AND BinLabel NOT LIKE '%Economy 8%')";
 
         public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
