@@ -11,17 +11,24 @@
         TopLeft: null,
         FBM: null,
         ProductMix: null,
-        Pie: null
+        Pie: null,
+        AutoOff: [],
+        HandPulled: []
     },
     mounted: function () {
         this.GetPie()
         this.GetSmallCardData()
         this.GetRatesData()
         //this.GetProductMix()
+        this.GetAutoOff()
+        this.GetHandPulled()
 
-        setInterval(this.GetPie, 5000)
-        setInterval(this.GetSmallCardData, 1000)
-        setInterval(this.GetRatesData, 5000)
+        setTimeout(() => setInterval(this.GetPie, 5000), 10)
+        setTimeout(() => setInterval(this.GetSmallCardData, 1000), 50)
+        setTimeout(() => setInterval(this.GetRatesData, 5000), 100)
+        setTimeout(() => setInterval(this.GetAutoOff, 5000), 150)
+        setTimeout(() => setInterval(this.GetHandPulled, 5000), 200)
+
         //setInterval(this.GetProductMix, 5000)
     },
     computed: {
@@ -88,7 +95,7 @@
                         UpdateSmallCards(TrimLossChart, data.trimLoss, this.Targets.trim);
                         UpdateSmallCards(LugFillChart, data.lugFill, this.Targets.lugfill);
                     }
-                    
+
                     this.PPH = data.currentPPH
                     this.VPH = data.currentVPH
 
@@ -98,7 +105,7 @@
 
                     this.Severity.low = data.severity == "0"
                     this.Severity.medium = data.severity == "1"
-                    this.Severity.high = data.severity == "2"                    
+                    this.Severity.high = data.severity == "2"
                 })
                 .catch(error => {
                     console.error('Get Small Card Data Failed:', error);
@@ -179,6 +186,38 @@
                 })
                 .catch(error => {
                     console.error('Get Top Left Data Failed:', error);
+                });
+        },
+        GetAutoOff: function () {
+            fetch('home/GetAutoOff', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        throw response
+                    }
+                })
+                .then(data => {
+                    this.AutoOff = data
+                })
+                .catch(error => {
+                    console.error('Get Auto Off Data Failed:', error);
+                });
+        },
+        GetHandPulled: function () {
+            fetch('home/GetHandPulled', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        throw response
+                    }
+                })
+                .then(data => {
+                    this.HandPulled = data
+                })
+                .catch(error => {
+                    console.error('Get Hand Pulled Data Failed:', error);
                 });
         },
         CompareData(data) {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DashboardCore.Models
+namespace Dashboard.Models
 {
     public class TopLeft
     {

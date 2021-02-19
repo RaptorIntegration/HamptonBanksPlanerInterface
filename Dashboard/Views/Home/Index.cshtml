@@ -13,10 +13,11 @@
 	}
         .hand-pulled div {
             display: grid;
-            grid-gap: 0.5rem;
-            grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+            grid-gap: 0.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
             overflow: hidden;
             text-overflow: clip;
+            font-size: 0.6rem;
         }
     .auto-off {
         text-align: center;
@@ -24,13 +25,16 @@
     }
         .auto-off div {
             display: grid;
-            grid-gap: 0.25rem;
+            grid-gap: 0.1rem;
             grid-template-columns: 65% 35%;
             grid-template-rows: auto;
             overflow: hidden;
-            font-size: 0.9rem;
+            font-size: 0.6rem;
             text-overflow: clip;
         }
+    .test{
+        flex:1 1 50%;
+    }
 </style>
 
 <div class="container-fluid d-flex flex-column justify-content-between" id="app">
@@ -44,68 +48,64 @@
 			<span style="color: #e0e0e0;">Pcs/Hr: {{ PPH }}</span>
 		</div>
 	</div>
-    <div class="row flex-1 mb-1">
-        <div class="col-7 pl-0 d-flex">
+    <div class="row test mb-1">
+
+        <div class="col-10 pl-0 d-flex">
             <div class="chart-container card-background" style="width: 100%;">
                 <canvas id="Total"></canvas>
             </div>
         </div>
-        <div class="col-3 pl-0 pr-0">
-            <div class="card-background">
-                <canvas id="Pie"></canvas>
-            </div>
-        </div>
-        <div class="col-2 pr-0 special">
-            <div class="card-background hand-pulled">
-                <span style="font-weight:bold;">Hand Pulled</span>
-                <div>
-                    <span>1&BTR 10'</span>
-                    <span>1&BTR 10'</span>
-                    <span>1&BTR 10'</span>
-                </div>
+        
+        <div class="col-2 pl-0 pr-0 d-flex flex-column">
 
-            </div>
-
-        </div>
-    </div>
-
-    <div class="row flex-1">
-        <div class="col-6 pl-0">
-            <div class="chart-container card-background">
-                <canvas id="Grades"></canvas>
-            </div>
-        </div>
-        <div class="col-3 pl-0 pr-0 d-flex flex-column">
             <div class="card-background d-flex">
                 <div class="box-chart" style="height:100%;">
                     <canvas id="TrimLoss"></canvas>
                 </div>
             </div>
+
             <div class="card-background mt-2">
                 <div class="box-chart" style="height:100%;">
                     <canvas id="LugFill"></canvas>
                 </div>
             </div>
+
+        </div>  
+        
+    </div>
+
+    <div class="row test">
+
+        <div class="col-4 pl-0">
+            <div class="chart-container card-background">
+                <canvas id="Grades"></canvas>
+            </div>
         </div>
 
-        
-        <div class="col-3 pr-0 special">
-            <div class="card-background auto-off">
-                <span style="font-weight:bold;">Auto-Off</span>
-                <div>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">1045</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">100</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">90</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">9</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">1045</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">1045</span>
-                    <span>1&BTR 10'</span><span style="color:#8bc34a">1045</span>
+        <div class="col-2 pl-0 pr-0 special">
+            <div class="card-background hand-pulled">
+                <span style="font-weight:bold;">Hand Pulled</span>
+                <div v-if="HandPulled.length">
+                    <span v-for="item in HandPulled">{{ item }}</span>
                 </div>
             </div>
         </div>
 
+        <div class="col-3 special">
+            <div class="card-background auto-off">
+                <span style="font-weight:bold;">Auto-Off</span>
+                <div v-for="item in AutoOff" v-if="AutoOff.length">
+                    <span>{{ item.Label }}</span>
+                    <span style="color:#8bc34a">{{ item.Count }}</span>                    
+                </div>
+            </div>
+        </div>
 
+        <div class="col-3 pl-0 pr-0">
+            <div class="card-background">
+                <canvas id="Pie"></canvas>
+            </div>
+        </div>
 
-        
     </div>
 </div>

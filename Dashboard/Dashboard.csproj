@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
-    <StartupObject>DashboardCore.Program</StartupObject>
+    <StartupObject></StartupObject>
     <Company>Raptor Integrations</Company>
     <Authors>Josh Dollinger</Authors>
     <SignAssembly>false</SignAssembly>

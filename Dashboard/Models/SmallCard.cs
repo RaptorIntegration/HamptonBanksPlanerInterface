@@ -1,4 +1,4 @@
-﻿namespace DashboardCore.Models
+﻿namespace Dashboard.Models
 {
     public class SmallCard
     {
