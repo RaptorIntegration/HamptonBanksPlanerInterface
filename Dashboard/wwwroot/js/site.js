@@ -19,7 +19,6 @@
         this.GetPie()
         this.GetSmallCardData()
         this.GetRatesData()
-        //this.GetProductMix()
         this.GetAutoOff()
         this.GetHandPulled()
 
@@ -28,8 +27,6 @@
         setTimeout(() => setInterval(this.GetRatesData, 5000), 100)
         setTimeout(() => setInterval(this.GetAutoOff, 5000), 150)
         setTimeout(() => setInterval(this.GetHandPulled, 5000), 200)
-
-        //setInterval(this.GetProductMix, 5000)
     },
     computed: {
         Targets: function () {
@@ -65,20 +62,6 @@
         }
     },
     methods: {
-        UpdateTable: function () {
-            fetch('home/GetTableData', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json()
-                    } else {
-                        throw response
-                    }
-                })
-                .then(data => v.Bins = data)
-                .catch(error => {
-                    console.error('Get Table Data Failed:', error);
-                });
-        },
         GetSmallCardData: function () {
             fetch('home/GetSmallCard', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
                 .then(response => {
@@ -137,29 +120,6 @@
                     //TotalChart.data.datasets[2].borderColor = this.OnRateTarget
                     TotalChart.data.labels = TimeSegment
                     TotalChart.update();
-                })
-                .catch(error => {
-                    console.error('Get Top Left Data Failed:', error);
-                });
-        },
-        GetProductMix: function () {
-            fetch('home/GetProductMix', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json()
-                    } else {
-                        throw response
-                    }
-                })
-                .then(data => {
-                    this.ProductMix = data
-
-                    let labels = data.map(r => r.label)
-                    let percent = data.map(r => (r.percent * 100).toFixed(1))
-
-                    ProductsChart.data.labels = labels
-                    ProductsChart.data.datasets[0].data = percent
-                    ProductsChart.update()
                 })
                 .catch(error => {
                     console.error('Get Top Left Data Failed:', error);

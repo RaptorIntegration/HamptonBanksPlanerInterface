@@ -176,42 +176,6 @@ namespace Dashboard.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetTableData()
-        {
-            try
-            {
-                List<Bins> bins = new List<Bins>();
-
-                using (SqlConnection con = new SqlConnection(CS))
-                {
-                    con.Open();
-
-                    using SqlCommand cmd = new SqlCommand("SELECT BinID, BinLabel, BinStatus.Color,BinPercent FROM Bins, BinStatus WHERE Bins.BinStatus = BinStatus.BinStatus ORDER BY BinID", con);
-                    using SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            bins.Add(new Bins
-                            {
-                                BinID = GetValue<int>(reader, "BinID"),
-                                Label = reader["BinLabel"].ToString(),
-                                Status = reader["Color"].ToString(),
-                                Percent = Convert.ToInt32(reader["BinPercent"].ToString())
-                            });
-                        }
-                    }
-                }
-                return Ok(bins);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-                return Error();
-            }
-        }
-
-        [HttpPost]
         public IActionResult GetPie()
         {
             const string sql = @"
@@ -257,67 +221,6 @@ namespace Dashboard.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("Failed to get data for Pie Chart", ex);
-                return Error();
-            }
-        }
-
-        [HttpPost]
-        public IActionResult GetProductMix()
-        {
-            try
-            {
-                List<ProductMix> mix = new List<ProductMix>();
-                long PieceCount = 0;
-
-                using (SqlConnection con = new SqlConnection(CS))
-                {
-                    con.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("SELECT CurrentPieces FROM CurrentState", con))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                PieceCount = GetValue<long>(reader, "CurrentPieces");
-                            }
-                        }
-                    }
-
-                    const string sql = @"
-                        SELECT distinct Products.ProdLabel + ' ' + Grades.GradeLabel As 'Label', Total
-                        FROM (SELECT ProdID, SUM(BoardCount) as Total
-                            FROM ProductionBoards
-                            WHERE Sorted = 1
-                            GROUP BY ProdID) a, Products, Grades WITH(NOLOCK)
-                        WHERE Products.ProdID = a.ProdID
-                        and Grades.GradeID = Products.GradeID
-                        ORDER BY Total DESC";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, con))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                long total = GetValue<int>(reader, "Total");
-                                float percent = (total == 0 || PieceCount == 0) ? (float)0 : ((float)total / (float)PieceCount);
-                                mix.Add(new ProductMix
-                                {
-                                    Label = GetValue<string>(reader, "Label"),
-                                    Percent = percent
-                                });
-                            }
-                        }
-                    }
-                }
-                return Ok(mix);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
                 return Error();
             }
         }
