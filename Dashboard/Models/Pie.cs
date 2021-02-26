@@ -1,9 +1,9 @@
-namespace DashboardCore.Models
+namespace Dashboard.Models
 {
     public class Pie
     {
-        public string BinStatusLabel {get; set;}
-        public int Count {get; set;}
-        public string Colour {get; set;}
+        public string BinStatusLabel { get; set; }
+        public int Count { get; set; }
+        public string Colour { get; set; }
     }
 }

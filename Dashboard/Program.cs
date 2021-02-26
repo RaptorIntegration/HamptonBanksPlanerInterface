@@ -1,10 +1,12 @@
 using System;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using NLog.Web;
 
-namespace DashboardCore
+namespace Dashboard
 {
     public class Program
     {

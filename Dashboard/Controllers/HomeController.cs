@@ -3,23 +3,44 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 
-using DashboardCore.Models;
+using Dashboard.Models;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace DashboardCore.Controllers
+namespace Dashboard.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
+        private static string CS { get; set; }
+        private record AutoOff(string Label, int Count);
+
+        private const string AutoOffSql = @"
+            SELECT Sorts.SortLabel, SUM(Sorts.OrderCount * Sorts.SortSize) - Bins.BinCount AS P
+            FROM Sorts, Bins
+            WHERE Sorts.SortID = Bins.SortID
+                AND Sorts.OrderCount > 0
+                AND Bins.BinStatus = 1
+                And RecipeID = (select RecipeID from Recipes where Online=1)
+            GROUP BY Sorts.SortLabel, Bins.BinCount";
+
+        private const string HandPulledSql = @"
+            SELECT DISTINCT BinLabel AS Label
+            FROM Bins
+            WHERE BinID > 38
+                AND (BinLabel NOT LIKE '%4%'
+                AND BinLabel NOT LIKE '%6%'
+                AND BinLabel NOT LIKE '%Economy 8%')";
 
         public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
+
+            CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
         }
 
         public IActionResult Index()
@@ -38,7 +59,6 @@ namespace DashboardCore.Controllers
         {
             try
             {
-                string CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
                 SmallCard data = new SmallCard();
 
                 using (SqlConnection con = new SqlConnection(CS))
@@ -113,7 +133,6 @@ namespace DashboardCore.Controllers
         {
             try
             {
-                string CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
                 TopLeft data = new TopLeft();
 
                 using (SqlConnection con = new SqlConnection(CS))
@@ -157,43 +176,6 @@ namespace DashboardCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetTableData()
-        {
-            try
-            {
-                string CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
-                List<Bins> bins = new List<Bins>();
-
-                using (SqlConnection con = new SqlConnection(CS))
-                {
-                    con.Open();
-
-                    using SqlCommand cmd = new SqlCommand("SELECT BinID, BinLabel, BinStatus.Color,BinPercent FROM Bins, BinStatus WHERE Bins.BinStatus = BinStatus.BinStatus ORDER BY BinID", con);
-                    using SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            bins.Add(new Bins
-                            {
-                                BinID = GetValue<int>(reader, "BinID"),
-                                Label = reader["BinLabel"].ToString(),
-                                Status = reader["Color"].ToString(),
-                                Percent = Convert.ToInt32(reader["BinPercent"].ToString())
-                            });
-                        }
-                    }
-                }
-                return Ok(bins);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-                return Error();
-            }
-        }
-
-        [HttpPost]
         public IActionResult GetPie()
         {
             const string sql = @"
@@ -213,7 +195,6 @@ namespace DashboardCore.Controllers
                 ORDER BY BinStatus";
             try
             {
-                string CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
                 List<Pie> pies = new List<Pie>();
 
                 using (SqlConnection con = new SqlConnection(CS))
@@ -245,65 +226,46 @@ namespace DashboardCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetProductMix()
+        public JsonResult GetAutoOff()
         {
-            try
+            List<AutoOff> res = new List<AutoOff>();
+            using (SqlConnection con = new SqlConnection(CS))
             {
-                string CS = _configuration.GetValue<string>("ConnectionStrings:DefaultConnection");
-                List<ProductMix> mix = new List<ProductMix>();
-                long PieceCount = 0;
+                con.Open();
 
-                using (SqlConnection con = new SqlConnection(CS))
+                using SqlCommand cmd = new SqlCommand(AutoOffSql, con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    con.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("SELECT CurrentPieces FROM CurrentState", con))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    while (reader.Read())
                     {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                PieceCount = GetValue<long>(reader, "CurrentPieces");
-                            }
-                        }
-                    }
-
-                    const string sql = @"
-                        SELECT distinct Products.ProdLabel + ' ' + Grades.GradeLabel As 'Label', Total
-                        FROM (SELECT ProdID, SUM(BoardCount) as Total
-                            FROM ProductionBoards
-                            WHERE Sorted = 1
-                            GROUP BY ProdID) a, Products, Grades WITH(NOLOCK)
-                        WHERE Products.ProdID = a.ProdID
-                        and Grades.GradeID = Products.GradeID
-                        ORDER BY Total DESC";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, con))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                long total = GetValue<int>(reader, "Total");
-                                float percent = (total == 0 || PieceCount == 0) ? (float)0 : ((float)total / (float)PieceCount);
-                                mix.Add(new ProductMix
-                                {
-                                    Label = GetValue<string>(reader, "Label"),
-                                    Percent = percent
-                                });
-                            }
-                        }
+                        res.Add(new AutoOff(reader["SortLabel"].ToString(), GetValue<int>(reader, "P")));
                     }
                 }
-                return Ok(mix);
             }
-            catch (Exception ex)
+            return new JsonResult(res);
+        }
+
+        [HttpPost]
+        public JsonResult GetHandPulled()
+        {
+            List<string> res = new List<string>();
+
+            using (SqlConnection con = new SqlConnection(CS))
             {
-                _logger.LogError(ex.ToString());
-                return Error();
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand(HandPulledSql, con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        res.Add(reader["Label"].ToString());
+                    }
+                }
             }
+            return new JsonResult(res);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
