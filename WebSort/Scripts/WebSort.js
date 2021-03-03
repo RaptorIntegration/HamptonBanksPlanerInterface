@@ -103,11 +103,16 @@ function openView(evt, TabName) {
             BinInterval = setInterval(GetChartData, (5 * 1000));
             PieInterval = setInterval(GetPieData, (5 * 1000) + 500);
         }
+        let header = document.getElementById('header')
+        header.classList.remove('big-alarm')
     } else {
         clearInterval(BinInterval);
         clearInterval(PieInterval);
         BinInterval = null;
         PieInterval = null;
+
+        let header = document.getElementById('header')
+        header.classList.add('big-alarm')
     }
     localStorage.setItem('tab', TabName);
 }

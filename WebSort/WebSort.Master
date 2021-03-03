@@ -189,7 +189,7 @@
                     LogoutPageUrl="~/WebSort.aspx" />
             </div>
         </nav>
-        <header>
+        <heade id="header">
             <asp:UpdatePanel runat="server" ID="UpdatePanelHeader">
                 <ContentTemplate>
                     <div class="header-container">
@@ -217,7 +217,7 @@
                     <asp:AsyncPostBackTrigger ControlID="TimerHeader" EventName="Tick" />
                 </Triggers>
             </asp:UpdatePanel>
-        </header>
+        </heade>
 
         <main>
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
