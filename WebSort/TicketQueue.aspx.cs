@@ -1,29 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
 using System.Data.SqlClient;
-using WebSort;
+using System.Web.UI.WebControls;
 
-namespace industrial
+namespace WebSort
 {
     public partial class ticketqueue : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
             if (IsPostBack)
                 return;
             SqlConnection connection = new SqlConnection(Global.ConnectionString);
-             // Open the connection.
+            // Open the connection.
             connection.Open();
             SqlCommand cmd = new SqlCommand("select * from RaptorTicketSettings", connection);
             SqlDataReader reader = cmd.ExecuteReader();
@@ -66,7 +54,7 @@ namespace industrial
 
         protected void GridViewPreviousData_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
         {
-            Timer2.Enabled = true; 
+            Timer2.Enabled = true;
         }
 
         protected void CheckBoxAutoIncrement_CheckedChanged(object sender, EventArgs e)
@@ -84,12 +72,11 @@ namespace industrial
                 SqlCommand command = new SqlCommand("update RaptorTicketSettings set Auto=0", connection);
                 command.ExecuteNonQuery();
             }
-            connection.Close(); 
+            connection.Close();
         }
 
         protected void GridViewPreviousData_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            
             if (e.CommandName == "Print")
             {
                 SqlConnection connection = new SqlConnection(Global.ConnectionString);
@@ -98,7 +85,6 @@ namespace industrial
                 int index = Convert.ToInt32(e.CommandArgument);
                 SqlCommand command = new SqlCommand("exec selectTicket " + GridViewPreviousData.Rows[index].Cells[2].Text, connection);
                 command.ExecuteNonQuery();
-                
 
                 connection.Close();
                 GridViewPreviousData.DataBind();
@@ -115,13 +101,10 @@ namespace industrial
                 SqlCommand command1 = new SqlCommand("update ProductionPackagesPrevious set TicketPrinted=1,Printed=1 where packagenumber= " + GridViewPreviousData.Rows[index].Cells[2].Text, connection);
                 command1.ExecuteNonQuery();
 
-
                 connection.Close();
                 GridViewPreviousData.DataBind();
                 UpdatePanel5.Update();
             }
-
-             
         }
     }
 }

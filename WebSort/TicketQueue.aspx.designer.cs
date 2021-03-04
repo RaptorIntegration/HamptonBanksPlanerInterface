@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace industrial {
-    
-    
-    public partial class ticketqueue {
-        
+namespace WebSort
+{
+
+
+    public partial class ticketqueue
+    {
+
         /// <summary>
         /// UpdatePanel4 control.
         /// </summary>
@@ -20,7 +22,7 @@ namespace industrial {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.UpdatePanel UpdatePanel4;
-        
+
         /// <summary>
         /// CheckBoxAutoIncrement control.
         /// </summary>
@@ -29,7 +31,7 @@ namespace industrial {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox CheckBoxAutoIncrement;
-        
+
         /// <summary>
         /// UpdatePanel5 control.
         /// </summary>
@@ -38,7 +40,7 @@ namespace industrial {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.UpdatePanel UpdatePanel5;
-        
+
         /// <summary>
         /// GridViewPreviousData control.
         /// </summary>
@@ -47,7 +49,7 @@ namespace industrial {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView GridViewPreviousData;
-        
+
         /// <summary>
         /// SqlDataSource2 control.
         /// </summary>
@@ -56,7 +58,7 @@ namespace industrial {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.SqlDataSource SqlDataSource2;
-        
+
         /// <summary>
         /// Timer2 control.
         /// </summary>

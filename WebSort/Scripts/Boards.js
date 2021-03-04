@@ -66,10 +66,10 @@ const v = new Vue({
     },
     mounted() {
         this.GetBoards()
-        this.GetRejects()
-        setTimeout(() => this.GetProdStats(), 50)
-        setTimeout(() => this.InitCharts(), 500)
-        setTimeout(() => this.GetCharts(), 500)
+        setTimeout(() => this.GetRejects(), 50)
+        setTimeout(() => this.GetProdStats(), 100)
+        setTimeout(() => this.InitCharts(), 200)
+        setTimeout(() => this.GetCharts(), 200)
 
         this.SetBoardsInterval()
         setTimeout(() => this.SetProdInterval(), 500)
