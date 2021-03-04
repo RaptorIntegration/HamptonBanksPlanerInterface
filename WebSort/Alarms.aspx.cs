@@ -213,6 +213,30 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string SaveHistory(Alarm[] history)
+        {
+            SaveResponse response = new SaveResponse("Alarms");
+
+            foreach (Alarm h in history)
+            {
+                try
+                {
+                    h.Save();
+                    response.AddEdits(h.EditsList);
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error saving");
+                    return SaveResponse.Serialize(response);
+                }
+            }
+
+            response.Good("Alarms Saved");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
         public static string SaveDefaults(AlarmDefault[] defaults)
         {
             SaveResponse response = new SaveResponse("AlarmDefaults");

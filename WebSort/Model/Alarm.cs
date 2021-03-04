@@ -7,6 +7,11 @@ namespace WebSort.Model
 {
     public class Alarm
     {
+        public Alarm()
+        {
+            EditsList = new List<Edit>();
+        }
+
         [DatabasePrimaryKey]
         public int ShiftIndex { get; set; }
 
@@ -19,17 +24,23 @@ namespace WebSort.Model
         [DatabasePrimaryKey]
         public DateTime StartTime { get; set; }
 
+        [DatabaseIgnore]
         public string StartTimeString => StartTime.ToString("MMM dd HH:mm:ss");
 
         public DateTime StopTime { get; set; }
+
+        [DatabaseIgnore]
         public string StopTimeString => StopTime.ToString("MMM dd HH:mm:ss");
+
         public bool DownTime { get; set; }
         public string Duration { get; set; }
         public int Data { get; set; }
         public int PrimaryReasonID { get; set; }
-        public string PrimaryReason { get; set; }
+
         public int SecondaryReasonID { get; set; }
-        public string SecondaryReason { get; set; }
+
+        [DatabaseIgnore]
+        public List<Edit> EditsList { get; set; }
 
         public const string CurrentAlarmsSQL = @"
             SELECT alarms.alarmid,
@@ -60,6 +71,14 @@ namespace WebSort.Model
         {
             MightyOrm<Alarm> db = new MightyOrm<Alarm>(Global.MightyConString, "Alarms", "AlarmID");
             return db.Query(CurrentAlarmsSQL);
+        }
+
+        public Alarm Save()
+        {
+            MightyOrm<Alarm> db = new MightyOrm<Alarm>(Global.MightyConString, "Alarms", "AlarmID");
+            db.Update(this);
+
+            return this;
         }
 
         public class DisplayLog

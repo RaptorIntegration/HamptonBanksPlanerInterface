@@ -17,7 +17,6 @@
                 SortBy: '',
                 Editing: null,
                 Edited: false,
-                New: null,
                 SaveResponse: {
                     Message: '',
                     ChangedList: []
@@ -125,16 +124,15 @@
     },
     mounted: function () {
         setTimeout(_ => this.GetAlarmSettings(), 0);
-        setTimeout(_ => this.GetCurrentAlarms(), 0)
-        setTimeout(_ => this.GetSecurity(), 0)
-        setTimeout(_ => this.GetDefaults(), 100)
-        setTimeout(_ => this.GetGeneral(), 100)
-        setTimeout(_ => this.GetDisplayLog(), 100)
+        setTimeout(_ => this.GetCurrentAlarms(), 100)
         setTimeout(_ => this.GetHistory(), 200)
-        setTimeout(_ => this.GetPrimaryReasons(), 300)
-        setTimeout(_ => this.GetSecondaryReasons(), 300)
+        setTimeout(_ => this.GetPrimaryReasons(), 250)
+        setTimeout(_ => this.GetSecondaryReasons(), 275)
+        setTimeout(_ => this.GetDefaults(), 300)
+        setTimeout(_ => this.GetGeneral(), 350)
+        setTimeout(_ => this.GetDisplayLog(), 500)
+        setTimeout(_ => this.GetSecurity(), 550)
 
-        this.GetServices()
         setInterval(this.GetServices, 3000);
 
         this.SetCurrentTimer();
@@ -543,6 +541,30 @@
                         this.Reasons.Secondary.Editing = false;
                     });
             }
+        },
+        SaveHistory: function () {
+            let changed = this.History.List.filter(p => p.EditsList.length)
+            if (!changed || this.SecurityEnabled) { return; }
+
+            let data = JSON.stringify({ history: changed })
+
+            axios.post("Alarms.aspx/SaveHistory", data, this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.History.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.SetHistoryTimer()
+                    this.Loading = false;
+                    this.History.Edited = false;
+                    this.History.Editing = false;
+                });
         },
 
         DeletePrimaryReason: function (reason) {

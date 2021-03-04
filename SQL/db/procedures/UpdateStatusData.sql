@@ -159,7 +159,7 @@ BEGIN
 				  if @AlarmText <> '' and @AlarmText is not null 
 					insert into Alarms
 					values
-					(@Shift,@Run,@AlarmID,Getdate(),NULL,0,NULL,@Data)                
+					(@Shift,@Run,@AlarmID,Getdate(),NULL,0,NULL,@Data, 0, 0)                
 			      
 				end
 

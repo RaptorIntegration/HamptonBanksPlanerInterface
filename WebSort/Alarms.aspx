@@ -50,45 +50,81 @@
                             </tbody>
                         </table>
                     </div>
-                    <div v-else-if="Tab === 1" key="1" class="d-flex justify-content-center">
-                        <table v-if="Settings.List.length" class="table" style="max-width:1800px;">
-                            <thead>
-                                <tr>
-                                    <th style="width:5%;" v-on:click="Sort('AlarmID', History)">ID</th>
-                                    <th>Text</th>
-                                    <th style="width:20%;" v-on:click="Sort('StartTime', History)">Start Time</th>
-                                    <th style="width:20%;" v-on:click="Sort('StopTime', History)">Stop Time</th>
-                                    <th style="width:5%;" v-on:click="Sort('Downtime', History)">Downtime</th>
-                                    <th style="width:5%;" v-on:click="Sort('Duration', History)">Duration</th>
-                                    <th>Primary Reason</th>
-                                    <th>Secondary Reason</th>
-                                    <th style="width:5%;">Severity</th>                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="alarm in HistorySorted">
-                                    <td>{{alarm.AlarmID}}</td>
-                                    <td>{{Settings.List[alarm.AlarmID].AlarmText}}</td>
-                                    <td>{{alarm.StartTimeString}}</td>
-                                    <td>{{alarm.StopTimeString}}</td>
-                                    <td>{{alarm.Downtime ? 'Yes' : 'No'}}</td>
-                                    <td>{{alarm.Duration}}</td>
-                                    <td>{{alarm.PrimaryReason}}</td>
-                                    <td>{{alarm.SecondaryReason}}</td>
-                                    <td>
-                                        <div v-if="Settings.List[alarm.AlarmID].Severity === 1">
-                                            <svg class="table-icon warning-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
-                                        </div>
-                                        <div v-if="Settings.List[alarm.AlarmID].Severity === 2">
-                                            <svg class="table-icon error-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                        </div>
-                                        <div v-else>
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div v-else-if="Tab === 1" key="1" >
+                        <div class="above-table mb-3">
+                            <div>
+                                <input type="button" class="btn-save" value="Save Change(s)" v-on:click="SaveHistory()" v-show="History.Edited" />
+                            </div>                                             
+                        </div>
+                        <div class="d-flex justify-content-center">
+                             <table v-if="Settings.List.length" class="table" style="max-width:1800px;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:5%;" v-on:click="Sort('AlarmID', History)">ID</th>
+                                        <th>Text</th>
+                                        <th style="width:20%;" v-on:click="Sort('StartTime', History)">Start Time</th>
+                                        <th style="width:20%;" v-on:click="Sort('StopTime', History)">Stop Time</th>
+                                        <th style="width:5%;" v-on:click="Sort('Downtime', History)">Downtime</th>
+                                        <th style="width:5%;" v-on:click="Sort('Duration', History)">Duration</th>
+                                        <th>Primary Reason</th>
+                                        <th>Secondary Reason</th>
+                                        <th style="width:5%;">Severity</th>                                    
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="alarm in HistorySorted">
+                                        <td>{{alarm.AlarmID}}</td>
+                                        <td>{{Settings.List[alarm.AlarmID].AlarmText}}</td>
+                                        <td>{{alarm.StartTimeString}}</td>
+                                        <td>{{alarm.StopTimeString}}</td>
+                                        <td>{{alarm.Downtime ? 'Yes' : 'No'}}</td>
+                                        <td>{{alarm.Duration}}</td>
+                                        <td @click="EditingCell(History, 'PrimaryReason', alarm.AlarmID); CancelAutoUpdate()">
+                                            <select 
+                                                class="form-control" 
+                                                v-model="alarm.PrimaryReasonID" 
+                                                v-if="History.Editing == alarm.AlarmID + '_PrimaryReason'" 
+                                                v-on:change="Update('PrimaryReasonID', alarm.AlarmID, alarm, History, 'AlarmID');"
+                                                v-on:blur="History.Editing = null"
+                                                v-on:focus="Prev(alarm.PrimaryReasonID, History)">
+                                                <option value="0"></option>
+                                                <option v-for="r in Reasons.Primary.List" v-bind:value="r.ID">{{r.Text}}</option>
+                                            </select>
+                                            <div v-else>
+                                                {{Reasons.Primary.List.find(f => f.ID === alarm.PrimaryReasonID)?.Text}}
+                                            </div>   
+                                        </td>
+                                        <td @click="EditingCell(History, 'SecondaryReason', alarm.AlarmID); CancelAutoUpdate()">
+                                            <select 
+                                                class="form-control" 
+                                                v-model="alarm.SecondaryReasonID" 
+                                                v-if="History.Editing == alarm.AlarmID + '_SecondaryReason'" 
+                                                v-on:change="Update('SecondaryReasonID', alarm.AlarmID, alarm, History, 'AlarmID');"
+                                                v-on:blur="History.Editing = null"
+                                                v-on:focus="Prev(alarm.SecondaryReasonID, History)">
+                                                <option value="0"></option>
+                                                <option v-for="r in Reasons.Secondary.List" v-bind:value="r.ID">{{r.Text}}</option>
+                                            </select>
+                                            <div v-else>
+                                                {{Reasons.Secondary.List.find(f => f.ID === alarm.SecondaryReasonID)?.Text}}
+                                            </div>   
+                                        </td>
+                                        <td>
+                                            <div v-if="Settings.List[alarm.AlarmID].Severity === 1">
+                                                <svg class="table-icon warning-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                                            </div>
+                                            <div v-if="Settings.List[alarm.AlarmID].Severity === 2">
+                                                <svg class="table-icon error-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                            </div>
+                                            <div v-else>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                       
                     </div>
                     <div v-else-if="Tab === 2" key="2">
                         <div class="above-table">
