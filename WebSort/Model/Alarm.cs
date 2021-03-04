@@ -26,19 +26,23 @@ namespace WebSort.Model
         public bool DownTime { get; set; }
         public string Duration { get; set; }
         public int Data { get; set; }
+        public int PrimaryReasonID { get; set; }
+        public string PrimaryReason { get; set; }
+        public int SecondaryReasonID { get; set; }
+        public string SecondaryReason { get; set; }
 
         public const string CurrentAlarmsSQL = @"
             SELECT alarms.alarmid,
-                   starttime
-            FROM   alarms
+                    starttime
+            FROM   Alarms
             WHERE  stoptime IS NULL
             UNION
             SELECT alarmsprevious.alarmid,
-                   starttime
+                    starttime
             FROM   alarmsprevious
             WHERE  stoptime IS NULL
             ORDER  BY starttime DESC,
-                      alarmid ASC";
+                        alarmid ASC";
 
         public static IEnumerable<Alarm> GetAll()
         {

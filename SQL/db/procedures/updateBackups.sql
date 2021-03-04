@@ -24,9 +24,9 @@ BEGIN
 	END CATCH
 	
 	--create daily backup on storage drive (not overwritten)
-	/*BEGIN TRY
+	BEGIN TRY
 		declare @filename varchar(150)
-		select @filename = 'd:\databasebackups\websortbackup ' + replace(CONVERT(varchar,getdate(),101),'/','-') + ' ' + DATENAME(hh,getdate()) + '.' + DATENAME(mi,getdate()) + '.bak'
+		select @filename = 'e:\databasebackups\websortbackup ' + replace(CONVERT(varchar,getdate(),101),'/','-') + ' ' + DATENAME(hh,getdate()) + '.' + DATENAME(mi,getdate()) + '.bak'
 		BACKUP DATABASE  RaptorWebsort  TO DISK = @filename WITH INIT        
 		insert into RaptorShiftMasterLog select getdate(),'Database Backed up to ' + @filename
 	END TRY
@@ -34,7 +34,7 @@ BEGIN
 		insert into RaptorShiftMasterLog select getdate(),'Database Backup failed'
 	END CATCH
 	
-	Exec master.dbo.xp_cmdshell 'c:\raptorwebsort\filetrimmer.exe /d d:\databasebackups /a 10',no_output*/
+	Exec master.dbo.xp_cmdshell 'c:\raptorwebsort\filetrimmer.exe /d e:\databasebackups /a 10',no_output
 	
 	
 	/*BEGIN TRY

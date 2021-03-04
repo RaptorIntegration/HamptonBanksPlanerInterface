@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.ServiceProcess;
 using System.Web.Script.Serialization;
 using System.Web.Services;
 using System.Web.UI.WebControls;
+
 using WebSort.Model;
 
 namespace WebSort
@@ -125,6 +127,68 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string GetPrimaryReasons()
+        {
+            JavaScriptSerializer s = new JavaScriptSerializer();
+            List<Reason> ret = new List<Reason>();
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("SELECT * FROM AlarmPrimaryReasons WHERE ID > 0", con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ret.Add(
+                            new Reason()
+                            {
+                                ID = Global.GetValue<int>(reader, "ID"),
+                                Text = Global.GetValue<string>(reader, "Reason"),
+                                EditsList = new List<Edit>()
+                            }
+                        );
+                    }
+                }
+            }
+
+            return s.Serialize(ret);
+        }
+
+        [WebMethod]
+        public static string GetSecondaryReasons()
+        {
+            JavaScriptSerializer s = new JavaScriptSerializer();
+            List<Reason> ret = new List<Reason>();
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("SELECT * FROM AlarmSecondaryReasons WHERE ID > 0", con);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ret.Add(
+                            new Reason()
+                            {
+                                ID = Global.GetValue<int>(reader, "ID"),
+                                Text = Global.GetValue<string>(reader, "Reason"),
+                                EditsList = new List<Edit>()
+                            }
+                        );
+                    }
+                }
+            }
+
+            return s.Serialize(ret);
+        }
+
+        [WebMethod]
         public static string SaveSettings(AlarmSetting[] settings)
         {
             SaveResponse response = new SaveResponse("AlarmSettings");
@@ -223,7 +287,184 @@ namespace WebSort
         }
 
         [WebMethod]
+        public static string SavePrimaryReasons(Reason[] reasons)
+        {
+            SaveResponse response = new SaveResponse("AlarmPrimaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                foreach (Reason r in reasons)
+                {
+                    using SqlCommand cmd = new SqlCommand("UPDATE AlarmPrimaryReasons SET Reason = @Reason WHERE ID = @ID", con);
+                    cmd.Parameters.AddWithValue("@Reason", r.Text);
+                    cmd.Parameters.AddWithValue("@ID", r.ID);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        response.Bad("Error saving");
+                        return SaveResponse.Serialize(response);
+                    }
+                }
+            }
+
+            response.Good("Primary Reason Saved");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string SaveSecondaryReasons(Reason[] reasons)
+        {
+            SaveResponse response = new SaveResponse("AlarmSecondaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                foreach (Reason r in reasons)
+                {
+                    using SqlCommand cmd = new SqlCommand("UPDATE AlarmSecondaryReasons SET Reason = @Reason WHERE ID = @ID", con);
+                    cmd.Parameters.AddWithValue("@Reason", r.Text);
+                    cmd.Parameters.AddWithValue("@ID", r.ID);
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.LogError(ex);
+                        response.Bad("Error saving");
+                        return SaveResponse.Serialize(response);
+                    }
+                }
+            }
+
+            response.Good("Secondary Reason Saved");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string AddPrimaryReason()
+        {
+            SaveResponse response = new SaveResponse("AlarmPrimaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("INSERT INTO AlarmPrimaryReasons SELECT 'New Reason'", con);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error adding new reason");
+                    return SaveResponse.Serialize(response);
+                }
+            }
+
+            response.Good("Primary Reason Added");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string AddSecondaryReason()
+        {
+            SaveResponse response = new SaveResponse("AlarmSecondaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("INSERT INTO AlarmSecondaryReasons SELECT 'New Reason'", con);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error adding new reason");
+                    return SaveResponse.Serialize(response);
+                }
+            }
+
+            response.Good("Secondary Reason Added");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string DeletePrimaryReason(Reason reason)
+        {
+            SaveResponse response = new SaveResponse("AlarmPrimaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("DELETE FROM AlarmPrimaryReasons WHERE ID = @ID", con);
+
+                cmd.Parameters.AddWithValue("@ID", reason.ID);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error deleting reason");
+                    return SaveResponse.Serialize(response);
+                }
+            }
+
+            response.Good("Primary Reason Deleted");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
+        public static string DeleteSecondaryReason(Reason reason)
+        {
+            SaveResponse response = new SaveResponse("AlarmSecondaryReasons");
+
+            using (SqlConnection con = new SqlConnection(Global.ConnectionString))
+            {
+                con.Open();
+
+                using SqlCommand cmd = new SqlCommand("DELETE FROM AlarmSecondaryReasons WHERE ID = @ID", con);
+
+                cmd.Parameters.AddWithValue("@ID", reason.ID);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Global.LogError(ex);
+                    response.Bad("Error deleting reason");
+                    return SaveResponse.Serialize(response);
+                }
+            }
+
+            response.Good("Secondary Reason Deleted");
+            return SaveResponse.Serialize(response);
+        }
+
+        [WebMethod]
         public static string StartService(string service)
+
         {
             SaveResponse response = new SaveResponse();
 
@@ -294,6 +535,18 @@ namespace WebSort
 
             response.Good($"Service: {service} stopped");
             return SaveResponse.Serialize(response);
+        }
+
+        public class Reason
+        {
+            public Reason()
+            {
+                EditsList = new List<Edit>();
+            }
+
+            public int ID { get; set; }
+            public string Text { get; set; }
+            public List<Edit> EditsList { get; set; }
         }
     }
 }

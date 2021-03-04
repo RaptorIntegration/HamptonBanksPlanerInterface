@@ -20,6 +20,7 @@ BEGIN
 	select @maxshiftindex = (select max(shiftindex) from shifts)
 
     delete from ProductionBoardsPrevious where shiftindex < (@maxshiftindex-@archivedshiftcount)
+    delete from ProductionBoardsRerunPrevious where shiftindex < (@maxshiftindex-@archivedshiftcount)
 	delete from ProductionPackagesPrevious where shiftindex < (@maxshiftindex-@archivedshiftcount)
 	delete from ProductionDiverterFailPrevious where shiftindex < (@maxshiftindex-@archivedshiftcount)
 	delete from AlarmsPrevious where shiftindex < (@maxshiftindex-50)

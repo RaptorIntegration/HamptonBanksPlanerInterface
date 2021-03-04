@@ -12,10 +12,11 @@
             <div class="tab-grid tab mb-5">
                 <input type="button" class="tablinks" v-bind:class="{active: Tab == 0}" value="Current Alarms" v-on:click="Tab = 0" />
                 <input type="button" class="tablinks" v-bind:class="{active: Tab == 1}" value="Alarms History" v-on:click="Tab = 1" />
-                <input type="button" class="tablinks" v-bind:class="{active: Tab == 2}" value="Alarm Properties" v-on:click="Tab = 2" />
-                <input type="button" class="tablinks" v-bind:class="{active: Tab == 3}" value="Default Messages" v-on:click="Tab = 3" />
-                <input type="button" class="tablinks" v-bind:class="{active: Tab == 4}" value="Display Board Settings " v-on:click="Tab = 4" />
-                <input type="button" class="tablinks" v-bind:class="{active: Tab == 5}" value="Display Log" v-on:click="Tab = 5" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 2}" value="Reasons" v-on:click="Tab = 2" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 3}" value="Alarm Properties" v-on:click="Tab = 3" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 4}" value="Default Messages" v-on:click="Tab = 4" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 5}" value="Display Board Settings " v-on:click="Tab = 5" />
+                <input type="button" class="tablinks" v-bind:class="{active: Tab == 6}" value="Display Log" v-on:click="Tab = 6" />
             </div>
             <div>
                 <transition name="fade" mode="out-in">
@@ -50,7 +51,7 @@
                         </table>
                     </div>
                     <div v-else-if="Tab === 1" key="1" class="d-flex justify-content-center">
-                        <table v-if="Settings.List.length" class="table" style="max-width:1400px;">
+                        <table v-if="Settings.List.length" class="table" style="max-width:1800px;">
                             <thead>
                                 <tr>
                                     <th style="width:5%;" v-on:click="Sort('AlarmID', History)">ID</th>
@@ -59,7 +60,9 @@
                                     <th style="width:20%;" v-on:click="Sort('StopTime', History)">Stop Time</th>
                                     <th style="width:5%;" v-on:click="Sort('Downtime', History)">Downtime</th>
                                     <th style="width:5%;" v-on:click="Sort('Duration', History)">Duration</th>
-                                    <th style="width:5%;">Severity</th>
+                                    <th>Primary Reason</th>
+                                    <th>Secondary Reason</th>
+                                    <th style="width:5%;">Severity</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -70,6 +73,8 @@
                                     <td>{{alarm.StopTimeString}}</td>
                                     <td>{{alarm.Downtime ? 'Yes' : 'No'}}</td>
                                     <td>{{alarm.Duration}}</td>
+                                    <td>{{alarm.PrimaryReason}}</td>
+                                    <td>{{alarm.SecondaryReason}}</td>
                                     <td>
                                         <div v-if="Settings.List[alarm.AlarmID].Severity === 1">
                                             <svg class="table-icon warning-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
@@ -86,6 +91,108 @@
                         </table>
                     </div>
                     <div v-else-if="Tab === 2" key="2">
+                        <div class="above-table">
+                            <div>
+                                <input type="button" class="btn-save" value="Save Change(s)" v-on:click="SaveReasons()" v-show="Reasons.Primary.Edited || Reasons.Secondary.Edited" />
+                            </div>                                             
+                        </div>
+
+                        <div class="reasons">
+                            
+                            <div class="d-flex justify-content-center">
+                                <table v-if="Reasons.Primary.List.length" class="table" style="max-width:600px;">
+                                    <caption>Primary</caption>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%;"></th>
+                                            <th style="width:25%;">ID</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="r in Reasons.Primary.List">
+                                            <td>
+                                                <button type="button" v-on:click="DeletePrimaryReason(r)" class="btn-trash" v-bind:disabled="SecurityEnabled">
+                                                    <i class="gg-trash-empty"></i>
+                                                </button>
+                                            </td>
+
+                                            <td>{{r.ID}}</td>                                            
+                                            <td @click="EditingCell(Reasons.Primary, 'Reason', r.ID)">
+                                                <input
+                                                    v-if="Reasons.Primary.Editing == r.ID + '_Reason'"
+                                                    v-model="r.Text"
+                                                    v-on:blur="Update('Reason', r.Text, r, Reasons.Primary, 'ID'); Reasons.Primary.Editing = null"
+                                                    v-on:focus="Prev(r.Text, Reasons.Primary)"
+                                                    type="text"
+                                                    spellcheck="false"
+                                                    class="form-control">
+                                                <div v-else>
+                                                    <label>{{r.Text}}</label>
+                                                </div>
+                                            </td>                                            
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <button type="button" class="btn-plus" v-bind:disabled="SecurityEnabled" v-on:click="AddPrimaryReason">
+                                                    <i class="gg-math-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+
+                            
+                            <div class="d-flex justify-content-center">
+                                <table v-if="Reasons.Secondary.List.length" class="table" style="max-width:600px;">
+                                    <caption>Secondary</caption>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%;"></th>
+                                            <th style="width:25%;">ID</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="r in Reasons.Secondary.List">
+                                            <td>
+                                                <button type="button" v-on:click="DeleteSecondaryReason(r)" class="btn-trash" v-bind:disabled="SecurityEnabled">
+                                                    <i class="gg-trash-empty"></i>
+                                                </button>
+                                            </td>
+                                            
+                                            <td>{{r.ID}}</td>                                            
+                                            <td @click="EditingCell(Reasons.Secondary, 'Reason', r.ID)">
+                                                <input
+                                                    v-if="Reasons.Secondary.Editing == r.ID + '_Reason'"
+                                                    v-model="r.Text"
+                                                    v-on:blur="Update('Reason', r.Text, r, Reasons.Secondary, 'ID');  Reasons.Secondary.Editing = null"
+                                                    v-on:focus="Prev(r.Text, Reasons.Secondary)"
+                                                    type="text"
+                                                    spellcheck="false"
+                                                    class="form-control">
+                                                <div v-else>
+                                                    <label>{{r.Text}}</label>
+                                                </div>
+                                            </td>                                            
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <button type="button" class="btn-plus" v-bind:disabled="SecurityEnabled" v-on:click="AddSecondaryReason">
+                                                    <i class="gg-math-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                    <div v-else-if="Tab === 3" key="3">
                         <nav class="mb-2">
 			                <ul class="pagination text-center">
 				                <li class="page-item">
@@ -268,7 +375,7 @@
                             </table>
                         </div>
                     </div>
-                    <div v-else-if="Tab === 3" key="3">
+                    <div v-else-if="Tab === 4" key="4">
                         <div class="d-flex justify-content-center">
                             <span>Default Messages marked as active below will be displayed when all other alarms have cleared.</span>
                         </div>
@@ -372,7 +479,7 @@
                             </table>
                         </div>
                     </div>
-                    <div v-else-if="Tab === 4" key="4" class="general-grid" style="max-width:1300px; margin:auto;">
+                    <div v-else-if="Tab === 5" key="5" class="general-grid" style="max-width:1300px; margin:auto;">
                         <div v-if="General">
                             <label>Display Time Main (sec)</label>
                             <input type="text" v-model="General.DisplayTime" class="form-control mb-3" v-on:change="SaveGeneral" />
@@ -402,7 +509,7 @@
                             <input type="text" v-model="General.DisplayIPAddress" class="form-control" />
                         </div>
                     </div>
-                    <div v-else-if="Tab === 5" key="5" class="display-grid">
+                    <div v-else-if="Tab === 6" key="6" class="display-grid">
                         <div>
                             <div class="card d-flex justify-content-between">
                                 <span class="card-title">Raptor Display Main Service: {{Services[0]}}</span>
@@ -448,7 +555,7 @@
                                 </table>
                             </div>
                         </div>
-            </div>
+                    </div>
             </transition>
             </div>
         </div>

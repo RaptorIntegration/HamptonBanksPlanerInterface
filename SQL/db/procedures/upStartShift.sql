@@ -60,7 +60,7 @@ BEGIN
 	end
 	
 	-- inform PLC of start of shift
-    update RaptorCommSettings set DataRequests = DataRequests | 262144
+    update RaptorCommSettings set DataRequests = DataRequests | 131072
 
 	insert into RaptorShiftMasterLog select getdate(),'Update Shift Start Time'
 	

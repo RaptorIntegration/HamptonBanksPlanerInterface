@@ -14,7 +14,8 @@ CREATE TABLE [dbo].[ProductionPackages] (
    [TicketPrinted] [smallint] NULL,
    [LotNumber] [varchar](50) NULL,
    [Spare] [varchar](50) NULL,
-   [Spare1] [varchar](50) NULL
+   [Spare1] [varchar](50) NULL,
+   [Printed] [bit] NULL
 
    ,CONSTRAINT [PK_ProductionPackages] PRIMARY KEY CLUSTERED ([ShiftIndex], [RunIndex], [PackageNumber])
 )

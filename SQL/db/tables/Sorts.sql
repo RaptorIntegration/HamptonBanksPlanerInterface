@@ -16,8 +16,7 @@ CREATE TABLE [dbo].[Sorts] (
    [SortSprays] [int] NULL,
    [SortSpraysLabel] [varchar](100) NULL,
    [BinID] [int] NULL,
-   [CN2Frequency] [int] NOT NULL
-      CONSTRAINT [DF_Sorts_CN2Frequency] DEFAULT ((0)),
+   [CN2Frequency] [int] NULL,
    [TrimFlag] [bit] NULL,
    [SecProdID] [smallint] NULL,
    [SecSize] [smallint] NULL,

@@ -107,3 +107,54 @@ svg {
 .active a {
     background-color: var(--info-500);
 }
+
+.reasons{
+    display:grid;
+    grid-gap:3rem;
+    grid-template-columns: 45% 45%;
+    margin-top:2rem;
+}
+
+.reasons caption{
+    font-size:1.2rem;
+    font-weight:bolder;
+    text-align:left;
+}
+
+.btn-trash {
+    color: var(--error);
+    background-color: transparent;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    cursor:pointer;
+}
+
+    .btn-trash:hover {
+        background-color: var(--bg-primary);
+    }
+
+    .btn-trash:disabled {
+        background-color: transparent;
+        cursor: default;
+        color: transparent;
+    }
+
+.btn-plus {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    background-color: var(--raptor);
+    color: var(--grey-100);
+    border: none;
+    cursor:pointer;
+}
+
+.btn-plus:disabled {
+    background-color: transparent;
+    cursor: default;
+    color: transparent;
+}
+
+.gg-math-plus{
+    margin:auto;
+}

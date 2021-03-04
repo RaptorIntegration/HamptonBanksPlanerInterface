@@ -44,7 +44,8 @@ BEGIN
 	select @PackageSize = @PkgSize
 	if @PackageSize=0 select @PackageSize=(select binsize from bins where binid=@BayNum)
 	if @PackageSize = 0 select @PackageSize = 1
-
+	
+	
 	declare @statuscurrent int
 	select @statuscurrent = (select binstatus from bins where binid=@BayNum)
 
@@ -282,9 +283,14 @@ BEGIN
 						select @PackageNumber = (select max(packagenumber)+1 from ProductionPackages)
 				end
 				
+				declare @ticketprint smallint
+				if (select [auto] from raptorticketsettings) = 1
+					select @ticketprint = 0
+				else
+					select @ticketprint = 1
 				--delete from ProductionPackagesProducts where packagenumber=@packagenumber
 				insert into ProductionPackages select @maxshiftindex,@maxrunindex,@packagenumber,0,timestampfull,getdate(),convert(smallint,(convert(real,BinSize)/convert(real,@PkgsPerSort))),@pkgCount,@BayNum,@SortXRef,
-				BinLabel,ProductsLabel,0,convert(varchar,sortid),'','' from bins where binid=@BayNum and binsize>0
+				BinLabel,ProductsLabel,@ticketprint,convert(varchar,sortid),'','',0 from bins where binid=@BayNum and binsize>0
 				insert into ProductionPackagesProducts select @packagenumber,prodid,lengthid,convert(smallint,(convert(real,boardcount)/convert(real,@PkgsPerSort))) from BinProductLengths where binid=@BayNum and boardcount>0
 				
 				insert into ProductionPackagesGraders select @packagenumber,binid,prodid,graderid,boardcount from BinGraders where BinID=@BayNum
@@ -383,7 +389,7 @@ BEGIN
 				update Bins set BinLabel=sortlabel,BinStatus=@Status,BinSize=sortSize*PkgsPerSort,RW=sorts.rw,BinStamps=SortStamps,
 				BinSprays=SortSprays,BinPercent=ceiling(convert(real,@Count)/convert(real,sortSize)*100),sortid=@SortXRef,
 				TrimFlag=sorts.TrimFlag,timestampfull=GETDATE()
-				,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
+				,secprodid=sorts.secprodid,secsize=sorts.secsize,seccount=SortSize*sorts.SecSize/100
 				from sorts,bins  where sorts.sortid=@sortxref and recipeid=(select recipeid from recipes where online=1)
 				and bins.binid=@BayNum
 				
@@ -403,14 +409,15 @@ BEGIN
 		end
 		else if @Status=2 and @statuscurrent <> 2 --bin full
 		begin
+			declare @cn2overridesort int
+			select @cn2overridesort = (select min(sortid) from Sorts where active=1 and binid=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1))
 			--bin may be receiving pieces while a user is editing the bin to full, so we must verify the count
 			if (select bincount from bins where binid=@BayNum) > @Count
 				select @Count = (select bincount from bins where binid=@BayNum)
 			update Bins set BinStatus=@Status,BinCount=@Count,RW=@RdmWidthFlag,sortid=@SortXRef,
 			TrimFlag=@TrimFlag,BinPercent=ceiling(convert(real,@Count)/convert(real,@PackageSize)*100)
-			,secprodid=sorts.secprodid,secsize=sorts.secsize,seccount=@seccount
-			from sorts  where sorts.sortid=@sortxref and recipeid=(select recipeid from recipes where online=1)
-			and bins.binid=@BayNum
+			,secprodid=@secprodid,secsize=@secsize,seccount=@seccount
+			where bins.binid=@BayNum
 			
 			if (select ordercount from Sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)) > 0
 			begin
@@ -418,10 +425,15 @@ BEGIN
 				if (select ordercount from Sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)) = 0
 				begin
 					update Sorts set Active=0 where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)
-					--delete from alarmsettingsinfeed where alarmid=@SortXRef
-					--insert into alarmsettingsinfeed select @SortXRef,0,sortlabel + ': PACKAGE ORDER COMPLETE',2,3 from sorts where SortID=@SortXRef and RecipeID=(select RecipeID from Recipes where Online = 1)
-				end
-			--update RaptorCommSettings set DataRequests = DataRequests | 2
+				end			
+			end
+			if (select ordercount from Sorts where SortID=@cn2overridesort and RecipeID=(select RecipeID from Recipes where Online = 1)) > 0
+			begin
+				update Sorts set OrderCount=OrderCount-1 where SortID=@cn2overridesort and RecipeID=(select RecipeID from Recipes where Online = 1)
+				if (select ordercount from Sorts where SortID=@cn2overridesort and RecipeID=(select RecipeID from Recipes where Online = 1)) = 0
+				begin
+					update Sorts set Active=0 where SortID=@cn2overridesort and RecipeID=(select RecipeID from Recipes where Online = 1)
+				end			
 			end
 		end
 		else if @Status=3 and @statuscurrent <> 3 --bin disable
