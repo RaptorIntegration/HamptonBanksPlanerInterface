@@ -17,7 +17,6 @@
                 SortBy: '',
                 Editing: null,
                 Edited: false,
-                New: null,
                 SaveResponse: {
                     Message: '',
                     ChangedList: []
@@ -40,6 +39,29 @@
                     Message: '',
                     ChangedList: []
                 },
+            },
+
+            Reasons: {
+                Primary: {
+                    List: [],
+                    Editing: null,
+                    Edited: false,
+                    Previous: null,
+                    SaveResponse: {
+                        Message: '',
+                        ChangedList: []
+                    },
+                },
+                Secondary: {
+                    List: [],
+                    Editing: null,
+                    Edited: false,
+                    Previous: null,
+                    SaveResponse: {
+                        Message: '',
+                        ChangedList: []
+                    },
+                }
             },
 
             Defaults: {
@@ -102,14 +124,15 @@
     },
     mounted: function () {
         setTimeout(_ => this.GetAlarmSettings(), 0);
-        setTimeout(_ => this.GetCurrentAlarms(), 0)
-        setTimeout(_ => this.GetSecurity(), 0)
-        setTimeout(_ => this.GetDefaults(), 100)
-        setTimeout(_ => this.GetGeneral(), 100)
-        setTimeout(_ => this.GetDisplayLog(), 100)
+        setTimeout(_ => this.GetCurrentAlarms(), 100)
         setTimeout(_ => this.GetHistory(), 200)
+        setTimeout(_ => this.GetPrimaryReasons(), 250)
+        setTimeout(_ => this.GetSecondaryReasons(), 275)
+        setTimeout(_ => this.GetDefaults(), 300)
+        setTimeout(_ => this.GetGeneral(), 350)
+        setTimeout(_ => this.GetDisplayLog(), 500)
+        setTimeout(_ => this.GetSecurity(), 550)
 
-        this.GetServices()
         setInterval(this.GetServices, 3000);
 
         this.SetCurrentTimer();
@@ -296,8 +319,27 @@
                     console.error(error);
                 });
         },
+        GetPrimaryReasons: function () {
+            axios.post('Alarms.aspx/GetPrimaryReasons', this.Headers)
+                .then(response => {
+                    this.Reasons.Primary.List = JSON.parse(response.data.d);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        GetSecondaryReasons: function () {
+            axios.post('Alarms.aspx/GetSecondaryReasons', this.Headers)
+                .then(response => {
+                    this.Reasons.Secondary.List = JSON.parse(response.data.d);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
 
         Update: function (col, val, row, table, key) {
+            if (this.SecurityEnabled) { return; }
             table.Edited = true
             if (typeof (val) === 'boolean') {
                 table.Previous = !val;
@@ -370,7 +412,7 @@
 
         SaveSettings: function () {
             let changed = this.Settings.List.filter(p => p.EditsList.length)
-            if (!changed) { return; }
+            if (!changed || this.SecurityEnabled) { return; }
 
             let data = JSON.stringify({ settings: changed })
 
@@ -451,6 +493,148 @@
                     console.error(error);
                     this.Toast(JSON.parse(error.data.d));
                 })
+        },
+        SaveReasons: function () {
+            let primaryChanged = this.Reasons.Primary.List.filter(f => f.EditsList.length)
+            let secondaryChanged = this.Reasons.Secondary.List.filter(f => f.EditsList.length)
+
+            if (primaryChanged && primaryChanged.length) {
+                let data = JSON.stringify({ reasons: primaryChanged })
+
+                axios.post("Alarms.aspx/SavePrimaryReasons", data, this.Headers)
+                    .then(response => {
+                        let Parsed = JSON.parse(response.data.d);
+
+                        this.Reasons.Primary.SaveResponse = Parsed;
+                        this.SetToast(Parsed);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        this.Toast(JSON.parse(error.data.d));
+                    })
+                    .finally(_ => {
+                        this.GetPrimaryReasons();
+                        this.Loading = false;
+                        this.Reasons.Primary.Edited = false;
+                        this.Reasons.Primary.Editing = false;
+                    });
+            }
+
+            if (secondaryChanged?.length) {
+                let data = JSON.stringify({ reasons: secondaryChanged })
+
+                axios.post("Alarms.aspx/SaveSecondaryReasons", data, this.Headers)
+                    .then(response => {
+                        let Parsed = JSON.parse(response.data.d);
+
+                        this.Reasons.Primary.SaveResponse = Parsed;
+                        this.SetToast(Parsed);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        this.Toast(JSON.parse(error.data.d));
+                    })
+                    .finally(_ => {
+                        this.GetSecondaryReasons();
+                        this.Loading = false;
+                        this.Reasons.Secondary.Edited = false;
+                        this.Reasons.Secondary.Editing = false;
+                    });
+            }
+        },
+        SaveHistory: function () {
+            let changed = this.History.List.filter(p => p.EditsList.length)
+            if (!changed || this.SecurityEnabled) { return; }
+
+            let data = JSON.stringify({ history: changed })
+
+            axios.post("Alarms.aspx/SaveHistory", data, this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.History.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.SetHistoryTimer()
+                    this.Loading = false;
+                    this.History.Edited = false;
+                    this.History.Editing = false;
+                });
+        },
+
+        DeletePrimaryReason: function (reason) {
+            let data = JSON.stringify({reason: reason})
+
+            axios.post("Alarms.aspx/DeletePrimaryReason", data, this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.Reasons.Primary.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.GetPrimaryReasons();
+                });
+        },
+        DeleteSecondaryReason: function (reason) {
+            let data = JSON.stringify({reason: reason})
+
+            axios.post("Alarms.aspx/DeleteSecondaryReason", data, this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.Reasons.Secondary.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.GetSecondaryReasons();
+                });
+        },
+
+        AddPrimaryReason: function () {
+             axios.post("Alarms.aspx/AddPrimaryReason", this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.Reasons.Primary.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.GetPrimaryReasons();
+                });
+        },
+        AddSecondaryReason: function () {
+             axios.post("Alarms.aspx/AddSecondaryReason", this.Headers)
+                .then(response => {
+                    let Parsed = JSON.parse(response.data.d);
+
+                    this.Reasons.Secondary.SaveResponse = Parsed;
+                    this.SetToast(Parsed);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.Toast(JSON.parse(error.data.d));
+                })
+                .finally(_ => {
+                    this.GetSecondaryReasons();
+                });
         },
 
         StartService: function (service) {

@@ -48,10 +48,7 @@ BEGIN
 	select @zone2stop = (@zone2/256) & 255
 	select @RecipeID =(select recipeid from recipes where online=1)
 	
-	if (select count(*) from sorts where sortid=@sortid and recipeid=@recipeid) = 0
-		insert into sorts select @recipeid, @sortid,@Name,@active,@PkgSize,@zone1start,@zone1stop,@zone2start,@zone2stop,@pkgpersort,@RdmWidthFlag,
-		@ordercount,@Stamps,'',@Sprays,'',0,@TrimFlag,0,0,''
-	else
+	
 	begin
 		update sorts set sortLabel=@Name,active=@active,SortSize=@PkgSize,zone1start=@zone1start,zone1stop=@zone1stop,zone2start=@zone2start,zone2stop=@zone2stop,
 		pkgspersort=@Pkgpersort,RW=@RdmWidthFlag,ordercount=@ordercount,sortStamps=@Stamps,sortstampslabel='',

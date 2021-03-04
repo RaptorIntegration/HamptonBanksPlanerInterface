@@ -83,6 +83,9 @@ BEGIN
 	delete from ProductionBoardsPrevious where shiftindex=@currentshiftindex
 	insert into ProductionBoardsPrevious select * from ProductionBoards where shiftindex=@currentshiftindex
 	delete from ProductionBoards where shiftindex=@currentshiftindex
+	delete from ProductionBoardsRerunPrevious where shiftindex=@currentshiftindex
+	insert into ProductionBoardsRerunPrevious select * from ProductionBoardsRerun where shiftindex=@currentshiftindex
+	delete from ProductionBoardsRerun where shiftindex=@currentshiftindex
 	delete from ProductionPackagesProductsPrevious where packagenumber in (select packagenumber from ProductionPackages where shiftindex=@currentshiftindex)
 	insert into ProductionPackagesProductsPrevious select * from ProductionPackagesProducts where packagenumber in (select packagenumber from ProductionPackages where shiftindex=@currentshiftindex)
 	delete ProductionPackagesProducts

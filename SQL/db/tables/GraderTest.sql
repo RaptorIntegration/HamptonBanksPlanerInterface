@@ -11,8 +11,10 @@ CREATE TABLE [dbo].[GraderTest] (
    [Active] [bit] NOT NULL,
    [stamp] [bit] NOT NULL,
    [Trim] [bit] NOT NULL,
-   [Thickness] [int] NULL,
-   [Width] [int] NULL
+   [Thickness] [int] NOT NULL
+      CONSTRAINT [DF_GraderTest_Thickness] DEFAULT ((0)),
+   [Width] [int] NOT NULL
+      CONSTRAINT [DF_GraderTest_Width] DEFAULT ((0))
 
    ,CONSTRAINT [PK_GraderTest] PRIMARY KEY CLUSTERED ([ID])
 )

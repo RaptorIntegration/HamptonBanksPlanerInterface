@@ -1,6 +1,8 @@
 CREATE TABLE [dbo].[BoardsSavedDetails] (
-   [NumberOfBoards] [smallint] NULL,
-   [Folder] [varchar](100) NULL
+   [NumberOfBoards] [smallint] NOT NULL
+      CONSTRAINT [DF_BoardsSavedDetails_NumberOfBoards] DEFAULT ((0)),
+   [Folder] [varchar](100) NOT NULL
+      CONSTRAINT [DF_BoardsSavedDetails_Folder] DEFAULT ('')
 )
 
 

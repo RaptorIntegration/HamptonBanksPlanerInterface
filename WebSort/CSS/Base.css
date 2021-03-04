@@ -131,7 +131,7 @@
 }
 
 body {
-    color: black;
+    color: var(--text-primary);
     background-color: var(--bg-primary);
     margin: 0;
     padding: 0;
@@ -225,6 +225,7 @@ header {
 }
 
 .site-map {
+    margin-left: 3rem;
     -ms-flex-pack: start !important;
     justify-content: start !important;
 }

@@ -5,6 +5,8 @@ CREATE TABLE [dbo].[DataRequestsGraderTest] (
    [Graders] [int] NULL,
    [Grades] [int] NULL,
    [Lengths] [int] NULL,
+   [Thickness] [int] NULL,
+   [Width] [int] NULL,
    [Samplesize] [smallint] NULL,
    [SamplesRemaining] [smallint] NULL,
    [BayID] [smallint] NULL,

@@ -327,9 +327,9 @@
                                 v-bind:colours="StatusColours"
                                 v-bind:incdec="IncDec">
                                 <div>
-                                    <div class="card-title d-flex justify-content-between" v-on:click="ToggleEdit">
+                                    <div class="sort-title d-flex justify-content-between mb-2" v-on:click="ToggleEdit">
                                         <span>#{{value.BinID}} - {{value.BinLabel}}</span>
-                                        <span>count: {{value.BinCount}}, size: {{value.BinSize}}</span>
+                                        <span>{{value.BinSize}}/{{value.BinCount}}</span>
                                     </div>
                                     <div class="d-flex justify-content-between" v-on:click="ToggleEdit">
                                         <div v-bind:style="Bar"></div>

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" MaintainScrollPositionOnPostback="true"  EnableEventValidation="false"  ViewStateEncryptionMode="Never" StyleSheetTheme="Theme" MasterPageFile="~/WebSort.Master" AutoEventWireup="true" CodeBehind="ticketqueue.aspx.cs" Inherits="industrial.ticketqueue" %>
+﻿<%@ Page Language="C#" MaintainScrollPositionOnPostback="true"  EnableEventValidation="false"  ViewStateEncryptionMode="Never" StyleSheetTheme="Theme" MasterPageFile="~/WebSort.Master" AutoEventWireup="true" CodeBehind="ticketqueue.aspx.cs" Inherits="WebSort.ticketqueue" %>
 
 
 <%@ Register assembly="AjaxControlToolkit" namespace="AjaxControlToolkit" tagprefix="cc2" %>

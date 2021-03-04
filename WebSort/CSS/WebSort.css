@@ -3,11 +3,13 @@
     grid-gap: 1rem 2rem;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
 }
-#vue-wrapper{
-    outline:none;
+
+#vue-wrapper {
+    outline: none;
 }
-#vue-content{
-    outline:none;
+
+#vue-content {
+    outline: none;
 }
 
 .colour-box {
@@ -15,26 +17,28 @@
     padding: 0.2rem 0.2rem;
     margin: 0.25rem;
 }
+
 #ContainerLabel {
     color: var(--text-primary)
 }
 
-#ContainerLabel span {
-    font-size: 14px;
-    flex: 1;
-    line-height: 20px;
-}
+    #ContainerLabel span {
+        font-size: 14px;
+        flex: 1;
+        line-height: 20px;
+    }
 
-#ContainerLabel > div {
-    padding: 10px 5px;
-}
+    #ContainerLabel > div {
+        padding: 10px 5px;
+    }
 
-#ContainerLabel div div {
-    width: 1.5rem;
-    height: 1.25rem;
-    border-radius: 10px;
-    margin: 0px 5px;
-}
+    #ContainerLabel div div {
+        width: 1.5rem;
+        height: 1.25rem;
+        border-radius: 10px;
+        margin: 0px 5px;
+    }
+
 .chart {
     padding: 0.5rem 0px;
     box-sizing: border-box;
@@ -76,14 +80,17 @@
     padding: 0.25rem !important;
     font-size: 0.75rem;
 }
+
 .product-grid {
     display: grid;
     grid-gap: 0.25rem 0.75rem;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
+
     .product-grid .checkboxlist:hover {
         background-color: var(--accent);
     }
+
 .save-btn {
     background-color: var(--success);
     border: none;
@@ -94,6 +101,7 @@
     display: inline-block;
     font-size: 16px;
 }
+
 .btn-arrow {
     padding: 0.5rem;
     flex: 1 1 20%;
@@ -102,15 +110,18 @@
     border: none;
     font-size: 2rem;
 }
+
 .btn-clear {
     padding: 0.5rem;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     border: none;
 }
+
 .editing-label {
     flex: 1 1 30%;
 }
+
 .editing-value {
     flex: 1 1 20%;
     font-size: 1.25rem;
@@ -121,6 +132,7 @@
     color: #388e3c;
     font-size: 16px;
 }
+
 .selection-container {
     max-height: 200px;
     position: relative;
@@ -138,6 +150,7 @@
     .selection-list:hover {
         background-color: var(--bg-secondary);
     }
+
 .no-hover:hover {
     background-color: var(--bg-primary) !important;
 }
@@ -150,10 +163,12 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    flex-direction: row;
+    flex-direction: column;
+    height: 80vh;
 }
+
 .sort {
-    flex: 0 1 325px;
+    flex: 0 1 50px;
     margin: 0.5rem;
     border: 3px solid;
 }
@@ -221,6 +236,7 @@
     border: none;
     margin: 0 10px;
 }
+
 .incriment-amount {
     width: 30px;
     padding: 0.3rem 0.5rem;
@@ -229,6 +245,7 @@
     background-color: var(--bg-primary);
     border: 1px solid var(--text-secondary);
 }
+
 .incriment-container {
     align-items: center;
     display: flex;
@@ -248,3 +265,11 @@
     .stamp-inner-container label {
         cursor: pointer;
     }
+
+.sort-title {
+    font-size: 1.3rem;
+}
+
+.big-alarm #LabelAlphaMessage {
+    font-size: 2.5rem;
+}

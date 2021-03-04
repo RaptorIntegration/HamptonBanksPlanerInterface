@@ -55,23 +55,7 @@ BEGIN
 	select @trimlossfactor1=(select (100.0 + (100.0-trimlossfactor))/100.0 from WEBSortSetup )
 	select @volumeout = (select lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
 	
-	--account for trimsave pieces, count the input length as the output length
-	--if @cn2 > 0
-		--select @lengthin = (select lengthnominal/12 from lengths where lengthid=@lengthid)
-	/*select @min = (select DATEPART(mi,getdate()))
-	if @min between 0 and 9
-		update lugfillcurrent set min10 = min10+@volumeout
-	else if @min between 10 and 19
-		update lugfillcurrent set min20 = min20+@volumeout
-	else if @min between 20 and 29
-		update lugfillcurrent set min30 = min30+@volumeout
-	else if @min between 30 and 39
-		update lugfillcurrent set min40 = min40+@volumeout
-	else if @min between 40 and 49
-		update lugfillcurrent set min50 = min50+@volumeout
-	else if @min between 50 and 59
-		update lugfillcurrent set min60 = min60+@volumeout*/
-		
+			
 	delete from lugfillcurrent1 where ABS(datediff(mi, getdate(),timestamp)) > 60
 	insert into lugfillcurrent1 select GETDATE(),@volumeout*@trimlossfactor
 	
@@ -162,7 +146,7 @@ BEGIN
 	select @lengthlabel = (select lengthlabel from Lengths where LengthID = @LengthID)	
 
 	update CurrentState set CurrentVolume = @Volume*@trimlossfactor, CurrentPieces = @PieceCount
-	update currentstate set DisplayVolume = (select @Volume*@trimlossfactor from CurrentState)
+	update currentstate set DisplayVolume = (select @Volume from CurrentState)
 	update currentstate set DisplayPieces = (select @PieceCount from CurrentState)
 	
 	
@@ -215,16 +199,6 @@ BEGIN
 		and ((@previoussaws & POWER(2,sawid)) <> (@saws & POWER(2,sawid)))
 	end
 	
-	--account for saw mileage in the PET trimmer
-	/*if @LengthID in (select lengthid from Lengths where PETFlag=1)  
-	begin
-		select @Saws = 1  --zero saw is always on
-		select @Saws = @Saws | (select POWER(2,sawindex) from PETLengths where PETLengthID in (select PETLengthID from Lengths where LengthID = @LengthID))
-		select @saws = @Saws * POWER(2,27)  --bit shift to use the PET portion of the sawmileage map (bits 27-30)
-		update sawmileage set mileage = mileage + @nominalwidth/12 where @saws & POWER(2,sawid) = POWER(2,sawid)
-		update sawmileage set strokes = strokes + 1 where @saws & POWER(2,sawid) = POWER(2,sawid) 
-		and ((@previoussaws & POWER(2,sawid)) <> (@saws & POWER(2,sawid)))
-	end*/
 	
 	--check to see if the saw mileage thresholds have been achieved
 	declare @sawcounter smallint
@@ -247,71 +221,7 @@ BEGIN
 		delete from boardslugfill where id<=(select max(id)-500 from boardslugfill)
 	
 	
-	/* update DGS data */
-	--lugs run
-	update DGSData set LugsRun = LugsRun + 1 where ShiftIndex = @maxshiftindex
-		
-	if (@BayNum > 0)
-	begin
-		declare @lenghinrounded real
-		select @lenghinrounded = (select floor(convert(smallint,@lengthin)))
-		--pieces in
-		update DGSData set PiecesIn = PiecesIn + 1 where ShiftIndex = @maxshiftindex
-		
-		--lineal in
-		update DGSData set LinealIn = LinealIn + @lenghinrounded where ShiftIndex = @maxshiftindex
-		
-		--volume in
-		update DGSData set VolumeIn = VolumeIn + ((@lenghinrounded*12)*@ThickNom*@WidthNom)/144 where ShiftIndex = @maxshiftindex
-		
-		--trim volume
-		declare @volumein real,  @trimvolume real
-		select @volumein = ((@lenghinrounded*12.0)*@ThickNom*@WidthNom)/144.0
-		select @volumeout = (select lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-		select @trimvolume = @volumein - @volumeout
-		update DGSData set TrimVolume = TrimVolume + @trimvolume where ShiftIndex = @maxshiftindex
-		--insert into test select @lengthin,@ThickActual,@widthactual
-		
-	end
 	
-	if @Flags = (select rejectflag from BoardRejects where RejectDescription like '%Reman%')
-	begin
-		--Reman Pieces
-		update DGSData set RemanPieces = RemanPieces + 1 where ShiftIndex = @maxshiftindex		
-		--Reman volume
-		update DGSData set RemanVolume = RemanVolume + ((@Lengthin*12)*@ThickActual*@WidthActual)/144 where ShiftIndex = @maxshiftindex		
-	end
-	
-	if @Flags = (select rejectflag from BoardRejects where RejectDescription like '%Slash%')
-	begin
-		--Slash Pieces
-		update DGSData set SlashedPieces = SlashedPieces + 1 where ShiftIndex = @maxshiftindex
-		--Slash volume
-		update DGSData set SlashedVolume = SlashedVolume + ((@Lengthin*12)*@ThickActual*@WidthActual)/144 where ShiftIndex = @maxshiftindex		
-	end
-	
-	--Bone Dry Pieces
-	if (select moistureid from Products where ProdID = @ProductID) = 1
-	begin
-		if (select widthnominal from Products where ProdID = @ProductID) = 4
-		begin
-			update DGSData set BoneDryPieces2x4 = BoneDryPieces2x4 + 1 where ShiftIndex = @maxshiftindex	
-		end
-		else if (select widthnominal from Products where ProdID = @ProductID) = 6
-		begin
-			update DGSData set BoneDryPieces2x6 = BoneDryPieces2x6 + 1 where ShiftIndex = @maxshiftindex	
-		end
-		else if (select widthnominal from Products where ProdID = @ProductID) = 10
-		begin
-			update DGSData set BoneDryPieces2x10 = BoneDryPieces2x10 + 1 where ShiftIndex = @maxshiftindex	
-		end
-		else if (select widthnominal from Products where ProdID = @ProductID) = 12
-		begin
-			update DGSData set BoneDryPieces2x12 = BoneDryPieces2x12 + 1 where ShiftIndex = @maxshiftindex	
-		end
-	
-	end
-
 	
 	/* update bins tables */	
 	if @Baynum > 0 and @Baynum in (select binid from bins where binstatus<>4) and (@Flags=-1 or @Flags=22)
@@ -417,76 +327,20 @@ BEGIN
 	--trimloss
 	declare @trimloss real
 	select @trimloss = 0
-	if @sortcode = 1 or @sortcode = (select RejectFlag from BoardRejects where RejectDescription like '%slash%')
+	--check to see if this is a reentry issue board
+	if (@lengthin*12) < (select lengthnominal from Lengths where LengthID=@LengthID)
+		select @lengthin = (select lengthnominal/12 from Lengths where LengthID=@LengthID)
+	if @cn2<2 and @sortcode = 1
 		update CurrentState set CurrentInputVolume = CurrentInputVolume + ((@Lengthin*12)*@ThickNom*@WidthNom)/144
 		
 	if (select CurrentInputVolume from CurrentState) > 0
 	begin
-		select @trimloss = round((select (CurrentInputVolume-(currentvolume*@trimlossfactor1)) / CurrentInputVolume *100 from CurrentState),1)
+		select @trimloss = round((select (CurrentInputVolume-currentvolume) / CurrentInputVolume *100 from CurrentState),1)
 	end
 	else
 		select @trimloss=0
 	
-    --update Vorne statistics
-	--update Vorne statistics
-	if @sorted=1
-	begin
-		if @nominalthick=2 and @nominalwidth = 4
-		begin
-			update VorneStatistics set [2x4volume]=[2x4volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x4percentage] = (select ROUND([2x4volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalthick=2 and @nominalwidth = 6
-		begin
-			update VorneStatistics set [2x6volume]=[2x6volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x6percentage] = (select ROUND([2x6volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalwidth = 8
-		begin
-			update VorneStatistics set [2x8volume]=[2x8volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x8percentage] = (select ROUND([2x8volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalwidth = 10
-		begin
-			update VorneStatistics set [2x10volume]=[2x10volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x10percentage] = (select ROUND([2x10volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalwidth = 12
-		begin
-			update VorneStatistics set [2x12volume]=[2x12volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x12percentage] = (select ROUND([2x12volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalthick=2 and @nominalwidth = 7
-		begin
-			update VorneStatistics set [2x7volume]=[2x7volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x7percentage] = (select ROUND([2x7volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalthick=2 and @nominalwidth = 9
-		begin
-			update VorneStatistics set [2x9volume]=[2x9volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [2x9percentage] = (select ROUND([2x9volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalthick=1 and @nominalwidth = 4
-		begin
-			update VorneStatistics set [1x4volume]=[1x4volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [1x4percentage] = (select ROUND([1x4volume]/CurrentVolume*100,1) from CurrentState)
-		end
-		else if @nominalthick=1 and @nominalwidth = 6
-		begin
-			update VorneStatistics set [1x6volume]=[1x6volume] + (select @trimlossfactor * lengthnominal * thicknominal *widthnominal/144.0 from Products,Lengths where products.ProdID=@ProductID and lengths.LengthID=@LengthID)
-			if (select currentvolume from CurrentState) > 0
-				update VorneStatistics set [1x6percentage] = (select ROUND([1x6volume]/CurrentVolume*100,1) from CurrentState)
-		end
-	
-	end
+    
 	
 	--if (select targetmode from WEBSortSetup) = 'Shift'
 	begin
@@ -500,18 +354,7 @@ BEGIN
 		else select @piecesperhour = 0
 		select @timesegment = (select abs(datediff(mi,getdate(),shiftstart)) from shifts where shiftindex = @maxshiftindex)	
 	end
-	/*else
-	begin
-		if (select convert(real,abs(datediff(s,runstart,getdate())))/3600-@breaktimetemp from runs where runindex=@maxrunindex) > 0
-			select @volumeperhour = (select currentvolume from currentstate) / 
-			(select convert(real,abs(datediff(s,runstart,getdate())))/3600-@breaktimetemp from runs where runindex=@maxrunindex)
-		else select @volumeperhour = 0
-		if (select convert(real,abs(datediff(s,runstart,getdate())))/3600-@breaktimetemp from runs where runindex=@maxrunindex) > 0
-			select @piecesperhour = (select currentpieces from currentstate) / 
-			(select convert(real,abs(datediff(s,runstart,getdate())))/3600-@breaktimetemp from runs where runindex=@maxrunindex)
-		else select @piecesperhour = 0
-		select @timesegment = (select abs(datediff(mi,getdate(),runstart)) from runs where runindex = @maxrunindex)	
-	end*/
+	
 	
 	update CurrentState set CurrentVolumePerHour = @volumeperhour,currentpiecesperhour=@piecesperhour,Currentshiftlugfill=@lugfill,Currentlugfill=@lugfill1,currentuptime=@uptime,currentreman=@percentreman, trimloss=@trimloss
     update CurrentState set VolumePerHour = (select SUM(volume) from lugfillcurrent1)
@@ -519,36 +362,31 @@ BEGIN
 	update TargetSummary set volumeperhour=@volumeperhour,piecesperhour=(select COUNT(*) from lugfillcurrent1),lugfill=@lugfill1,uptime=@uptime where timesegment=@timesegment
     and shiftindex = @maxshiftindex
 
-	-- fill in behind 
-	/*update TargetSummary set piecesperhour = (select currentpieces from currentstate) / (convert(real,timesegment) /60)
-	where piecesperhour=0 and timesegment<@timesegment
-	update TargetSummary set volumeperhour = (select currentvolume from currentstate) / (convert(real,timesegment) /60)
-	where volumeperhour=0 and timesegment<@timesegment*/
 	
-	/*Sorter Efficiency*/
-	/*Actual Lugs Filled /( 110 * number of minutes run) displayed as percentage*/
-	/*declare @sortereff real
-	if (@timesegment > 0)
-		select @sortereff = ROUND(@fulllugs / (110 * @timesegment) *100,0)
-	else
-		select @sortereff = 0*/
-	
-
-	
-	
-	if (select count(*) from ProductionBoards where shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
-	and ProdID=@productid and lengthID=@lengthid and thickactual=@thickactual and widthactual=@widthactual
-	and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode) > 0
-		update ProductionBoards set boardcount=Boardcount+1 where 
-		shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
+	if @Devices=0  --normal production boards
+	begin
+		if (select count(*) from ProductionBoards where shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
 		and ProdID=@productid and lengthID=@lengthid and thickactual=@thickactual and widthactual=@widthactual
-		and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode
-	else
-		insert into ProductionBoards select @maxshiftindex,max(runindex),@productid, @lengthid,@thickactual,@widthactual,@lengthin,0,@net,@fet,@cn2,@fence,@sorted,@sortcode,1 from runs
-	
-	--update user message with current infeed length
-	--update AlarmDefaults set Prefix = (select  'LEN: ' + CONVERT(varchar,productlength) from DriveCurrentState)
-	--where AlarmID=1011
+		and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode) > 0
+			update ProductionBoards set boardcount=Boardcount+1 where 
+			shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
+			and ProdID=@productid and lengthID=@lengthid and thickactual=@thickactual and widthactual=@widthactual
+			and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode
+		else
+			insert into ProductionBoards select @maxshiftindex,max(runindex),@productid, @lengthid,@thickactual,@widthactual,@lengthin,0,@net,@fet,@cn2,@fence,@sorted,@sortcode,1 from runs
+	end
+	else  --rerun boards	
+	begin
+		if (select count(*) from ProductionBoardsRerun where shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
+		and ProdID=@productid and lengthID=@lengthid and thickactual=@thickactual and widthactual=@widthactual
+		and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode) > 0
+			update ProductionBoards set boardcount=Boardcount+1 where 
+			shiftindex=@maxshiftindex and runindex=(select max(runindex) from runs)
+			and ProdID=@productid and lengthID=@lengthid and thickactual=@thickactual and widthactual=@widthactual
+			and lengthin=@LengthIn and net=@net and fet=@fet and cn2=@cn2 and fence=@fence and sorted=@sorted and sortcode=@sortcode
+		else
+			insert into ProductionBoardsRerun select @maxshiftindex,max(runindex),@productid, @lengthid,@thickactual,@widthactual,@lengthin,0,@net,@fet,@cn2,@fence,@sorted,@sortcode,1 from runs
+	end
 END
 GO
 SET QUOTED_IDENTIFIER OFF 

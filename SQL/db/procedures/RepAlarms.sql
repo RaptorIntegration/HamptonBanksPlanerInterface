@@ -79,7 +79,7 @@ BEGIN
 			and severity=severityid
 			and runs.runindex = Alarms.runindex
 			and runs.RecipeID between @recipeidstart and @recipeidend
-			and Alarms.shiftindex = @maxshiftid
+			and Alarms.shiftindex  between @shiftstart and @shiftend
 			union
 			select AlarmsPrevious.AlarmID,starttime,stoptime,duration,AlarmsPrevious.data,alarmtext,severitygraphic
 			from AlarmsPrevious,Alarmsettings,alarmseverity,runs

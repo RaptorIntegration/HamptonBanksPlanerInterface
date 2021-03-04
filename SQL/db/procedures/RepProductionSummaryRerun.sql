@@ -2,7 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON 
 GO
-CREATE procEDURE [dbo].[RepProductionSummary]
+create procEDURE [dbo].[RepProductionSummaryRerun]
 	
 AS
 BEGIN
@@ -40,32 +40,32 @@ BEGIN
 
 	if @shiftstart = @maxshiftid --current shift only
 	begin
-		if (select count(*) from ProductionBoards, runs
+		if (select count(*) from ProductionBoardsRerun, runs
 		where sorted=1 and sortcode=1
-		and runs.runindex = productionboards.runindex
+		and runs.runindex = ProductionBoardsRerun.runindex
 		and runs.RecipeID between @recipeidstart and @recipeidend) = 0
 		insert into #t
 			select sortcode='1',prodlabel1='No Data',prodlabel='No Data',nominalthickness=0,nominalwidth=0,gradelabel='No Data',lengthnominal=0,lengthlabel='No Data',totalpieces=0,totalvolume=0
 		else
 		insert into #t
 			select sortcode,prodlabel1=prodlabel,prodlabel=convert(varchar,thicknominal) + 'x' + convert(varchar,widthnominal),thicknominal,widthnominal,gradelabel,lengthnominal,lengthlabel,totalpieces=sum(boardcount),totalvolume=sum(thicknominal*widthnominal*lengthnominal*boardcount/144)
-			from ProductionBoards,products,lengths,grades,runs
+			from ProductionBoardsRerun,products,lengths,grades,runs
 			where sorted=1 and sortcode=1
 			and products.gradeid=grades.gradeid
-			and products.prodid = productionBoards.prodid
-			and lengths.lengthid = productionBoards.lengthid
-			and runs.runindex = productionboards.runindex
+			and products.prodid = ProductionBoardsRerun.prodid
+			and lengths.lengthid = ProductionBoardsRerun.lengthid
+			and runs.runindex = ProductionBoardsRerun.runindex
 			and runs.RecipeID between @recipeidstart and @recipeidend
-			and ProductionBoards.shiftindex = @maxshiftid
+			and ProductionBoardsRerun.shiftindex = @maxshiftid
 			group by thicknominal,widthnominal,prodlabel,gradelabel,lengthnominal,lengthlabel,sortcode
 		
 	end
 	
 	else --previous shifts and/or current shift
 	begin
-		select @count = (select count(*) from ProductionBoards,runs 
+		select @count = (select count(*) from ProductionBoardsRerun,runs 
 		where sorted=1 and sortcode=1 and shiftindex between @shiftstart and @shiftend
-		and runs.runindex = productionboards.runindex
+		and runs.runindex = ProductionBoardsRerun.runindex
 		and runs.RecipeID between @recipeidstart and @recipeidend)
 		if @count is null select @count = 0
 		
@@ -83,26 +83,26 @@ BEGIN
 		begin
 		insert into #t
 			select sortcode,prodlabel1=prodlabel,prodlabel=convert(varchar,thicknominal) + 'x' + convert(varchar,widthnominal),thicknominal,widthnominal,gradelabel,lengthnominal,lengthlabel,totalpieces=sum(boardcount),totalvolume=sum(thicknominal*widthnominal*lengthnominal*boardcount/144)
-			from ProductionBoards,products,lengths,grades,runs
+			from ProductionBoardsRerun,products,lengths,grades,runs
 			where sorted=1 and sortcode=1
 			and products.gradeid=grades.gradeid
-			and products.prodid = productionBoards.prodid
-			and lengths.lengthid = productionBoards.lengthid
-			and runs.runindex = productionboards.runindex
+			and products.prodid = ProductionBoardsRerun.prodid
+			and lengths.lengthid = ProductionBoardsRerun.lengthid
+			and runs.runindex = ProductionBoardsRerun.runindex
 			and runs.RecipeID between @recipeidstart and @recipeidend
-			and ProductionBoards.shiftindex between @shiftstart and @shiftend
+			and ProductionBoardsRerun.shiftindex between @shiftstart and @shiftend
 			
 			group by thicknominal,widthnominal,prodlabel,gradelabel,lengthnominal,lengthlabel,sortcode
 			union
 			select sortcode,prodlabel1=prodlabel,prodlabel=convert(varchar,thicknominal) + 'x' + convert(varchar,widthnominal),thicknominal,widthnominal,gradelabel,lengthnominal,lengthlabel,totalpieces=sum(boardcount),totalvolume=sum(thicknominal*widthnominal*lengthnominal*boardcount/144)
-			from ProductionBoardsPrevious,products,lengths,grades,runs
+			from ProductionBoardsRerunPrevious,products,lengths,grades,runs
 			where sorted=1 and sortcode=1
 			and products.gradeid=grades.gradeid
-			and products.prodid = ProductionBoardsPrevious.prodid
-			and lengths.lengthid = ProductionBoardsPrevious.lengthid
-			and runs.runindex = ProductionBoardsPrevious.runindex
+			and products.prodid = ProductionBoardsRerunPrevious.prodid
+			and lengths.lengthid = ProductionBoardsRerunPrevious.lengthid
+			and runs.runindex = ProductionBoardsRerunPrevious.runindex
 			and runs.RecipeID between @recipeidstart and @recipeidend
-			and ProductionBoardsPrevious.shiftindex between @shiftstart and @shiftend
+			and ProductionBoardsRerunPrevious.shiftindex between @shiftstart and @shiftend
 			
 			group by thicknominal,widthnominal,prodlabel,gradelabel,lengthnominal,lengthlabel,sortcode
 		end
