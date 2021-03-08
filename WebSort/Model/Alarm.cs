@@ -64,7 +64,7 @@ namespace WebSort.Model
         public static IEnumerable<Alarm> GetAllHistory()
         {
             MightyOrm<Alarm> db = new MightyOrm<Alarm>(Global.MightyConString, "Alarms", "AlarmID");
-            return db.AllWithParams("WHERE StopTime IS NOT NULL");
+            return db.AllWithParams("WHERE StopTime IS NOT NULL", "ORDER BY Stoptime asc");
         }
 
         public static IEnumerable<Alarm> GetAllCurrent()

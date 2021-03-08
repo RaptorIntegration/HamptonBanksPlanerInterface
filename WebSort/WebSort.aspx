@@ -141,7 +141,7 @@
                                         <tr>
                                             <th scope="col" style="width: 2%;" @click="Sort('BinID')">Bay</th>
                                             <th scope="col" style="width: 20%;" @click="Sort('BinLabel')">Label</th>
-                                            <th scope="col" style="width: 5%;" @click="Sort('BinStatus')">Label</th>
+                                            <th scope="col" style="width: 5%;" @click="Sort('BinStatus')">Status</th>
                                             <th scope="col" v-for="Col in Columns" style="width: 2%;" @click="Sort(Col.DataSource)">{{Col.Header}}</th>
                                             <th scope="col" style="width: 2%;" @click="Sort('BinPercent')">Full</th>
                                             <th scope="col" style="width: 2%;" @click="Sort('SortID')">Sort ID</th>
